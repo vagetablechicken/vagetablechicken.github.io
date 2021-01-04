@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Huang Wei</title>
+  
+  
+  <link href="http://vagetablechicken.github.io/atom.xml" rel="self"/>
+  
+  <link href="http://vagetablechicken.github.io/"/>
+  <updated>2021-01-04T08:02:35.680Z</updated>
+  <id>http://vagetablechicken.github.io/</id>
+  
+  <author>
+    <name>Huang Wei</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>first-post</title>
+    <link href="http://vagetablechicken.github.io/2021/01/04/first-post/"/>
+    <id>http://vagetablechicken.github.io/2021/01/04/first-post/</id>
+    <published>2021-01-04T08:02:35.000Z</published>
+    <updated>2021-01-04T08:02:35.680Z</updated>
+    
+    
+    
+    
+    
+  </entry>
+  
+</feed>

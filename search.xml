@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>java-string-charset.md</title>
-    <url>/2021/01/07/java-string-charset-md/</url>
+    <url>/2021/01/07/java-string-charset/</url>
     <content><![CDATA[<h1 id="JAVA-String-Charset"><a href="#JAVA-String-Charset" class="headerlink" title="JAVA String Charset"></a>JAVA String Charset</h1><p>JAVA的String使用上一般不会考虑到编码字符集的问题，即encode charset。但如果出现数据交互，就需要考虑了，因为不同环境就可能存在差别。如果编码对不上，可能会出现乱码。JAVA中我经常见到的是<code>?</code>乱码（多个问号），不排除其他可能。</p>
 <h1 id="An-Example"><a href="#An-Example" class="headerlink" title="An Example"></a>An Example</h1><p>host A用utf-8编码<code>String</code>，以<code>byte[]</code>形式发送到host B，如果host B只简单的用</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">new String(receivedBytes)</span><br></pre></td></tr></table></figure>

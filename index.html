@@ -96,19 +96,11 @@
   
   
   
-
 <div class="notice" style="margin-top:50px">
     <i class="ri-heart-fill"></i>
-    <div class="notice-content" id="broad"></div>
+    <div class="notice-content">编程，不需要天赋异禀，也不需要魔法，更不需要长胡子。</div>
 </div>
-<script type="text/javascript">
-    fetch('https://v1.hitokoto.cn')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("broad").innerHTML = data.hitokoto;
-        })
-        .catch(console.error)
-</script>
+
 
 <style>
     .notice {
@@ -141,6 +133,73 @@
     
     
     
+    
+    <article
+  id="post-java-string-charset-md"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/01/07/java-string-charset-md/"
+    >java-string-charset.md</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/01/07/java-string-charset-md/" class="article-date">
+  <time datetime="2021-01-07T08:25:05.000Z" itemprop="datePublished">2021-01-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/programming/">programming</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="JAVA-String-Charset"><a href="#JAVA-String-Charset" class="headerlink" title="JAVA String Charset"></a>JAVA String Charset</h1><p>JAVA的String使用上一般不会考虑到编码字符集的问题，即encode charset。但如果出现数据交互，就需要考虑了，因为不同环境就可能存在差别。如果编码对不上，可能会出现乱码。JAVA中我经常见到的是<code>?</code>乱码（多个问号），不排除其他可能。</p>
+<h1 id="An-Example"><a href="#An-Example" class="headerlink" title="An Example"></a>An Example</h1><p>host A用utf-8编码<code>String</code>，以<code>byte[]</code>形式发送到host B，如果host B只简单的用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new String(receivedBytes)</span><br></pre></td></tr></table></figure>
+<p>来转成String使用，这里使用的charset就是default charset。</p>
+<blockquote>
+<p>The Java platform depends heavily on a property called the default charset. The Java Virtual Machine (JVM) determines the default charset during start-up.</p>
+</blockquote>
+<p>可以用下面的方法测试出当前平台的default charset。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Charset.defaultCharset().displayName();</span><br></pre></td></tr></table></figure>
+<p>我个人的jvm default charset是<code>US-ASCII</code>，所以不设置String的charset就出现乱码。</p>
+<h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><ol>
+<li><code>new String</code>时指定charset</li>
+<li>修改JVM的default charset，方法自行搜索</li>
+</ol>
+<h1 id="Further"><a href="#Further" class="headerlink" title="Further"></a>Further</h1><p>即使String的编码正确了，也不代表console output或output file就不会乱码。涉及了多个模块，可能需要更多的配置，请随机应变。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/" rel="tag">JAVA</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+    
+</article>
+
     
     <article
   id="post-build-hexo"
@@ -176,7 +235,7 @@
   <h1 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h1><p>Hexo的创建使用不多赘述。</p>
 <h2 id="With-github"><a href="#With-github" class="headerlink" title="With github"></a>With github</h2><p>Hexo通过<code>hexo d</code>来发布到github，因此github中deploy到的分支是网站目录。也就是deploy后在本地可以看到的<code>.deloy_git</code>。<br>我个人使用了另一个branch来保存hexo项目的原始文件，也就是_config.yml配置，md文档等等。</p>
 <h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>名字解释：<br><code>&lt;root&gt;</code>: 指的网页根目录，或者说是hexo deploy到的repo分支根目录。</p>
-<p>Q: 遇到网站repo中明明有目录，比如<code>&lt;root&gt;/categories</code>，但是浏览器点击却是404？<br>A: <code>&lt;root&gt;</code>里确实有该路径，可以自行访问尝试下<code>&lt;root&gt;/categories/</code>，如果这样就能访问到正常页面，那么问题大概就是缓存了。你可以换个浏览器快速检查下，或清除该页面缓存重试下。</p>
+<p>Q: 遇到网站repo中路径是存在的，比如<code>&lt;root&gt;/categories/index.html</code>确实存在，但是浏览器点击却是404？<br>A: 可以自行访问尝试下<code>&lt;root&gt;/categories/</code>或者全路径，看看<code>index.html</code>是不是有问题。如果这样就能访问到正常页面，那么问题大概就是缓存了。你可以换个浏览器快速检查下，或清除该页面缓存重试下。</p>
 <h3 id="附赠-chrome清除单个页面缓存"><a href="#附赠-chrome清除单个页面缓存" class="headerlink" title="附赠-chrome清除单个页面缓存"></a>附赠-chrome清除单个页面缓存</h3><p>chrome的<code>开发者工具-setting</code>中<code>Network-Disable cache(while DevTools is open)</code>，此选项打开后，在你想要调试的页面，打开开发者工具，就不会出现一些奇怪的缓存现象了。</p>
  
       <!-- reward -->

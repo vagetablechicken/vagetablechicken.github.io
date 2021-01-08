@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Hexo</title>
-    <url>/2021/01/06/build-hexo/</url>
-    <content><![CDATA[<h1 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h1><p>Hexo的创建使用不多赘述。</p>
-<h2 id="With-github"><a href="#With-github" class="headerlink" title="With github"></a>With github</h2><p>Hexo通过<code>hexo d</code>来发布到github，因此github中deploy到的分支是网站目录。也就是deploy后在本地可以看到的<code>.deloy_git</code>。<br>我个人使用了另一个branch来保存hexo项目的原始文件，也就是_config.yml配置，md文档等等。</p>
-<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>名字解释：<br><code>&lt;root&gt;</code>: 指的网页根目录，或者说是hexo deploy到的repo分支根目录。</p>
-<p>Q: 遇到网站repo中路径是存在的，比如<code>&lt;root&gt;/categories/index.html</code>确实存在，但是浏览器点击却是404？<br>A: 可以自行访问尝试下<code>&lt;root&gt;/categories/</code>或者全路径，看看<code>index.html</code>是不是有问题。如果这样就能访问到正常页面，那么问题大概就是缓存了。你可以换个浏览器快速检查下，或清除该页面缓存重试下。</p>
-<h3 id="附赠-chrome清除单个页面缓存"><a href="#附赠-chrome清除单个页面缓存" class="headerlink" title="附赠-chrome清除单个页面缓存"></a>附赠-chrome清除单个页面缓存</h3><p>chrome的<code>开发者工具-setting</code>中<code>Network-Disable cache(while DevTools is open)</code>，此选项打开后，在你想要调试的页面，打开开发者工具，就不会出现一些奇怪的缓存现象了。</p>
+    <title>Bookmarks</title>
+    <url>/2021/01/08/bookmark/</url>
+    <content><![CDATA[<h1 id="Bookmarks"><a href="#Bookmarks" class="headerlink" title="Bookmarks"></a>Bookmarks</h1><p>C &amp; Go 对照表：<a href="https://hyperpolyglot.org/c">https://hyperpolyglot.org/c</a></p>
+<p>vim等使用方法快查：<a href="https://hyperpolyglot.org/text-mode-editors">https://hyperpolyglot.org/text-mode-editors</a></p>
 ]]></content>
       <categories>
-        <category>build</category>
+        <category>tool</category>
       </categories>
       <tags>
-        <tag>hexo</tag>
+        <tag>bookmark</tag>
       </tags>
   </entry>
   <entry>
@@ -40,6 +37,22 @@
       </categories>
       <tags>
         <tag>JAVA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hexo</title>
+    <url>/2021/01/06/build-hexo/</url>
+    <content><![CDATA[<h1 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h1><p>Hexo的创建使用不多赘述。</p>
+<h2 id="With-github"><a href="#With-github" class="headerlink" title="With github"></a>With github</h2><p>Hexo通过<code>hexo d</code>来发布到github，因此github中deploy到的分支是网站目录。也就是deploy后在本地可以看到的<code>.deloy_git</code>。<br>我个人使用了另一个branch来保存hexo项目的原始文件，也就是_config.yml配置，md文档等等。</p>
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>名字解释：<br><code>&lt;root&gt;</code>: 指的网页根目录，或者说是hexo deploy到的repo分支根目录。</p>
+<p>Q: 遇到网站repo中路径是存在的，比如<code>&lt;root&gt;/categories/index.html</code>确实存在，但是浏览器点击却是404？<br>A: 可以自行访问尝试下<code>&lt;root&gt;/categories/</code>或者全路径，看看<code>index.html</code>是不是有问题。如果这样就能访问到正常页面，那么问题大概就是缓存了。你可以换个浏览器快速检查下，或清除该页面缓存重试下。</p>
+<h3 id="附赠-chrome清除单个页面缓存"><a href="#附赠-chrome清除单个页面缓存" class="headerlink" title="附赠-chrome清除单个页面缓存"></a>附赠-chrome清除单个页面缓存</h3><p>chrome的<code>开发者工具-setting</code>中<code>Network-Disable cache(while DevTools is open)</code>，此选项打开后，在你想要调试的页面，打开开发者工具，就不会出现一些奇怪的缓存现象了。</p>
+]]></content>
+      <categories>
+        <category>build</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
       </tags>
   </entry>
 </search>

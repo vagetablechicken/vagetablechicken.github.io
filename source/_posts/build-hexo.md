@@ -23,3 +23,11 @@ A: 可以自行访问尝试下`<root>/categories/`或者全路径，看看`index
 
 ### 附赠-chrome清除单个页面缓存
 chrome的`开发者工具-setting`中`Network-Disable cache(while DevTools is open)`，此选项打开后，在你想要调试的页面，打开开发者工具，就不会出现一些奇怪的缓存现象了。
+
+## Hexo cmds
+
+```
+hexo new draft <draft_name>
+# writing, writing, ...
+hexo publish <draft_name>
+```

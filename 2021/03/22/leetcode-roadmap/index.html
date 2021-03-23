@@ -74,7 +74,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">192</span>
+            <span class="post-count">993</span>
         </span>
     </span>
 
@@ -83,7 +83,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
+            <span class="post-count">3 min</span>
         </span>
     </span>
 </div>
@@ -102,10 +102,25 @@
 <p><a target="_blank" rel="noopener" href="https://qoogle.top/how-to-brush-leetcode/">https://qoogle.top/how-to-brush-leetcode/</a></p>
 <p><a target="_blank" rel="noopener" href="https://codetop.cc/">https://codetop.cc/</a> </p>
 <h1 id="https-codetop-cc-微软"><a href="#https-codetop-cc-微软" class="headerlink" title="https://codetop.cc/ 微软"></a><a target="_blank" rel="noopener" href="https://codetop.cc/">https://codetop.cc/</a> 微软</h1><h2 id="227-基本计算器-II-2012-03-22-23"><a href="#227-基本计算器-II-2012-03-22-23" class="headerlink" title="227. 基本计算器 II 2012/03/22-23"></a>227. 基本计算器 II 2012/03/22-23</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-ii/">https://leetcode-cn.com/problems/basic-calculator-ii/</a></p>
-<p>这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。<br>但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。<br>我目前知道的万能方法就是，编译器的基本思路，也就是词法-解析-翻译，这种流程。</p>
-<p>-[ ] 待补充</p>
-<p>总结来说，基本思路需要Lexer，Interpreter。如果token过于复杂，最好加个Parser，Parser解析出AST，Interpreter再遍历AST树，计算结果。</p>
-<p>面试时使用这个思路，写代码会慢一点，但是感觉深度比栈思路要深。</p>
+<p>这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。<br>但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。<br>括号，UnaryOp或是自定义函数，这几类还是可以通过少量修改代码支持。但要能做到像高级计算器一样的，抵抗各种灵活拷问，我目前知道的万能方法就是，编译器的基本思路，也就是词法-解析-翻译，这种流程。毕竟我们使用的编译器就是这个思路，没有比这个更完善的了。</p>
+<p>当然，编译器思路不好写。总结来说，基本思路需要Lexer，Interpreter。如果Token过于复杂，最好加个Parser，Parser解析出AST，Interpreter再遍历AST树，计算结果。</p>
+<p>面试时使用这个思路，写代码会慢一点，但是比栈思路，更深更硬核。</p>
+<h3 id="双栈思路"><a href="#双栈思路" class="headerlink" title="双栈思路"></a>双栈思路</h3><p>一个栈存操作符Op，一个栈存数字Int。双栈思路的核心就是“先算乘除”，所以扫描处理完整个表达式后，Op栈里应该只有加减号，没有乘除号。</p>
+<p>但还有一个点要考虑，就是Op里已有+号，此时你扫描到了新的+号，要怎么做？</p>
+<p>如果将栈中的+号及时处理了（也就是同优先级优先计算前面的符号），那么整个表达式算完，就只有一个加号或减号，没什么问题。</p>
+<p>如果选择了加减号不先算，直接放栈里，就需要注意，之后的计算顺序。举例说明，一个复杂的表达式化简成只剩加减号时，可能是1-2-3，这时候Op栈是“-，-”，Int栈是“1，2，3”，不能再使用栈的pop，那样就变成了1-(2-3)，得用list/vector的顺序计算。<br>（我临时推理时用了这个思路，大概率以后还会这么干😅。我习惯思维是只push进栈，不爱随时pop，最后会统一pop出来计算。大概是觉得这种流程，代码会比较好看。）</p>
+<p>还是推荐大家尽量改善自己的思路，选择第一种方式，以免现场推理出来的逻辑不够完备。</p>
+<h4 id="单栈"><a href="#单栈" class="headerlink" title="单栈"></a>单栈</h4><p>Leetcode官方题解其实是单栈，但如果你亲手写了双栈，你一定会感受到，如果及时计算同优先级的运算符，Op栈最多只会有一个运算符（+/-号），所以不需要栈，一个变量就能保存了。这就是单栈思路，没什么特别。</p>
+<h4 id="边界"><a href="#边界" class="headerlink" title="边界"></a>边界</h4><p>栈的大体思路都是如此，如果加入括号或是其他二元运算符，都还能work。加入括号的话，请一定要用第一种方式😂，处理起来方便很多，不然思路容易卡住。</p>
+<p>如果加入UnaryOp正负号，尤其是负号，也就是说leetcode 227题的表达式中的整数不保证是非负整数，又需要一次变化。巧妙的思路是给“-”打头的表达式开头添“0”，变成“0-正整数”。将所有”(-“替换为”(0-“，用字符串replace，还可以不用改变算法主体代码，更简单。</p>
+<h3 id="编译器思路"><a href="#编译器思路" class="headerlink" title="编译器思路"></a>编译器思路</h3><p>编译器思路，自然是难的，写起来也不够快。但是学习编译器确实没错的，因为底层到程序编译，稍高层的SQL解析，都是这套思路。Parser，Token，blabla。</p>
+<p>-[ ] 细节，新开一页讲，也可看<a target="_blank" rel="noopener" href="https://ruslanspivak.com/lsbasi-part1/">https://ruslanspivak.com/lsbasi-part1/</a> 一步一步跟着做</p>
+<p>简单来说，就是用代码实现几行范式。加入新的符号，就修改范式。</p>
+<p>比如，只有加减乘除：</p>
+<p><img src="https://ruslanspivak.com/lsbasi-part5/lsbasi_part5_grammar.png"></p>
+<p>加入括号(LPAREN,RPAREN)：<br><img src="https://ruslanspivak.com/lsbasi-part6/lsbasi_part6_grammar.png"></p>
+<p>再加入一元运算符（正负号）：<br><img src="https://ruslanspivak.com/lsbasi-part8/lsbasi_part8_grammar.png"></p>
+<p>Parser/Interpreter实现这几条规则就可以了。</p>
  
       <!-- reward -->
       

@@ -35,3 +35,5 @@ hexo publish <draft_name>
 ```
 hexo clean && hexo d
 ```
+
+If you want to delete a post, delete it in the source folder.

@@ -31,3 +31,7 @@ hexo new draft <draft_name>
 # writing, writing, ...
 hexo publish <draft_name>
 ```
+
+```
+hexo clean && hexo d
+```

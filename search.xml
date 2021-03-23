@@ -6,10 +6,7 @@
     <content><![CDATA[<p>推荐站点：</p>
 <p><a href="https://qoogle.top/how-to-brush-leetcode/">https://qoogle.top/how-to-brush-leetcode/</a></p>
 <p><a href="https://codetop.cc/">https://codetop.cc/</a> </p>
-<h1 id="https-codetop-cc-微软"><a href="#https-codetop-cc-微软" class="headerlink" title="https://codetop.cc/ 微软"></a><a href="https://codetop.cc/">https://codetop.cc/</a> 微软</h1><ol start="227">
-<li>基本计算器 II <a href="https://leetcode-cn.com/problems/basic-calculator-ii/">https://leetcode-cn.com/problems/basic-calculator-ii/</a></li>
-</ol>
-<p>2012/03/22-23</p>
+<h1 id="https-codetop-cc-微软"><a href="#https-codetop-cc-微软" class="headerlink" title="https://codetop.cc/ 微软"></a><a href="https://codetop.cc/">https://codetop.cc/</a> 微软</h1><h2 id="227-基本计算器-II-https-leetcode-cn-com-problems-basic-calculator-ii"><a href="#227-基本计算器-II-https-leetcode-cn-com-problems-basic-calculator-ii" class="headerlink" title="227. 基本计算器 II https://leetcode-cn.com/problems/basic-calculator-ii/"></a>227. 基本计算器 II <a href="https://leetcode-cn.com/problems/basic-calculator-ii/">https://leetcode-cn.com/problems/basic-calculator-ii/</a></h2><p>2012/03/22-23</p>
 <p>这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。<br>但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。<br>我目前知道的万能方法就是，编译器的基本思路，也就是词法-解析-翻译，这种流程。</p>
 <p>-[ ] 待补充</p>
 <p>总结来说，基本思路需要Lexer，Interpreter。如果token过于复杂，最好加个Parser，Parser解析出AST，Interpreter再遍历AST树，计算结果。</p>

@@ -19,6 +19,7 @@
 <h4 id="边界"><a href="#边界" class="headerlink" title="边界"></a>边界</h4><p>栈的大体思路都是如此，如果加入括号或是其他二元运算符，都还能work。加入括号的话，请一定要用第一种方式😂，处理起来方便很多，不然思路容易卡住。</p>
 <p>如果加入UnaryOp正负号，尤其是负号，也就是说leetcode 227题的表达式中的整数不保证是非负整数，又需要一次变化。巧妙的思路是给“-”打头的表达式开头添“0”，变成“0-正整数”。将所有”(-“替换为”(0-“，用字符串replace，还可以不用改变算法主体代码，很简单。<br>而如果还加正号，比如“3++4”合理，这种情况就比有负数的情况还要麻烦了。这要求你的算法能，判断第二个+号是和整数结合的正号（Unary Plus）。再扩展下，“3–++2”等等。代码上就得增加一段逻辑，来处理好UnaryOp。这样当然可以work，但是这也暴露了栈思路的一个问题，就是它没有符合逻辑的解析能力。它似乎只是我们在努力的修补规则，“3–++2”是读取了“3-”后发现还是符号，才会开始解释为一元符号，从左到右计算到底是正号还是负号。但按照逻辑，我们应该是将表达式看作3-(-(+(+(2))))，也就是，真的计算的时刻，2是和前面的正负号结合，然后作为整体又跟前面的正负号结合。也就是解析是顺序，计算是倒序，有种递归下降，然后逐层返回结果的感觉。</p>
 <p>其实没什么差别，但是我个人觉得，栈的思路是有些勉强的。因此，当学了一点点编译原理后，我就想用编译的思路来解决这道题了。</p>
+<h4 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h4><p>所有计算器题目，都总结下。</p>
 <h3 id="编译器思路"><a href="#编译器思路" class="headerlink" title="编译器思路"></a>编译器思路</h3><p>编译器思路，自然是难的，写起来也不够快。但是学习编译器基本原理，我觉得是有意义的，因为底层到程序编译，稍高层的SQL解析，都是这套思路。Parser，Token，blabla。</p>
 <p>-[ ] 细节，新开一页讲，也可看<a href="https://ruslanspivak.com/lsbasi-part1/">https://ruslanspivak.com/lsbasi-part1/</a> 一步一步跟着做</p>
 <p>简单来说，就是用代码实现几行范式。加入新的符号，就修改范式。</p>
@@ -27,7 +28,9 @@
 <p>加入括号(LPAREN,RPAREN)：<br><img src="https://ruslanspivak.com/lsbasi-part6/lsbasi_part6_grammar.png"></p>
 <p>再加入一元运算符（正负号）：<br><img src="https://ruslanspivak.com/lsbasi-part8/lsbasi_part8_grammar.png"></p>
 <p>Parser/Interpreter实现这几条规则就可以了。</p>
-<h2 id="91-解码方法-2021-03-24"><a href="#91-解码方法-2021-03-24" class="headerlink" title="91. 解码方法 2021/03/24"></a>91. 解码方法 2021/03/24</h2><p><a href="https://leetcode-cn.com/problems/decode-ways/">https://leetcode-cn.com/problems/decode-ways/</a></p>
+<h2 id="91-解码方法-2021-03-24-25"><a href="#91-解码方法-2021-03-24-25" class="headerlink" title="91. 解码方法 2021/03/24-25"></a>91. 解码方法 2021/03/24-25</h2><p><a href="https://leetcode-cn.com/problems/decode-ways/">https://leetcode-cn.com/problems/decode-ways/</a></p>
+<p>需要注意dp访问越界的问题。<br>通常dp[i]负责看第i个元素（索引其实是i-1），就可以保护住需要访问dp[i-1]的dp公式，因为计算dp数组是i从1开始，dp[0]不会越界。<br>如果dp公式有dp[i-2]，不要慌，dp[1]特殊处理后，dp[2]开始又可以通用处理了。</p>
+<h2 id="124-二叉树中的最大路径和-2021-03-26"><a href="#124-二叉树中的最大路径和-2021-03-26" class="headerlink" title="124. 二叉树中的最大路径和 2021/03/26"></a>124. 二叉树中的最大路径和 2021/03/26</h2><p><a href="https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/">https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/</a></p>
 ]]></content>
       <tags>
         <tag>LeetCode</tag>

@@ -51,11 +51,17 @@ Leetcode官方题解其实是单栈，但如果你亲手写了双栈，你一定
 #### TODO
 所有计算器题目，都总结下。
 
+224. 双栈，加减括号，注意允许(+4)这种写法出现，但不用考虑1++2。
+
+227. 双栈，加减乘除，无括号，不用考虑(+4)或一元运算符的情况。
+
+770. 基本计算器 IV，只可能使用编译器思路来解决了，而且还要能处理变量。
+
 ### 编译器思路
 
 编译器思路，自然是难的，写起来也不够快。但是学习编译器基本原理，我觉得是有意义的，因为底层到程序编译，稍高层的SQL解析，都是这套思路。Parser，Token，blabla。
 
--[ ] 细节，新开一页讲，也可看https://ruslanspivak.com/lsbasi-part1/ 一步一步跟着做
+- [ ] 细节，新开一页讲，也可看https://ruslanspivak.com/lsbasi-part1/ 一步一步跟着做
 
 简单来说，就是用代码实现几行范式。加入新的符号，就修改范式。
 
@@ -82,4 +88,69 @@ https://leetcode-cn.com/problems/decode-ways/
 ## 124. 二叉树中的最大路径和 2021/03/26
 
 https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/
+
+- [ ] wait zx
+
+## 224. Basic Calculator 2021/03/31-04/03
+
+https://leetcode-cn.com/problems/basic-calculator/
+
+s consists of digits, '+', '-', '(', ')', and ' '.
+
+227类型的题。这个版本由于没有乘除，用Lexer+Interpreter的版本，范式也不难写。
+- [ ] TODO 写一下范式
+
+当然更简单的，还是可以使用双栈。
+
+而且建议只记忆双栈，**不用去记一些扩展性不够高的思路**。
+
+注意，test case有"1-(+1+1)"这种。虽然不用考虑1+-1这种写法，但'('号后跟'+/-'号是要被考虑的。
+因此是基本的双栈思路，加过滤空格，再加处理'(+/-'。
+
+具体说下双栈思路。
+
+首先，框架是逐个字符扫描，但考虑到数字可能是多位，所以最方便的做法应该是`while i < len(s):`，解析数字时i可能会多加点，其他符号只需+1。
+
+再是每个字符c可能是些什么，各自需要如何处理。如果没什么印象，建议逐个分析，有需要的再合并，想不清楚，直接逐个if-else都行，总比写错了强。
+所以，逐个看待，伪代码写作：
+```
+if c is space:
+    pass
+elif c is digit:
+    # func parse_int TODO
+    num = parse_int()
+    # TODO calc or push to nums?
+elif c is '(':
+    # TODO handle '(+/-'
+    push to ops queue
+elif c is ')':
+    # ops top is '('
+    ops pop
+    num = nums.pop()
+    # TODO calc or push to nums?
+elif c is '+' or '-':
+    push to nums queue
+```
+
+上面就是最详细的分支情况，由于没有乘除，所以分支数量也没什么可以优化的点。注意我写的TODO，基本都应该封装为一个函数，以免主逻辑太难读，给自己增加难度。
+
+特别的，`calc or push to nums`是最需要注意的一个地方，明显的，两个分支都用到这一逻辑，封成函数是最好的，我命名为`calc_with()`。
+
+而这个数什么时候用来计算，什么时候直接push进栈呢？
+
+举例分析，我想把nums栈顶top和现有的num拿来计算，那么ops栈顶当然得是+/-号，如果栈顶是'('，那自然不该算。只需要考虑这一个条件。
+
+如果不计算，直接push。如果pop栈顶计算了一次，之后的结果，该如何处理？
+
+很容易想到，这个结果，还是应该push进栈。但还是应该多思考一下，有没有什么坑？
+
+这一点可能有点不直观，但你可以手写推理或者debug代码测试，就会知道，`calc_with()`总是在尽力地合并，只有遇到'('才会无法合并，导致nums和ops栈多增一个元素。
+
+简单起见，假设只有+号没有-号，某个时刻的栈只能是`+(+((+`，不会有`++(++(++`。
+
+假设此时ops栈为`+(+((+`,现有num，ops栈pop出+号，再nums栈里pop一个数num1，计算出结果res，这个res push回nums栈是合理的。无论后面跟什么符号，都能正确处理。
+
+## 770. 基本计算器 IV
+
+https://leetcode-cn.com/problems/basic-calculator-iv/
 

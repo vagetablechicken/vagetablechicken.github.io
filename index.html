@@ -179,8 +179,18 @@
 <p>如果加入UnaryOp正负号，尤其是负号，也就是说leetcode 227题的表达式中的整数不保证是非负整数，又需要一次变化。巧妙的思路是给“-”打头的表达式开头添“0”，变成“0-正整数”。将所有”(-“替换为”(0-“，用字符串replace，还可以不用改变算法主体代码，很简单。<br>而如果还加正号，比如“3++4”合理，这种情况就比有负数的情况还要麻烦了。这要求你的算法能，判断第二个+号是和整数结合的正号（Unary Plus）。再扩展下，“3–++2”等等。代码上就得增加一段逻辑，来处理好UnaryOp。这样当然可以work，但是这也暴露了栈思路的一个问题，就是它没有符合逻辑的解析能力。它似乎只是我们在努力的修补规则，“3–++2”是读取了“3-”后发现还是符号，才会开始解释为一元符号，从左到右计算到底是正号还是负号。但按照逻辑，我们应该是将表达式看作3-(-(+(+(2))))，也就是，真的计算的时刻，2是和前面的正负号结合，然后作为整体又跟前面的正负号结合。也就是解析是顺序，计算是倒序，有种递归下降，然后逐层返回结果的感觉。</p>
 <p>其实没什么差别，但是我个人觉得，栈的思路是有些勉强的。因此，当学了一点点编译原理后，我就想用编译的思路来解决这道题了。</p>
 <h4 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h4><p>所有计算器题目，都总结下。</p>
+<ol start="224">
+<li><p>双栈，加减括号，注意允许(+4)这种写法出现，但不用考虑1++2。</p>
+</li>
+<li><p>双栈，加减乘除，无括号，不用考虑(+4)或一元运算符的情况。</p>
+</li>
+<li><p>基本计算器 IV，只可能使用编译器思路来解决了，而且还要能处理变量。</p>
+</li>
+</ol>
 <h3 id="编译器思路"><a href="#编译器思路" class="headerlink" title="编译器思路"></a>编译器思路</h3><p>编译器思路，自然是难的，写起来也不够快。但是学习编译器基本原理，我觉得是有意义的，因为底层到程序编译，稍高层的SQL解析，都是这套思路。Parser，Token，blabla。</p>
-<p>-[ ] 细节，新开一页讲，也可看<a target="_blank" rel="noopener" href="https://ruslanspivak.com/lsbasi-part1/">https://ruslanspivak.com/lsbasi-part1/</a> 一步一步跟着做</p>
+<ul>
+<li><input disabled="" type="checkbox"> 细节，新开一页讲，也可看<a target="_blank" rel="noopener" href="https://ruslanspivak.com/lsbasi-part1/">https://ruslanspivak.com/lsbasi-part1/</a> 一步一步跟着做</li>
+</ul>
 <p>简单来说，就是用代码实现几行范式。加入新的符号，就修改范式。</p>
 <p>比如，只有加减乘除：</p>
 <p><img src="https://ruslanspivak.com/lsbasi-part5/lsbasi_part5_grammar.png"></p>
@@ -190,6 +200,32 @@
 <h2 id="91-解码方法-2021-03-24-25"><a href="#91-解码方法-2021-03-24-25" class="headerlink" title="91. 解码方法 2021/03/24-25"></a>91. 解码方法 2021/03/24-25</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/decode-ways/">https://leetcode-cn.com/problems/decode-ways/</a></p>
 <p>需要注意dp访问越界的问题。<br>通常dp[i]负责看第i个元素（索引其实是i-1），就可以保护住需要访问dp[i-1]的dp公式，因为计算dp数组是i从1开始，dp[0]不会越界。<br>如果dp公式有dp[i-2]，不要慌，dp[1]特殊处理后，dp[2]开始又可以通用处理了。</p>
 <h2 id="124-二叉树中的最大路径和-2021-03-26"><a href="#124-二叉树中的最大路径和-2021-03-26" class="headerlink" title="124. 二叉树中的最大路径和 2021/03/26"></a>124. 二叉树中的最大路径和 2021/03/26</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/">https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/</a></p>
+<ul>
+<li><input disabled="" type="checkbox"> wait zx</li>
+</ul>
+<h2 id="224-Basic-Calculator-2021-03-31-04-03"><a href="#224-Basic-Calculator-2021-03-31-04-03" class="headerlink" title="224. Basic Calculator 2021/03/31-04/03"></a>224. Basic Calculator 2021/03/31-04/03</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator/">https://leetcode-cn.com/problems/basic-calculator/</a></p>
+<p>s consists of digits, ‘+’, ‘-‘, ‘(‘, ‘)’, and ‘ ‘.</p>
+<p>227类型的题。这个版本由于没有乘除，用Lexer+Interpreter的版本，范式也不难写。</p>
+<ul>
+<li><input disabled="" type="checkbox"> TODO 写一下范式</li>
+</ul>
+<p>当然更简单的，还是可以使用双栈。</p>
+<p>而且建议只记忆双栈，<strong>不用去记一些扩展性不够高的思路</strong>。</p>
+<p>注意，test case有”1-(+1+1)”这种。虽然不用考虑1+-1这种写法，但’(‘号后跟’+/-‘号是要被考虑的。<br>因此是基本的双栈思路，加过滤空格，再加处理’(+/-‘。</p>
+<p>具体说下双栈思路。</p>
+<p>首先，框架是逐个字符扫描，但考虑到数字可能是多位，所以最方便的做法应该是<code>while i &lt; len(s):</code>，解析数字时i可能会多加点，其他符号只需+1。</p>
+<p>再是每个字符c可能是些什么，各自需要如何处理。如果没什么印象，建议逐个分析，有需要的再合并，想不清楚，直接逐个if-else都行，总比写错了强。<br>所以，逐个看待，伪代码写作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">if c is space:</span><br><span class="line">    pass</span><br><span class="line">elif c is digit:</span><br><span class="line">    # func parse_int TODO</span><br><span class="line">    num &#x3D; parse_int()</span><br><span class="line">    # TODO calc or push to nums?</span><br><span class="line">elif c is &#39;(&#39;:</span><br><span class="line">    # TODO handle &#39;(+&#x2F;-&#39;</span><br><span class="line">    push to ops queue</span><br><span class="line">elif c is &#39;)&#39;:</span><br><span class="line">    # ops top is &#39;(&#39;</span><br><span class="line">    ops pop</span><br><span class="line">    num &#x3D; nums.pop()</span><br><span class="line">    # TODO calc or push to nums?</span><br><span class="line">elif c is &#39;+&#39; or &#39;-&#39;:</span><br><span class="line">    push to nums queue</span><br></pre></td></tr></table></figure>
+<p>上面就是最详细的分支情况，由于没有乘除，所以分支数量也没什么可以优化的点。注意我写的TODO，基本都应该封装为一个函数，以免主逻辑太难读，给自己增加难度。</p>
+<p>特别的，<code>calc or push to nums</code>是最需要注意的一个地方，明显的，两个分支都用到这一逻辑，封成函数是最好的，我命名为<code>calc_with()</code>。</p>
+<p>而这个数什么时候用来计算，什么时候直接push进栈呢？</p>
+<p>举例分析，我想把nums栈顶top和现有的num拿来计算，那么ops栈顶当然得是+/-号，如果栈顶是’(‘，那自然不该算。只需要考虑这一个条件。</p>
+<p>如果不计算，直接push。如果pop栈顶计算了一次，之后的结果，该如何处理？</p>
+<p>很容易想到，这个结果，还是应该push进栈。但还是应该多思考一下，有没有什么坑？</p>
+<p>这一点可能有点不直观，但你可以手写推理或者debug代码测试，就会知道，<code>calc_with()</code>总是在尽力地合并，只有遇到’(‘才会无法合并，导致nums和ops栈多增一个元素。</p>
+<p>简单起见，假设只有+号没有-号，某个时刻的栈只能是<code>+(+((+</code>，不会有<code>++(++(++</code>。</p>
+<p>假设此时ops栈为<code>+(+((+</code>,现有num，ops栈pop出+号，再nums栈里pop一个数num1，计算出结果res，这个res push回nums栈是合理的。无论后面跟什么符号，都能正确处理。</p>
+<h2 id="770-基本计算器-IV"><a href="#770-基本计算器-IV" class="headerlink" title="770. 基本计算器 IV"></a>770. 基本计算器 IV</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-iv/">https://leetcode-cn.com/problems/basic-calculator-iv/</a></p>
  
       <!-- reward -->
       

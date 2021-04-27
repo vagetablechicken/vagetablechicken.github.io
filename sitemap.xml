@@ -53,13 +53,6 @@
 
   
   <url>
-    <loc>http://vagetablechicken.github.io/tags/bookmark/</loc>
-    <lastmod>2021-04-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://vagetablechicken.github.io/tags/hexo/</loc>
     <lastmod>2021-04-27</lastmod>
     <changefreq>daily</changefreq>
@@ -68,6 +61,13 @@
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/JAVA/</loc>
+    <lastmod>2021-04-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://vagetablechicken.github.io/tags/bookmark/</loc>
     <lastmod>2021-04-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -83,13 +83,6 @@
 
   
   <url>
-    <loc>http://vagetablechicken.github.io/categories/tool/</loc>
-    <lastmod>2021-04-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://vagetablechicken.github.io/categories/build/</loc>
     <lastmod>2021-04-27</lastmod>
     <changefreq>daily</changefreq>
@@ -98,6 +91,13 @@
   
   <url>
     <loc>http://vagetablechicken.github.io/categories/programming/</loc>
+    <lastmod>2021-04-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://vagetablechicken.github.io/categories/tool/</loc>
     <lastmod>2021-04-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

@@ -74,7 +74,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.3k</span>
+            <span class="post-count">2.8k</span>
         </span>
     </span>
 
@@ -83,7 +83,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">8 min</span>
+            <span class="post-count">10 min</span>
         </span>
     </span>
 </div>
@@ -162,6 +162,20 @@
 <p>简单起见，假设只有+号没有-号，某个时刻的栈只能是<code>+(+((+</code>，不会有<code>++(++(++</code>。</p>
 <p>假设此时ops栈为<code>+(+((+</code>,现有num，ops栈pop出+号，再nums栈里pop一个数num1，计算出结果res，这个res push回nums栈是合理的。无论后面跟什么符号，都能正确处理。</p>
 <h2 id="770-基本计算器-IV"><a href="#770-基本计算器-IV" class="headerlink" title="770. 基本计算器 IV"></a>770. 基本计算器 IV</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-iv/">https://leetcode-cn.com/problems/basic-calculator-iv/</a></p>
+<p>这个题太长了，看的人头皮发麻。但是抽象一下，就能发现，它实际上难点在于括号展开。因为我们已有的知识已经能把一个有括号的表达式解析出来了，可以转成AST树，也可以在解析parse时及时计算。但是，没有包含过“括号展开”的逻辑。</p>
+<p>简单的想一下，AST树完全不知道该怎么去实现括号的展开，所以pass。</p>
+<p>所以就考虑下parse时及时计算的时候能不能加上“括号展开”。</p>
+<p>parse时，可以知道pre_calc * new term的，具体2 * (a-b)，new term为(a-b)，之前的计算结果为2（简单起见，用数字举例）。</p>
+<p>接下来，该怎么做？</p>
+<p>应该做到拆出2 * a-2 * b。这一步即括号展开，是此题的核心。题目也暗示了可以理解为2 * a与-2 * b两项，那么也就是2要跟（1 * a)和(-1 * b)都分别乘一下。代码上其实就是for循环。当然(a-b)这个factor得拆成一个数组（2个元素，a和-b）。还需要拆成系数和word，那系数和word怎么对上号呢？</p>
+<p>考虑到2 * a + 1 * a能合并为3 * a，主要功劳是在word上，所以以word为key，系数为value是很合适的。</p>
+<p>所以可以用dict，{a: 1, b: -1}这样来表示。</p>
+<p>再进一步完善，如果是(c * d - 2 * f) * (a - b)，那pre_calc，即(c * d - 2 * f)，也得用dict来表示。其实pre_calc没有什么特别，就是一个factor，无论是一个数，还是圆括号扩起来的长表达式。所以用一样的规则，{c*d: 1, f: -2}，很通用，也合理。</p>
+<h3 id="整理思路"><a href="#整理思路" class="headerlink" title="整理思路"></a>整理思路</h3><ul>
+<li><input disabled="" type="checkbox"> TODO 写出范式</li>
+</ul>
+<p>也就是说，每个factor（不可再拆分的元素）都可以用一组kv来表示，也就是一个dict。一个term是多个dict合并，最终可以得到1个dict（遍历所有dict，体现加法，因为负号作为系数去了，所以可以当作只有加法）。</p>
+<p>term和term之间的乘法，也就是dict和dict组合出一个新的dict（二维for循环，体现乘法）。从左到右一个一个组合，最后得到一个dict，即为最后结果。</p>
  
       <!-- reward -->
       

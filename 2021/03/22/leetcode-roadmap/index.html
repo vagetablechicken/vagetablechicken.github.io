@@ -74,7 +74,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.8k</span>
+            <span class="post-count">2.9k</span>
         </span>
     </span>
 
@@ -101,8 +101,7 @@
   <p>推荐站点：</p>
 <p><a target="_blank" rel="noopener" href="https://qoogle.top/how-to-brush-leetcode/">https://qoogle.top/how-to-brush-leetcode/</a></p>
 <p><a target="_blank" rel="noopener" href="https://codetop.cc/">https://codetop.cc/</a> </p>
-<h1 id="https-codetop-cc-微软"><a href="#https-codetop-cc-微软" class="headerlink" title="https://codetop.cc/ 微软"></a><a target="_blank" rel="noopener" href="https://codetop.cc/">https://codetop.cc/</a> 微软</h1><h2 id="227-基本计算器-II-2012-03-22-23"><a href="#227-基本计算器-II-2012-03-22-23" class="headerlink" title="227. 基本计算器 II 2012/03/22-23"></a>227. 基本计算器 II 2012/03/22-23</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-ii/">https://leetcode-cn.com/problems/basic-calculator-ii/</a></p>
-<p>这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。<br>但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。<br>括号，UnaryOp或是自定义函数，这几类还是可以通过少量修改代码支持。但要能做到像高级计算器一样的，抵抗各种灵活拷问，我目前知道的万能方法就是，编译器的基本思路，也就是词法-解析-翻译，这种流程。毕竟我们使用的编译器就是这个思路，没有比这个更完善的了。</p>
+<h1 id="https-codetop-cc-微软"><a href="#https-codetop-cc-微软" class="headerlink" title="https://codetop.cc/ 微软"></a><a target="_blank" rel="noopener" href="https://codetop.cc/">https://codetop.cc/</a> 微软</h1><h2 id="227-基本计算器-II-2012-03-22-23"><a href="#227-基本计算器-II-2012-03-22-23" class="headerlink" title="227. 基本计算器 II 2012/03/22-23"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-ii/">227. 基本计算器 II</a> 2012/03/22-23</h2><p>这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。<br>但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。<br>括号，UnaryOp或是自定义函数，这几类还是可以通过少量修改代码支持。但要能做到像高级计算器一样的，抵抗各种灵活拷问，我目前知道的万能方法就是，编译器的基本思路，也就是词法-解析-翻译，这种流程。毕竟我们使用的编译器就是这个思路，没有比这个更完善的了。</p>
 <p>当然，编译器思路不好写。总结来说，基本思路需要Lexer，Interpreter。如果Token过于复杂，最好加个Parser，Parser解析出AST，Interpreter再遍历AST树，计算结果。</p>
 <p>面试时使用这个思路，写代码会慢一点，但是比栈思路，更深更硬核。</p>
 <h3 id="双栈思路"><a href="#双栈思路" class="headerlink" title="双栈思路"></a>双栈思路</h3><p>一个栈存操作符Op，一个栈存数字Int。双栈思路的核心就是“先算乘除”，所以扫描处理完整个表达式后，Op栈里应该只有加减号，没有乘除号。</p>
@@ -133,14 +132,11 @@
 <p>加入括号(LPAREN,RPAREN)：<br><img src="https://ruslanspivak.com/lsbasi-part6/lsbasi_part6_grammar.png"></p>
 <p>再加入一元运算符（正负号）：<br><img src="https://ruslanspivak.com/lsbasi-part8/lsbasi_part8_grammar.png"></p>
 <p>Parser/Interpreter实现这几条规则就可以了。</p>
-<h2 id="91-解码方法-2021-03-24-25"><a href="#91-解码方法-2021-03-24-25" class="headerlink" title="91. 解码方法 2021/03/24-25"></a>91. 解码方法 2021/03/24-25</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/decode-ways/">https://leetcode-cn.com/problems/decode-ways/</a></p>
-<p>需要注意dp访问越界的问题。<br>通常dp[i]负责看第i个元素（索引其实是i-1），就可以保护住需要访问dp[i-1]的dp公式，因为计算dp数组是i从1开始，dp[0]不会越界。<br>如果dp公式有dp[i-2]，不要慌，dp[1]特殊处理后，dp[2]开始又可以通用处理了。</p>
-<h2 id="124-二叉树中的最大路径和-2021-03-26"><a href="#124-二叉树中的最大路径和-2021-03-26" class="headerlink" title="124. 二叉树中的最大路径和 2021/03/26"></a>124. 二叉树中的最大路径和 2021/03/26</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/">https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/</a></p>
-<ul>
+<h2 id="91-解码方法-2021-03-24-25"><a href="#91-解码方法-2021-03-24-25" class="headerlink" title="91. 解码方法 2021/03/24-25"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/decode-ways/">91. 解码方法</a> 2021/03/24-25</h2><p>需要注意dp访问越界的问题。<br>通常dp[i]负责看第i个元素（索引其实是i-1），就可以保护住需要访问dp[i-1]的dp公式，因为计算dp数组是i从1开始，dp[0]不会越界。<br>如果dp公式有dp[i-2]，不要慌，dp[1]特殊处理后，dp[2]开始又可以通用处理了。</p>
+<h2 id="124-二叉树中的最大路径和-2021-03-26"><a href="#124-二叉树中的最大路径和-2021-03-26" class="headerlink" title="124. 二叉树中的最大路径和 2021/03/26"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/">124. 二叉树中的最大路径和</a> 2021/03/26</h2><ul>
 <li><input disabled="" type="checkbox"> wait zx</li>
 </ul>
-<h2 id="224-Basic-Calculator-2021-03-31-04-03"><a href="#224-Basic-Calculator-2021-03-31-04-03" class="headerlink" title="224. Basic Calculator 2021/03/31-04/03"></a>224. Basic Calculator 2021/03/31-04/03</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator/">https://leetcode-cn.com/problems/basic-calculator/</a></p>
-<p>s consists of digits, ‘+’, ‘-‘, ‘(‘, ‘)’, and ‘ ‘.</p>
+<h2 id="224-Basic-Calculator-2021-03-31-04-03"><a href="#224-Basic-Calculator-2021-03-31-04-03" class="headerlink" title="224. Basic Calculator 2021/03/31-04/03"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator/">224. Basic Calculator</a> 2021/03/31-04/03</h2><p>s consists of digits, ‘+’, ‘-‘, ‘(‘, ‘)’, and ‘ ‘.</p>
 <p>227类型的题。这个版本由于没有乘除，用Lexer+Interpreter的版本，范式也不难写。</p>
 <ul>
 <li><input disabled="" type="checkbox"> TODO 写一下范式</li>
@@ -161,8 +157,7 @@
 <p>这一点可能有点不直观，但你可以手写推理或者debug代码测试，就会知道，<code>calc_with()</code>总是在尽力地合并，只有遇到’(‘才会无法合并，导致nums和ops栈多增一个元素。</p>
 <p>简单起见，假设只有+号没有-号，某个时刻的栈只能是<code>+(+((+</code>，不会有<code>++(++(++</code>。</p>
 <p>假设此时ops栈为<code>+(+((+</code>,现有num，ops栈pop出+号，再nums栈里pop一个数num1，计算出结果res，这个res push回nums栈是合理的。无论后面跟什么符号，都能正确处理。</p>
-<h2 id="770-基本计算器-IV"><a href="#770-基本计算器-IV" class="headerlink" title="770. 基本计算器 IV"></a>770. 基本计算器 IV</h2><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-iv/">https://leetcode-cn.com/problems/basic-calculator-iv/</a></p>
-<p>这个题太长了，看的人头皮发麻。但是抽象一下，就能发现，它实际上难点在于括号展开。因为我们已有的知识已经能把一个有括号的表达式解析出来了，可以转成AST树，也可以在解析parse时及时计算。但是，没有包含过“括号展开”的逻辑。</p>
+<h2 id="770-基本计算器-IV"><a href="#770-基本计算器-IV" class="headerlink" title="770. 基本计算器 IV"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-iv/">770. 基本计算器 IV</a></h2><p>这个题太长了，看的人头皮发麻。但是抽象一下，就能发现，它实际上难点在于括号展开。因为我们已有的知识已经能把一个有括号的表达式解析出来了，可以转成AST树，也可以在解析parse时及时计算。但是，没有包含过“括号展开”的逻辑。</p>
 <p>简单的想一下，AST树完全不知道该怎么去实现括号的展开，所以pass。</p>
 <p>所以就考虑下parse时及时计算的时候能不能加上“括号展开”。</p>
 <p>parse时，可以知道pre_calc * new term的，具体2 * (a-b)，new term为(a-b)，之前的计算结果为2（简单起见，用数字举例）。</p>
@@ -176,6 +171,11 @@
 </ul>
 <p>也就是说，每个factor（不可再拆分的元素）都可以用一组kv来表示，也就是一个dict。一个term是多个dict合并，最终可以得到1个dict（遍历所有dict，体现加法，因为负号作为系数去了，所以可以当作只有加法）。</p>
 <p>term和term之间的乘法，也就是dict和dict组合出一个新的dict（二维for循环，体现乘法）。从左到右一个一个组合，最后得到一个dict，即为最后结果。</p>
+<h2 id="剑指-Offer-40-最小的k个数"><a href="#剑指-Offer-40-最小的k个数" class="headerlink" title="剑指 Offer 40. 最小的k个数"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/">剑指 Offer 40. 最小的k个数</a></h2><p>TopK，面试时也遇到过，我认为heap K最稳定，但面试官更希望我用快排思想，虽然快排思想有一定几率会很慢，因为最坏O(n^2)。</p>
+<p>就是想考考快排。</p>
+<ul>
+<li><input disabled="" type="checkbox"> 整理下</li>
+</ul>
  
       <!-- reward -->
       

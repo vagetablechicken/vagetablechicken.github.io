@@ -12,9 +12,7 @@ https://codetop.cc/
 
 # https://codetop.cc/ 微软
 
-## 227. 基本计算器 II 2012/03/22-23
-
-https://leetcode-cn.com/problems/basic-calculator-ii/
+## [227. 基本计算器 II](https://leetcode-cn.com/problems/basic-calculator-ii/) 2012/03/22-23
 
 这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。
 但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。
@@ -77,23 +75,19 @@ Leetcode官方题解其实是单栈，但如果你亲手写了双栈，你一定
 
 Parser/Interpreter实现这几条规则就可以了。
 
-## 91. 解码方法 2021/03/24-25
-
-https://leetcode-cn.com/problems/decode-ways/
+## [91. 解码方法](https://leetcode-cn.com/problems/decode-ways/) 2021/03/24-25
 
 需要注意dp访问越界的问题。
 通常dp[i]负责看第i个元素（索引其实是i-1），就可以保护住需要访问dp[i-1]的dp公式，因为计算dp数组是i从1开始，dp[0]不会越界。
 如果dp公式有dp[i-2]，不要慌，dp[1]特殊处理后，dp[2]开始又可以通用处理了。
 
-## 124. 二叉树中的最大路径和 2021/03/26
+## [124. 二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/) 2021/03/26
 
-https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/
+
 
 - [ ] wait zx
 
-## 224. Basic Calculator 2021/03/31-04/03
-
-https://leetcode-cn.com/problems/basic-calculator/
+## [224. Basic Calculator](https://leetcode-cn.com/problems/basic-calculator/) 2021/03/31-04/03
 
 s consists of digits, '+', '-', '(', ')', and ' '.
 
@@ -150,9 +144,7 @@ elif c is '+' or '-':
 
 假设此时ops栈为`+(+((+`,现有num，ops栈pop出+号，再nums栈里pop一个数num1，计算出结果res，这个res push回nums栈是合理的。无论后面跟什么符号，都能正确处理。
 
-## 770. 基本计算器 IV
-
-https://leetcode-cn.com/problems/basic-calculator-iv/
+## [770. 基本计算器 IV](https://leetcode-cn.com/problems/basic-calculator-iv/)
 
 这个题太长了，看的人头皮发麻。但是抽象一下，就能发现，它实际上难点在于括号展开。因为我们已有的知识已经能把一个有括号的表达式解析出来了，可以转成AST树，也可以在解析parse时及时计算。但是，没有包含过“括号展开”的逻辑。
 
@@ -180,3 +172,12 @@ parse时，可以知道pre_calc * new term的，具体2 * (a-b)，new term为(a-
 
 term和term之间的乘法，也就是dict和dict组合出一个新的dict（二维for循环，体现乘法）。从左到右一个一个组合，最后得到一个dict，即为最后结果。
 
+
+
+## [剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+
+TopK，面试时也遇到过，我认为heap K最稳定，但面试官更希望我用快排思想，虽然快排思想有一定几率会很慢，因为最坏O(n^2)。
+
+就是想考考快排。
+
+- [ ] 整理下

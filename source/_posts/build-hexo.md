@@ -27,6 +27,10 @@ chrome的`开发者工具-setting`中`Network-Disable cache(while DevTools is op
 ## Hexo cmds
 
 ```
+npm install -g hexo-cli
+cd <blog-source>
+npm install
+
 hexo new draft <draft_name>
 # writing, writing, ...
 hexo publish <draft_name>

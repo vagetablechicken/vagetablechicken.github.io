@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Grokking</title>
+    <url>/2021/05/06/Grokking/</url>
+    <content><![CDATA[<h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p><a href="https://www.educative.io/courses/grokking-the-coding-interview?aff=K7qB">课程原地址</a></p>
+<p><a href="https://github.com/cl2333/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions">题目目录与答案 Python版</a></p>
+<p><a href="https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97">题目目录与答案 C++版(附题目OJ的地址)</a>——推荐OJ测试自己的算法</p>
+<h2 id="Pattern-1-Sliding-Window"><a href="#Pattern-1-Sliding-Window" class="headerlink" title="Pattern 1 : Sliding Window"></a>Pattern 1 : Sliding Window</h2><h3 id="Maximum-Sum-Subarray-of-Size-K-easy"><a href="#Maximum-Sum-Subarray-of-Size-K-easy" class="headerlink" title="Maximum Sum Subarray of Size K (easy)"></a>Maximum Sum Subarray of Size K (easy)</h3><p><a href="https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/">geeks oj</a><br>k长的<strong>连续子序列</strong>，使该子序列和最大，这个和为output。<br>窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。</p>
+<h3 id="Smallest-Subarray-with-a-given-sum-easy-medium"><a href="#Smallest-Subarray-with-a-given-sum-easy-medium" class="headerlink" title="Smallest Subarray with a given sum (easy/medium)"></a>Smallest Subarray with a given sum (easy/medium)</h3><p><a href="https://leetcode-cn.com/problems/minimum-size-subarray-sum/">209. 长度最小的子数组</a></p>
+<p>注意读题，nums都是正整数，target也是正整数。这个条件大概率需要用到。</p>
+<p>假设有一段连续子序列了，它已经&gt;=target了，就不需要再继续加入元素了（序列外右边第一个元素），因为再加的话size就变大了。而这个size可以向右横移一格，可以立马算出新的sum（这里很节约时间，降低算法复杂度）。</p>
+<p>这个sum如果 &gt;= target，那么它就有机会再小一点，而这一次需要的是减去序列内的第一个元素，可以理解为“收缩窗口”。<br>这个sum如果 &lt; target，那就可以再向右横移了，因为size扩大，对结果没有任何帮助。</p>
+<p>总体看下来，只要横移和收缩，算法复杂度是O(n)。</p>
+<h4 id="初步思路"><a href="#初步思路" class="headerlink" title="初步思路"></a>初步思路</h4><p>初步思路是，先算个nums[0…x]之和 &gt;= target的窗口，然后这个窗口开始向右移并尝试收缩。但其实不对，因为第一个窗口，不是非得从第0个元素开始，这个窗口自身就应该尝试收缩。这个逻辑补上后是能ac的。<br>不过，初步思路翻译为代码，还是有些小坑，肉眼很难查。建议背一个滑动窗口模板。</p>
+<h4 id="滑动窗口模板思路"><a href="#滑动窗口模板思路" class="headerlink" title="滑动窗口模板思路"></a>滑动窗口模板思路</h4><p>此思路最核心的思想就是，不强求窗口横移，反正先向右扩展1个，再左边收缩一个，就达到了横移。<br>因此滑动窗口的头尾都可以移动，而且是分别移动，用两个变量来表示，（start，end）。<br>因为收缩（start向右移）和扩展（end向右移）可以各做各的，所以没必要先找到一个总和 &gt;= target的初始窗口了。</p>
+<p>所以，步骤可以化简为，<strong>每一次都扩展1下，然后尽力收缩</strong>（while不定次收缩）。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">	tmp_sum +&#x3D; nums[end]</span><br><span class="line">	while tmp_sum &gt;&#x3D; target:</span><br><span class="line">		win_size &#x3D; min(win_size, end-start+1)</span><br><span class="line">		tmp_sum -&#x3D; nums[start]</span><br><span class="line">		start +&#x3D; 1</span><br><span class="line">	end +&#x3D; 1</span><br></pre></td></tr></table></figure>
+<p>至于几个变量的初始值，现场推理一下也可以得到，不做赘述。<br>P.S. win_size没必要用int的max，用len(nums)+1就可以了，反正都是不可能的值。</p>
+<h4 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h4><p>滑动窗口的算法，nums就算有负数也无所谓。这个条件大概是为“前缀和”这一方法准备的。</p>
+<p>前缀和方法，简单来讲就是nums[0..i]之和组成一个sum数组，这个数组严格递增，都不存在相等的元素。</p>
+<p>然后就可以用二分来找了（看到有序就要想到二分），当前sum[i]为0到i元素的和，<code>sum[j] - sum[i] &gt;= target</code>转换为<code>sum[j]&gt;=target+sum[i]</code>，那么就是在sum数组里找<code>target+sum[i]</code>的lower bound。</p>
+<p>为什么不是以j为结尾，<code>sum[j] - sum[x] &gt;= target</code>转换成<code>sum[x] &lt;= sum[j]-target</code>，找sum[x]呢？因为是upper bound（第一个&gt;某值的元素）的前一个（必定&lt;=某值），不如直接找lower bound简洁，而且不用处理减出负数的情况。</p>
+<h3 id="Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode"><a href="#Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode" class="headerlink" title="Longest Substring with K Distinct Characters (medium, google) – LintCode"></a>Longest Substring with K Distinct Characters (medium, google) – LintCode</h3>]]></content>
+      <categories>
+        <category>Algo</category>
+      </categories>
+      <tags>
+        <tag>Algo</tag>
+        <tag>LeetCode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>leetcode-roadmap</title>
     <url>/2021/03/22/leetcode-roadmap/</url>
     <content><![CDATA[<p>推荐站点：</p>
@@ -82,7 +112,11 @@
 <li><input disabled="" type="checkbox"> 整理下</li>
 </ul>
 ]]></content>
+      <categories>
+        <category>Algo</category>
+      </categories>
       <tags>
+        <tag>Algo</tag>
         <tag>LeetCode</tag>
       </tags>
   </entry>
@@ -133,7 +167,7 @@
 <h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>名字解释：<br><code>&lt;root&gt;</code>: 指的网页根目录，或者说是hexo deploy到的repo分支根目录。</p>
 <p>Q: 遇到网站repo中路径是存在的，比如<code>&lt;root&gt;/categories/index.html</code>确实存在，但是浏览器点击却是404？<br>A: 可以自行访问尝试下<code>&lt;root&gt;/categories/</code>或者全路径，看看<code>index.html</code>是不是有问题。如果这样就能访问到正常页面，那么问题大概就是缓存了。你可以换个浏览器快速检查下，或清除该页面缓存重试下。</p>
 <h3 id="附赠-chrome清除单个页面缓存"><a href="#附赠-chrome清除单个页面缓存" class="headerlink" title="附赠-chrome清除单个页面缓存"></a>附赠-chrome清除单个页面缓存</h3><p>chrome的<code>开发者工具-setting</code>中<code>Network-Disable cache(while DevTools is open)</code>，此选项打开后，在你想要调试的页面，打开开发者工具，就不会出现一些奇怪的缓存现象了。</p>
-<h2 id="Hexo-cmds"><a href="#Hexo-cmds" class="headerlink" title="Hexo cmds"></a>Hexo cmds</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo new draft &lt;draft_name&gt;</span><br><span class="line"># writing, writing, ...</span><br><span class="line">hexo publish &lt;draft_name&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="Hexo-cmds"><a href="#Hexo-cmds" class="headerlink" title="Hexo cmds"></a>Hexo cmds</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br><span class="line">cd &lt;blog-source&gt;</span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line">hexo new draft &lt;draft_name&gt;</span><br><span class="line"># writing, writing, ...</span><br><span class="line">hexo publish &lt;draft_name&gt;</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo d</span><br></pre></td></tr></table></figure>
 <p>If you want to delete a post, delete it in the source folder.</p>
 ]]></content>

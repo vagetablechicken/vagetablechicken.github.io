@@ -78,7 +78,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">315</span>
+            <span class="post-count">325</span>
         </span>
     </span>
 
@@ -107,7 +107,7 @@
 <h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>名字解释：<br><code>&lt;root&gt;</code>: 指的网页根目录，或者说是hexo deploy到的repo分支根目录。</p>
 <p>Q: 遇到网站repo中路径是存在的，比如<code>&lt;root&gt;/categories/index.html</code>确实存在，但是浏览器点击却是404？<br>A: 可以自行访问尝试下<code>&lt;root&gt;/categories/</code>或者全路径，看看<code>index.html</code>是不是有问题。如果这样就能访问到正常页面，那么问题大概就是缓存了。你可以换个浏览器快速检查下，或清除该页面缓存重试下。</p>
 <h3 id="附赠-chrome清除单个页面缓存"><a href="#附赠-chrome清除单个页面缓存" class="headerlink" title="附赠-chrome清除单个页面缓存"></a>附赠-chrome清除单个页面缓存</h3><p>chrome的<code>开发者工具-setting</code>中<code>Network-Disable cache(while DevTools is open)</code>，此选项打开后，在你想要调试的页面，打开开发者工具，就不会出现一些奇怪的缓存现象了。</p>
-<h2 id="Hexo-cmds"><a href="#Hexo-cmds" class="headerlink" title="Hexo cmds"></a>Hexo cmds</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo new draft &lt;draft_name&gt;</span><br><span class="line"># writing, writing, ...</span><br><span class="line">hexo publish &lt;draft_name&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="Hexo-cmds"><a href="#Hexo-cmds" class="headerlink" title="Hexo cmds"></a>Hexo cmds</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br><span class="line">cd &lt;blog-source&gt;</span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line">hexo new draft &lt;draft_name&gt;</span><br><span class="line"># writing, writing, ...</span><br><span class="line">hexo publish &lt;draft_name&gt;</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo d</span><br></pre></td></tr></table></figure>
 <p>If you want to delete a post, delete it in the source folder.</p>
  

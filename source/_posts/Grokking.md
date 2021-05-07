@@ -15,14 +15,12 @@ categories: Algo
 
 ## Pattern 1 : Sliding Window
 
-### Maximum Sum Subarray of Size K (easy)
-[geeks oj](https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/)
+### [Maximum Sum Subarray of Size K (easy) -- GeeksforGeeks](https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/)
+
 k长的**连续子序列**，使该子序列和最大，这个和为output。
 窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。
 
-### Smallest Subarray with a given sum (easy/medium)
-
-[209. 长度最小的子数组](https://leetcode-cn.com/problems/minimum-size-subarray-sum/)
+### [Smallest Subarray with a given sum (medium) -- LeetCode](https://leetcode.com/problems/minimum-size-subarray-sum/)
 
 注意读题，nums都是正整数，target也是正整数。这个条件大概率需要用到。
 
@@ -66,5 +64,18 @@ P.S. win_size没必要用int的max，用len(nums)+1就可以了，反正都是�
 
 为什么不是以j为结尾，`sum[j] - sum[x] >= target`转换成`sum[x] <= sum[j]-target`，找sum[x]呢？因为是upper bound（第一个>某值的元素）的前一个（必定<=某值），不如直接找lower bound简洁，而且不用处理减出负数的情况。
 
-### Longest Substring with K Distinct Characters (medium, google) -- LintCode
+### [Longest Substring with K Distinct Characters (medium, google) -- LintCode](https://www.lintcode.com/problem/longest-substring-with-at-most-k-distinct-characters/description)
+
+Given a string, find the length of the longest substring in it with no more than K distinct characters.
+
+也就是LeetCode340题 Longest Substring at Most K Distinct Characters。
+
+这道题输出是最长子串的长度，所以显然可以套用滑动窗口的模板。和上一个题目一样，都是扩展会使得条件不符，要通过收缩来满足条件。
+即，窗口扩展一旦字符种类超过k，就可以通过窗口收缩来削减字符种类。
+唯一不同的点是：update longest string的时机（其实就是用end-start+1来尝试更新记录的longest）
+因为while distinct_count(dict) > k时是去收缩，break while时说明distinct_count(dict) 已经<=k了，这个时候的[start, end]才是一个可能解，符合条件的可能解。
+所以update longest string len是在while循环外，而且是之后。
+至于如何实现dict和distinct_count，随便吧，简单也好，高效也好。
+
+### [Fruits into Baskets (medium) -- LeetCode](https://leetcode.com/problems/fruit-into-baskets/)
 

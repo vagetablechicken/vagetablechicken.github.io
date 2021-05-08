@@ -79,3 +79,36 @@ Given a string, find the length of the longest substring in it with no more than
 
 ### [Fruits into Baskets (medium) -- LeetCode](https://leetcode.com/problems/fruit-into-baskets/)
 
+跟上题一模一样。题目暗示着连续区间，就可以尝试滑动窗口方法。
+
+但这一题case比上一题的规模大，最简单的dict实现（不及时删除value为0的项，每次都要遍历得到distinct count）这种方法就超时了。还是推荐及时删除value为0的项，其实比不删还简单，因为删除这个操作只会在收缩时出现（只有此处count--）。
+
+### [No-repeat Substring (medium) -- LeetCode](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
+
+和前面的题目毫无差别。
+
+### [Longest Substring with Same Letters after Replacement (medium, amazon) -- GeeksforGeeks](https://practice.geeksforgeeks.org/problems/maximum-sub-string-after-at-most-k-changes/0)
+
+We have a string **s** of length n, which consist only UPPERCASE characters and we have a number k (always less than n and greater than 0). We can make at most k changes in our string such that we can get a sub-string of maximum length which have all same characters.
+ 
+
+**Example 1:**
+
+```
+Input: s = "ABAB", k = 2
+Output: 4
+Explanation: Change 2 'B' into 'A'.
+```
+
+**Example:**
+
+```
+Input: s = "ABCD", k = 1
+Output: 2
+Explanation: Change one 'B' into 'A'.
+```
+
+
+
+这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 >= k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。
+

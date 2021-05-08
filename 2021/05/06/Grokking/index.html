@@ -78,7 +78,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">903</span>
+            <span class="post-count">1.5k</span>
         </span>
     </span>
 
@@ -87,7 +87,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">3 min</span>
+            <span class="post-count">6 min</span>
         </span>
     </span>
 </div>
@@ -105,9 +105,8 @@
   <h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p><a target="_blank" rel="noopener" href="https://www.educative.io/courses/grokking-the-coding-interview?aff=K7qB">课程原地址</a></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/cl2333/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions">题目目录与答案 Python版</a></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97">题目目录与答案 C++版(附题目OJ的地址)</a>——推荐OJ测试自己的算法</p>
-<h2 id="Pattern-1-Sliding-Window"><a href="#Pattern-1-Sliding-Window" class="headerlink" title="Pattern 1 : Sliding Window"></a>Pattern 1 : Sliding Window</h2><h3 id="Maximum-Sum-Subarray-of-Size-K-easy"><a href="#Maximum-Sum-Subarray-of-Size-K-easy" class="headerlink" title="Maximum Sum Subarray of Size K (easy)"></a>Maximum Sum Subarray of Size K (easy)</h3><p><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/">geeks oj</a><br>k长的<strong>连续子序列</strong>，使该子序列和最大，这个和为output。<br>窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。</p>
-<h3 id="Smallest-Subarray-with-a-given-sum-easy-medium"><a href="#Smallest-Subarray-with-a-given-sum-easy-medium" class="headerlink" title="Smallest Subarray with a given sum (easy/medium)"></a>Smallest Subarray with a given sum (easy/medium)</h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/minimum-size-subarray-sum/">209. 长度最小的子数组</a></p>
-<p>注意读题，nums都是正整数，target也是正整数。这个条件大概率需要用到。</p>
+<h2 id="Pattern-1-Sliding-Window"><a href="#Pattern-1-Sliding-Window" class="headerlink" title="Pattern 1 : Sliding Window"></a>Pattern 1 : Sliding Window</h2><h3 id="Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks"><a href="#Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks" class="headerlink" title="Maximum Sum Subarray of Size K (easy) – GeeksforGeeks"></a><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/">Maximum Sum Subarray of Size K (easy) – GeeksforGeeks</a></h3><p>k长的<strong>连续子序列</strong>，使该子序列和最大，这个和为output。<br>窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。</p>
+<h3 id="Smallest-Subarray-with-a-given-sum-medium-–-LeetCode"><a href="#Smallest-Subarray-with-a-given-sum-medium-–-LeetCode" class="headerlink" title="Smallest Subarray with a given sum (medium) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/minimum-size-subarray-sum/">Smallest Subarray with a given sum (medium) – LeetCode</a></h3><p>注意读题，nums都是正整数，target也是正整数。这个条件大概率需要用到。</p>
 <p>假设有一段连续子序列了，它已经&gt;=target了，就不需要再继续加入元素了（序列外右边第一个元素），因为再加的话size就变大了。而这个size可以向右横移一格，可以立马算出新的sum（这里很节约时间，降低算法复杂度）。</p>
 <p>这个sum如果 &gt;= target，那么它就有机会再小一点，而这一次需要的是减去序列内的第一个元素，可以理解为“收缩窗口”。<br>这个sum如果 &lt; target，那就可以再向右横移了，因为size扩大，对结果没有任何帮助。</p>
 <p>总体看下来，只要横移和收缩，算法复杂度是O(n)。</p>
@@ -116,11 +115,25 @@
 <p>所以，步骤可以化简为，<strong>每一次都扩展1下，然后尽力收缩</strong>（while不定次收缩）。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">	tmp_sum +&#x3D; nums[end]</span><br><span class="line">	while tmp_sum &gt;&#x3D; target:</span><br><span class="line">		win_size &#x3D; min(win_size, end-start+1)</span><br><span class="line">		tmp_sum -&#x3D; nums[start]</span><br><span class="line">		start +&#x3D; 1</span><br><span class="line">	end +&#x3D; 1</span><br></pre></td></tr></table></figure>
 <p>至于几个变量的初始值，现场推理一下也可以得到，不做赘述。<br>P.S. win_size没必要用int的max，用len(nums)+1就可以了，反正都是不可能的值。</p>
-<h4 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h4><p>滑动窗口的算法，nums就算有负数也无所谓。这个条件大概是为“前缀和”这一方法准备的。</p>
+<h4 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h4><p>滑动窗口的算法，nums就算有负数也无所谓。（被烟雾弹迷惑🐶）这个条件大概是为“前缀和”这一方法准备的。</p>
 <p>前缀和方法，简单来讲就是nums[0..i]之和组成一个sum数组，这个数组严格递增，都不存在相等的元素。</p>
 <p>然后就可以用二分来找了（看到有序就要想到二分），当前sum[i]为0到i元素的和，<code>sum[j] - sum[i] &gt;= target</code>转换为<code>sum[j]&gt;=target+sum[i]</code>，那么就是在sum数组里找<code>target+sum[i]</code>的lower bound。</p>
 <p>为什么不是以j为结尾，<code>sum[j] - sum[x] &gt;= target</code>转换成<code>sum[x] &lt;= sum[j]-target</code>，找sum[x]呢？因为是upper bound（第一个&gt;某值的元素）的前一个（必定&lt;=某值），不如直接找lower bound简洁，而且不用处理减出负数的情况。</p>
-<h3 id="Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode"><a href="#Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode" class="headerlink" title="Longest Substring with K Distinct Characters (medium, google) – LintCode"></a>Longest Substring with K Distinct Characters (medium, google) – LintCode</h3> 
+<h3 id="Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode"><a href="#Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode" class="headerlink" title="Longest Substring with K Distinct Characters (medium, google) – LintCode"></a><a target="_blank" rel="noopener" href="https://www.lintcode.com/problem/longest-substring-with-at-most-k-distinct-characters/description">Longest Substring with K Distinct Characters (medium, google) – LintCode</a></h3><p>Given a string, find the length of the longest substring in it with no more than K distinct characters.</p>
+<p>也就是LeetCode340题 Longest Substring at Most K Distinct Characters。</p>
+<p>这道题输出是最长子串的长度，所以显然可以套用滑动窗口的模板。和上一个题目一样，都是扩展会使得条件不符，要通过收缩来满足条件。<br>即，窗口扩展一旦字符种类超过k，就可以通过窗口收缩来削减字符种类。<br>唯一不同的点是：update longest string的时机（其实就是用end-start+1来尝试更新记录的longest）<br>因为while distinct_count(dict) &gt; k时是去收缩，break while时说明distinct_count(dict) 已经&lt;=k了，这个时候的[start, end]才是一个可能解，符合条件的可能解。<br>所以update longest string len是在while循环外，而且是之后。<br>至于如何实现dict和distinct_count，随便吧，简单也好，高效也好。</p>
+<h3 id="Fruits-into-Baskets-medium-–-LeetCode"><a href="#Fruits-into-Baskets-medium-–-LeetCode" class="headerlink" title="Fruits into Baskets (medium) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/fruit-into-baskets/">Fruits into Baskets (medium) – LeetCode</a></h3><p>跟上题一模一样。题目暗示着连续区间，就可以尝试滑动窗口方法。</p>
+<p>但这一题case比上一题的规模大，最简单的dict实现（不及时删除value为0的项，每次都要遍历得到distinct count）这种方法就超时了。还是推荐及时删除value为0的项，其实比不删还简单，因为删除这个操作只会在收缩时出现（只有此处count–）。</p>
+<h3 id="No-repeat-Substring-medium-–-LeetCode"><a href="#No-repeat-Substring-medium-–-LeetCode" class="headerlink" title="No-repeat Substring (medium) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">No-repeat Substring (medium) – LeetCode</a></h3><p>和前面的题目毫无差别。</p>
+<h3 id="Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks"><a href="#Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks" class="headerlink" title="Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks"></a><a target="_blank" rel="noopener" href="https://practice.geeksforgeeks.org/problems/maximum-sub-string-after-at-most-k-changes/0">Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks</a></h3><p>We have a string <strong>s</strong> of length n, which consist only UPPERCASE characters and we have a number k (always less than n and greater than 0). We can make at most k changes in our string such that we can get a sub-string of maximum length which have all same characters.</p>
+<p><strong>Example 1:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: s &#x3D; &quot;ABAB&quot;, k &#x3D; 2</span><br><span class="line">Output: 4</span><br><span class="line">Explanation: Change 2 &#39;B&#39; into &#39;A&#39;.</span><br></pre></td></tr></table></figure>
+<p><strong>Example:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: s &#x3D; &quot;ABCD&quot;, k &#x3D; 1</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Change one &#39;B&#39; into &#39;A&#39;.</span><br></pre></td></tr></table></figure>
+
+
+<p>这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 &gt;= k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。</p>
+ 
       <!-- reward -->
       
       <div id="reword-out">

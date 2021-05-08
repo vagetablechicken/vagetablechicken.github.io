@@ -78,7 +78,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.9k</span>
+            <span class="post-count">3.5k</span>
         </span>
     </span>
 
@@ -87,7 +87,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">10 min</span>
+            <span class="post-count">12 min</span>
         </span>
     </span>
 </div>
@@ -180,6 +180,19 @@
 <ul>
 <li><input disabled="" type="checkbox"> 整理下</li>
 </ul>
+<p>快排容易想的方法是3个while，一个while外循环，加每次左标移动和右标移动的while。但这个翻译成代码很容易出错，你没法跑单测就很难补好洞。虽然面试的自己可能都写不出来，但他复制你的代码去跑，那就还是你gg。</p>
+<p>所以快排建议记忆单循环的写法，该写法也不用死记，需要记住几个点</p>
+<ol>
+<li>单次快排，又每个元素都得参与比较，所以for循环肯定是[l, r-1] 或者[l+1, r]的</li>
+<li>pivot选最右的那一个，这样可以直接利用range左闭右开的性质。</li>
+<li>遍历用i，那么还得有个标号j来表示[l,     j]区间都是&lt;=pivot的，初始可以j = i - 1，每次都先++再交换。强调，[l,     j]闭区间都是&lt;=pivot的。</li>
+<li>什么时候交换？[i]&lt;=pivot时，应该挪到前面去，那么[l, j]区间应该扩充，所以是j先++再交换，j加加后的值可能是已经被访问过的&gt;pivot的，也可能是i自身，但ok，因为自己跟自己交换也不会错。极端情况就是pivot就是最大的值，一路访问过来，到r-1的位置都不会实际交换。</li>
+<li>最后结果是i访问完了，没有什么指示性。j则肯定代表点什么。j位置必然是小于等于pivot的，那j本身肯定不能跟pivot交换，不能把小于等于pivot的换到尾部吧。所以应该是j+1。</li>
+<li>为什么判断式子是当前值小于等于pivot，小于不行么？好像也没有什么不行，就是pivot最后的位置不一样。但快排是三切分，会分为前段，pivot自己，后段。pivot值只要有重复，递归的子段都有pivot一样的值，判断式子解决不了这个问题。 <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000004410119">https://segmentfault.com/a/1190000004410119</a>     这个题解还正好是小于判断，而不是小于等于。</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/jian-zhi-offer-40-zui-xiao-de-k-ge-shu-j-9yze/">https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/jian-zhi-offer-40-zui-xiao-de-k-ge-shu-j-9yze/</a></p>
+<p>其实三while也可以，陈斌的写法没有这个题解的写法简单。再看看。</p>
+<p>Partial sort就是先构建k大小的堆，然后把剩下的都和堆顶比。</p>
  
       <!-- reward -->
       

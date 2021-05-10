@@ -77,15 +77,68 @@ Given a string, find the length of the longest substring in it with no more than
 所以update longest string len是在while循环外，而且是之后。
 至于如何实现dict和distinct_count，随便吧，简单也好，高效也好。
 
+
+
+P.S.注意到了吗，这个题目和前面一题Smallest Subarray的区别？
+
+看不出来也正常，我做了几道题才突然回头发现的😂而且明明之前做过笔记，重蹈覆撤🙄️
+
+~~果然人类的本质都是复读机~~
+
+这个题已经开始了longest之路，也就是说，只是想求一个最长的长度，根本不在意“重复无意义的更新”。
+
+按之前的模板，此题的伪代码应写为：
+
+```
+while end < n:
+	dic[s[end]]+=1
+	while len(dic)>k:
+		dic[s[start]]-=1
+		if dic[s[start]]==0:
+			del dic[s[start]]
+		start+=1
+	longest = max(longest, end-start+1)
+	end+=1
+```
+
+这样的写法，保证了longest变量更新时，当前窗口都是len(dic)<=k的，也就是合法的情况。但确实可能会出现窗口被收缩的很小的时候（为了合法），此时max更新也是白干的（longest还是原值）。
+
+而如果代码将内层while变为if：
+
+```
+while end < n:
+	dic[s[end]]+=1
+	if len(dic)>k:
+		dic[s[start]]-=1
+		if dic[s[start]]==0:
+			del dic[s[start]]
+		start+=1
+	longest = max(longest, end-start+1)
+	end+=1
+
+自然，在longest更新时，当前窗口可能都还满足条件，不合法，但仍旧去做了一次longest的更新。但从数值上来讲，由于不满足条件会被收缩一次，加上前面的end扩展一次，窗口等于做了一次平移。那么end=start+1的值就不会变大，longest的更新自然也是不会有实际作用的。
+
+这一个改动，它到底好在了哪里呢？光看经过，start，end两个游标都是单向前进的，2-while和while-if都不会使两个游标左右飘。但由于2-while会保证每次窗口都是合法的，和while-if相比，start这个游标可能会更靠右。举个极端例子，如果longest是[0, n-2]这个窗口，下一次扩展end就会到末尾n-1，while-if此时发现窗口不合法，收缩一次，就溜了。而2-while，会愣是要求[start, n-1]窗口合法，可能start从0不断右移，直到n-1才停止。无用操作在这个例子就占了一半。具体例子就是AAAAB, k =1。
+
+这个优化并不容易读，我也不建议平时代码搞这么tricky。在这个题目里，仅仅在节省len查询和dict更新，都是较高效的操作，而且有次数上限（由于start标最多都走到末尾，操作次数最多n次）。优化效果仅仅锦上添花。但这个将while改为if，在其他题目中可能有奇效。因为while的判断条件如果复杂度较高，这里的收益就很大了，见Longest Substring with Same Letters after Replacement一题。
+
 ### [Fruits into Baskets (medium) -- LeetCode](https://leetcode.com/problems/fruit-into-baskets/)
 
 跟上题一模一样。题目暗示着连续区间，就可以尝试滑动窗口方法。
 
 但这一题case比上一题的规模大，最简单的dict实现（不及时删除value为0的项，每次都要遍历得到distinct count）这种方法就超时了。还是推荐及时删除value为0的项，其实比不删还简单，因为删除这个操作只会在收缩时出现（只有此处count--）。
 
+可优化为while-if。
+
 ### [No-repeat Substring (medium) -- LeetCode](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 和前面的题目毫无差别。
+
+但注意第二层while的判断条件是什么，如果判断条件是“窗口dict的value全为1”，那么你可以改出while-if。
+
+如果是“当前字符c的count>1”，就改不了了。因为现在只看当前字符，那就意味着窗口必须是合法的，然后扩展，加入当前字符。while-if便不可用。
+
+“只看当前字符”这种方法的优化思路是，如果start要跳，直接让start去“当前字符上一次出现的位置的右边”。 因为前面的字符都可以跳过了。还可以再化简代码，但会很难读，所以还是适合而止吧。
 
 ### [Longest Substring with Same Letters after Replacement (medium, amazon) -- GeeksforGeeks](https://practice.geeksforgeeks.org/problems/maximum-sub-string-after-at-most-k-changes/0)
 
@@ -111,4 +164,6 @@ Explanation: Change one 'B' into 'A'.
 
 
 这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 >= k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。
+
+统计问题虽然简单，但是复杂度略高。想要快速，可能需要两个map，ch->count, count->ch。所以，while-if就很适合了，由于只收缩一次，max_count就从dict里统计一次就好了，不用强求更快速。
 

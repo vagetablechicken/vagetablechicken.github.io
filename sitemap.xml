@@ -4,7 +4,7 @@
   <url>
     <loc>http://vagetablechicken.github.io/2021/05/06/Grokking/</loc>
     
-    <lastmod>2021-05-14</lastmod>
+    <lastmod>2021-05-15</lastmod>
     
   </url>
   
@@ -60,20 +60,6 @@
 
   
   <url>
-    <loc>http://vagetablechicken.github.io/tags/bookmark/</loc>
-    <lastmod>2021-05-15</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://vagetablechicken.github.io/tags/hexo/</loc>
-    <lastmod>2021-05-15</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://vagetablechicken.github.io/tags/Algo/</loc>
     <lastmod>2021-05-15</lastmod>
     <changefreq>daily</changefreq>
@@ -82,6 +68,20 @@
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/LeetCode/</loc>
+    <lastmod>2021-05-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://vagetablechicken.github.io/tags/bookmark/</loc>
+    <lastmod>2021-05-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://vagetablechicken.github.io/tags/hexo/</loc>
     <lastmod>2021-05-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -97,6 +97,13 @@
 
   
   <url>
+    <loc>http://vagetablechicken.github.io/categories/Algo/</loc>
+    <lastmod>2021-05-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://vagetablechicken.github.io/categories/tool/</loc>
     <lastmod>2021-05-15</lastmod>
     <changefreq>daily</changefreq>
@@ -105,13 +112,6 @@
   
   <url>
     <loc>http://vagetablechicken.github.io/categories/build/</loc>
-    <lastmod>2021-05-15</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://vagetablechicken.github.io/categories/Algo/</loc>
     <lastmod>2021-05-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

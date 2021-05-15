@@ -31,44 +31,45 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">	dic[s[end]]+&#x3D;1</span><br><span class="line">	while len(dic)&gt;k:</span><br><span class="line">		dic[s[start]]-&#x3D;1</span><br><span class="line">		if dic[s[start]]&#x3D;&#x3D;0:</span><br><span class="line">			del dic[s[start]]</span><br><span class="line">		start+&#x3D;1</span><br><span class="line">	longest &#x3D; max(longest, end-start+1)</span><br><span class="line">	end+&#x3D;1</span><br></pre></td></tr></table></figure>
 <p>这样的写法，保证了longest变量更新时，当前窗口都是len(dic)&lt;=k的，也就是合法的情况。但确实可能会出现窗口被收缩的很小的时候（为了合法），此时max更新也是白干的（longest还是原值）。</p>
 <p>而如果代码将内层while变为if：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">	dic[s[end]]+&#x3D;1</span><br><span class="line">	if len(dic)&gt;k:</span><br><span class="line">		dic[s[start]]-&#x3D;1</span><br><span class="line">		if dic[s[start]]&#x3D;&#x3D;0:</span><br><span class="line">			del dic[s[start]]</span><br><span class="line">		start+&#x3D;1</span><br><span class="line">	longest &#x3D; max(longest, end-start+1)</span><br><span class="line">	end+&#x3D;1</span><br><span class="line"></span><br><span class="line">自然，在longest更新时，当前窗口可能都还满足条件，不合法，但仍旧去做了一次longest的更新。但从数值上来讲，由于不满足条件会被收缩一次，加上前面的end扩展一次，窗口等于做了一次平移。那么end&#x3D;start+1的值就不会变大，longest的更新自然也是不会有实际作用的。</span><br><span class="line"></span><br><span class="line">这一个改动，它到底好在了哪里呢？光看经过，start，end两个游标都是单向前进的，2-while和while-if都不会使两个游标左右飘。但由于2-while会保证每次窗口都是合法的，和while-if相比，start这个游标可能会更靠右。举个极端例子，如果longest是[0, n-2]这个窗口，下一次扩展end就会到末尾n-1，while-if此时发现窗口不合法，收缩一次，就溜了。而2-while，会愣是要求[start, n-1]窗口合法，可能start从0不断右移，直到n-1才停止。无用操作在这个例子就占了一半。具体例子就是AAAAB, k &#x3D;1。</span><br><span class="line"></span><br><span class="line">这个优化并不容易读，我也不建议平时代码搞这么tricky。在这个题目里，仅仅在节省len查询和dict更新，都是较高效的操作，而且有次数上限（由于start标最多都走到末尾，操作次数最多n次）。优化效果仅仅锦上添花。但这个将while改为if，在其他题目中可能有奇效。因为while的判断条件如果复杂度较高，这里的收益就很大了，见Longest Substring with Same Letters after Replacement一题。</span><br><span class="line"></span><br><span class="line">### [Fruits into Baskets (medium) -- LeetCode](https:&#x2F;&#x2F;leetcode.com&#x2F;problems&#x2F;fruit-into-baskets&#x2F;)</span><br><span class="line"></span><br><span class="line">跟上题一模一样。题目暗示着连续区间，就可以尝试滑动窗口方法。</span><br><span class="line"></span><br><span class="line">但这一题case比上一题的规模大，最简单的dict实现（不及时删除value为0的项，每次都要遍历得到distinct count）这种方法就超时了。还是推荐及时删除value为0的项，其实比不删还简单，因为删除这个操作只会在收缩时出现（只有此处count--）。</span><br><span class="line"></span><br><span class="line">可优化为while-if。</span><br><span class="line"></span><br><span class="line">### [No-repeat Substring (medium) -- LeetCode](https:&#x2F;&#x2F;leetcode.com&#x2F;problems&#x2F;longest-substring-without-repeating-characters&#x2F;)</span><br><span class="line"></span><br><span class="line">和前面的题目毫无差别。</span><br><span class="line"></span><br><span class="line">但注意第二层while的判断条件是什么，如果判断条件是“窗口dict的value全为1”，那么你可以改出while-if。</span><br><span class="line"></span><br><span class="line">如果是“当前字符c的count&gt;1”，就改不了了。因为现在只看当前字符，那就意味着窗口必须是合法的，然后扩展，加入当前字符。while-if便不可用。</span><br><span class="line"></span><br><span class="line">“只看当前字符”这种方法的优化思路是，如果start要跳，直接让start去“当前字符上一次出现的位置的右边”。 因为前面的字符都可以跳过了。还可以再化简代码，但会很难读，所以还是适合而止吧。</span><br><span class="line"></span><br><span class="line">### [Longest Substring with Same Letters after Replacement (medium, amazon) -- GeeksforGeeks](https:&#x2F;&#x2F;practice.geeksforgeeks.org&#x2F;problems&#x2F;maximum-sub-string-after-at-most-k-changes&#x2F;0)</span><br><span class="line"></span><br><span class="line">We have a string **s** of length n, which consist only UPPERCASE characters and we have a number k (always less than n and greater than 0). We can make at most k changes in our string such that we can get a sub-string of maximum length which have all same characters.</span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">**Example 1:**</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>Input: s = “ABAB”, k = 2<br>Output: 4<br>Explanation: Change 2 ‘B’ into ‘A’.</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">**Example:**</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>Input: s = “ABCD”, k = 1<br>Output: 2<br>Explanation: Change one ‘B’ into ‘A’.</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 &gt;&#x3D; k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。</span><br><span class="line"></span><br><span class="line">统计问题虽然简单，但是复杂度略高。想要快速，可能需要两个map，ch-&gt;count, count-&gt;ch。所以，while-if就很适合了，由于只收缩一次，max_count就从dict里统计一次就好了，不用强求更快速。</span><br><span class="line"></span><br><span class="line">### [Sliding Window Maximum (hard) -- LeetCode](https:&#x2F;&#x2F;leetcode.com&#x2F;problems&#x2F;sliding-window-maximum&#x2F;)</span><br><span class="line"></span><br><span class="line">这个题跟滑动窗口模板毫无关系，窗口大小都固定牢了。唯一的问题点在于用什么结构体来提炼窗口信息，既能很快查到最大值，又能在窗口滑动时很快更新好（滑动本质就是加入一个数，去掉一个数）。快速查到最大值，可以想到利用堆。但是堆有一个明显问题，就是它不适合去删除内部的某个元素（不是堆首）。而“去掉一个数”这个操作很可能就是去删除某个中间的值。堆的删除操作是个不太ok的操作，因为这个堆是简单的堆（并非压平了看，完全有序的，不是堆排序之后的结果），也就是删除操作不能快速定位到要删除的元素。</span><br><span class="line"></span><br><span class="line">但是别直接放弃堆（我就放弃了，想别的方法，走远了）。这时候，尝试多推导一下，就会发现，不用着急删除元素。因为元素可以跟上自己的位置idx，如果堆顶拿到的idx已经不在窗口内，再删除也不迟。也就是延迟了删除操作，正好还让删除操作符合堆的操作习惯，只删堆顶。</span><br><span class="line"></span><br><span class="line">到这里，起码算是题目做出来了，而且这个方法也不差，能交差。</span><br><span class="line"></span><br><span class="line">但这道题更想考的点是别的，所以还需要再优化。说是优化，不如说是换了解法。从堆想到单调队列，反正我是做不到。。。</span><br><span class="line"></span><br><span class="line">单调队列是什么东西？先记住它能够动态地维护定长序列中的最值。所以只要定长、最值，就可以想到尝试单调队列。具体来讲，单调队列是，push元素前会把前面的元素都从后往前访问一遍（遇到比自己大的停止），比当前元素小的都删除，再将元素放在队尾。其实，全访问也没关系，最后结果没有差别，不过，遇到比自己大的就停止可以节省点时间。最后的结果就是队列里头到尾是从大到小有序的。</span><br><span class="line"></span><br><span class="line">举例说明(为了多点情况，和leetcode原例子有差别)：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>nums = [1,3,-1,-3,-2,3,6,7], k = 3</p>
-<pre><code>
-单调队列应该长什么样？
-
-[1,3,-1]初始窗口入队列后，q=[3,-1]，那么这个窗口的最值就是3；
-
-[3,-1,-3], q=[3,-1,-3]，最值还是3；
-
-[-1,-3,-2], q=[3,-1,-2]，最值3，但3已经不在窗口内，所以pop，q=[-1,-2]，最值-1；
-
-[-3,-2,3], q=[3]，最值3；
-
-[5,3,6], q=[6]，最值6；
-
-[3,6,7], q=[7]，最值7。
-
-可以看到，只用进行简单比较，就能维持着最值，比堆的时间复杂度低。
-
-单调队列它为什么做到了呢？
-
-可以这么想，首先简单起见，只考虑窗口内元素的单调队列情况，比如3,1,2序列，k=3，很明显1会在2进入时被扔掉，因为2进入了之后，怎么也是2比1晚出窗口，就算可能是最大值，也是2可能，1是完全没有可能竞争最大值的。
-
-再考虑队列前部还有窗口外元素的情况，窗口外的元素还留在队列里（可以称为过期元素），也就是说窗口内的单调队列最大值（也就是队列列首）比过期元素小。但这并不影响窗口元素那部分的选择，无论有没有过期元素，窗口那部分的单调队列都长一个样。所以过期元素可以简单地pop出来扔掉。
-
-总的来说，单调队列就是剔除了“必然不能争最大值”的那部分无用值。
-
-
-
-coding
-
-python写超时了。。。heap用的list，不够高效？
-</code></pre>
-]]></content>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">	dic[s[end]]+&#x3D;1</span><br><span class="line">	if len(dic)&gt;k:</span><br><span class="line">		dic[s[start]]-&#x3D;1</span><br><span class="line">		if dic[s[start]]&#x3D;&#x3D;0:</span><br><span class="line">			del dic[s[start]]</span><br><span class="line">		start+&#x3D;1</span><br><span class="line">	longest &#x3D; max(longest, end-start+1)</span><br><span class="line">	end+&#x3D;1</span><br></pre></td></tr></table></figure>
+<p>自然，在longest更新时，当前窗口可能都还满足条件，不合法，但仍旧去做了一次longest的更新。但从数值上来讲，由于不满足条件会被收缩一次，加上前面的end扩展一次，窗口等于做了一次平移。那么end=start+1的值就不会变大，longest的更新自然也是不会有实际作用的。</p>
+<p>这一个改动，它到底好在了哪里呢？光看经过，start，end两个游标都是单向前进的，2-while和while-if都不会使两个游标左右飘。但由于2-while会保证每次窗口都是合法的，和while-if相比，start这个游标可能会更靠右。举个极端例子，如果longest是[0, n-2]这个窗口，下一次扩展end就会到末尾n-1，while-if此时发现窗口不合法，收缩一次，就溜了。而2-while，会愣是要求[start, n-1]窗口合法，可能start从0不断右移，直到n-1才停止。无用操作在这个例子就占了一半。具体例子就是AAAAB, k =1。</p>
+<p>这个优化并不容易读，我也不建议平时代码搞这么tricky。在这个题目里，仅仅在节省len查询和dict更新，都是较高效的操作，而且有次数上限（由于start标最多都走到末尾，操作次数最多n次）。优化效果仅仅锦上添花。但这个将while改为if，在其他题目中可能有奇效。因为while的判断条件如果复杂度较高，这里的收益就很大了，见Longest Substring with Same Letters after Replacement一题。</p>
+<h3 id="Fruits-into-Baskets-medium-–-LeetCode"><a href="#Fruits-into-Baskets-medium-–-LeetCode" class="headerlink" title="Fruits into Baskets (medium) – LeetCode"></a><a href="https://leetcode.com/problems/fruit-into-baskets/">Fruits into Baskets (medium) – LeetCode</a></h3><p>跟上题一模一样。题目暗示着连续区间，就可以尝试滑动窗口方法。</p>
+<p>但这一题case比上一题的规模大，最简单的dict实现（不及时删除value为0的项，每次都要遍历得到distinct count）这种方法就超时了。还是推荐及时删除value为0的项，其实比不删还简单，因为删除这个操作只会在收缩时出现（只有此处count–）。</p>
+<p>可优化为while-if。</p>
+<h3 id="No-repeat-Substring-medium-–-LeetCode"><a href="#No-repeat-Substring-medium-–-LeetCode" class="headerlink" title="No-repeat Substring (medium) – LeetCode"></a><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">No-repeat Substring (medium) – LeetCode</a></h3><p>和前面的题目毫无差别。</p>
+<p>但注意第二层while的判断条件是什么，如果判断条件是“窗口dict的value全为1”，那么你可以改出while-if。</p>
+<p>如果是“当前字符c的count&gt;1”，就改不了了。因为现在只看当前字符，那就意味着窗口必须是合法的，然后扩展，加入当前字符。while-if便不可用。</p>
+<p>“只看当前字符”这种方法的优化思路是，如果start要跳，直接让start去“当前字符上一次出现的位置的右边”。 因为前面的字符都可以跳过了。还可以再化简代码，但会很难读，所以还是适合而止吧。</p>
+<h3 id="Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks"><a href="#Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks" class="headerlink" title="Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks"></a><a href="https://practice.geeksforgeeks.org/problems/maximum-sub-string-after-at-most-k-changes/0">Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks</a></h3><p>We have a string <strong>s</strong> of length n, which consist only UPPERCASE characters and we have a number k (always less than n and greater than 0). We can make at most k changes in our string such that we can get a sub-string of maximum length which have all same characters.</p>
+<p><strong>Example 1:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: s &#x3D; &quot;ABAB&quot;, k &#x3D; 2</span><br><span class="line">Output: 4</span><br><span class="line">Explanation: Change 2 &#39;B&#39; into &#39;A&#39;.</span><br></pre></td></tr></table></figure>
+<p><strong>Example:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: s &#x3D; &quot;ABCD&quot;, k &#x3D; 1</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Change one &#39;B&#39; into &#39;A&#39;.</span><br></pre></td></tr></table></figure>
+<p>这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 &gt;= k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。</p>
+<p>统计问题虽然简单，但是复杂度略高。想要快速，可能需要两个map，ch-&gt;count, count-&gt;ch。所以，while-if就很适合了，由于只收缩一次，max_count就从dict里统计一次就好了，不用强求更快速。</p>
+<h3 id="Sliding-Window-Maximum-hard-–-LeetCode"><a href="#Sliding-Window-Maximum-hard-–-LeetCode" class="headerlink" title="Sliding Window Maximum (hard) – LeetCode"></a><a href="https://leetcode.com/problems/sliding-window-maximum/">Sliding Window Maximum (hard) – LeetCode</a></h3><p>这个题跟滑动窗口模板毫无关系，窗口大小都固定牢了。唯一的问题点在于用什么结构体来提炼窗口信息，既能很快查到最大值，又能在窗口滑动时很快更新好（滑动本质就是加入一个数，去掉一个数）。快速查到最大值，可以想到利用堆。但是堆有一个明显问题，就是它不适合去删除内部的某个元素（不是堆首）。而“去掉一个数”这个操作很可能就是去删除某个中间的值。堆的删除操作是个不太ok的操作，因为这个堆是简单的堆（并非压平了看，完全有序的，不是堆排序之后的结果），也就是删除操作不能快速定位到要删除的元素。</p>
+<p>但是别直接放弃堆（我就放弃了，想别的方法，走远了）。这时候，尝试多推导一下，就会发现，不用着急删除元素。因为元素可以跟上自己的位置idx，如果堆顶拿到的idx已经不在窗口内，再删除也不迟。也就是延迟了删除操作，正好还让删除操作符合堆的操作习惯，只删堆顶。</p>
+<p>到这里，起码算是题目做出来了，而且这个方法也不差，能交差。</p>
+<p>但这道题更想考的点是别的，所以还需要再优化。说是优化，不如说是换了解法。从堆想到单调队列，反正我是做不到。。。</p>
+<p>单调队列是什么东西？先记住它能够动态地维护定长序列中的最值。所以只要定长、最值，就可以想到尝试单调队列。具体来讲，单调队列是，push元素前会把前面的元素都从后往前访问一遍（遇到比自己大的停止），比当前元素小的都删除，再将元素放在队尾。其实，全访问也没关系，最后结果没有差别，不过，遇到比自己大的就停止可以节省点时间。最后的结果就是队列里头到尾是从大到小有序的。</p>
+<p>举例说明(为了多点情况，和leetcode原例子有差别)：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nums &#x3D; [1,3,-1,-3,-2,3,6,7], k &#x3D; 3</span><br></pre></td></tr></table></figure>
+<p>单调队列应该长什么样？</p>
+<p>[1,3,-1]初始窗口入队列后，q=[3,-1]，那么这个窗口的最值就是3；</p>
+<p>[3,-1,-3], q=[3,-1,-3]，最值还是3；</p>
+<p>[-1,-3,-2], q=[3,-1,-2]，最值3，但3已经不在窗口内，所以pop，q=[-1,-2]，最值-1；</p>
+<p>[-3,-2,3], q=[3]，最值3；</p>
+<p>[5,3,6], q=[6]，最值6；</p>
+<p>[3,6,7], q=[7]，最值7。</p>
+<p>可以看到，只用进行简单比较，就能维持着最值，比堆的时间复杂度低。</p>
+<p>单调队列它为什么做到了呢？</p>
+<p>可以这么想，首先简单起见，只考虑窗口内元素的单调队列情况，比如3,1,2序列，k=3，很明显1会在2进入时被扔掉，因为2进入了之后，怎么也是2比1晚出窗口，就算可能是最大值，也是2可能，1是完全没有可能竞争最大值的。</p>
+<p>再考虑队列前部还有窗口外元素的情况，窗口外的元素还留在队列里（可以称为过期元素），也就是说窗口内的单调队列最大值（也就是队列列首）比过期元素小。但这并不影响窗口元素那部分的选择，无论有没有过期元素，窗口那部分的单调队列都长一个样。所以过期元素可以简单地pop出来扔掉。</p>
+<p>总的来说，单调队列就是剔除了“必然不能争最大值”的那部分无用值。单调队列实现上没有什么难度，不再赘述。</p>
+<p>P.S. Python实现遇到超时问题，因为我没有用pop，而是选择到一个点，取出切片[:x]，然后又append。具体细节待调查。从耗时来看，很明显这一连串操作应该搞出了deep copy之类的耗时操作。都叫单调队列了，就好好用python collections里的deque。</p>
+<h3 id="Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode"><a href="#Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode" class="headerlink" title="Shortest Subarray with Sum at Least K (hard) – LeetCode"></a><a href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/">Shortest Subarray with Sum at Least K (hard) – LeetCode</a></h3>]]></content>
       <categories>
         <category>Algo</category>
       </categories>

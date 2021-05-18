@@ -212,6 +212,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: s &#x3D; &quot;ABCD&quot;, k &#x3D; 1</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Change one &#39;B&#39; into &#39;A&#39;.</span><br></pre></td></tr></table></figure>
 <p>这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 &gt;= k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。</p>
 <p>统计问题虽然简单，但是复杂度略高。想要快速，可能需要两个map，ch-&gt;count, count-&gt;ch。所以，while-if就很适合了，由于只收缩一次，max_count就从dict里统计一次就好了，不用强求更快速。</p>
+<h3 id="Longest-Subarray-with-Ones-after-Replacement-medium-–-GeeksforGeeks"><a href="#Longest-Subarray-with-Ones-after-Replacement-medium-–-GeeksforGeeks" class="headerlink" title="Longest Subarray with Ones after Replacement (medium) – GeeksforGeeks"></a><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/longest-subsegment-1s-formed-changing-k-0s/">Longest Subarray with Ones after Replacement (medium) – GeeksforGeeks</a></h3><p>比上题更简单，只需要一个int变量就能描述一个窗口内的0的个数。</p>
 <h3 id="Sliding-Window-Maximum-hard-–-LeetCode"><a href="#Sliding-Window-Maximum-hard-–-LeetCode" class="headerlink" title="Sliding Window Maximum (hard) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/sliding-window-maximum/">Sliding Window Maximum (hard) – LeetCode</a></h3><p>这个题跟滑动窗口模板毫无关系，窗口大小都固定牢了。唯一的问题点在于用什么结构体来提炼窗口信息，既能很快查到最大值，又能在窗口滑动时很快更新好（滑动本质就是加入一个数，去掉一个数）。快速查到最大值，可以想到利用堆。但是堆有一个明显问题，就是它不适合去删除内部的某个元素（不是堆首）。而“去掉一个数”这个操作很可能就是去删除某个中间的值。堆的删除操作是个不太ok的操作，因为这个堆是简单的堆（并非压平了看，完全有序的，不是堆排序之后的结果），也就是删除操作不能快速定位到要删除的元素。</p>
 <p>但是别直接放弃堆（我就放弃了，想别的方法，走远了）。这时候，尝试多推导一下，就会发现，不用着急删除元素。因为元素可以跟上自己的位置idx，如果堆顶拿到的idx已经不在窗口内，再删除也不迟。也就是延迟了删除操作，正好还让删除操作符合堆的操作习惯，只删堆顶。</p>
 <p>到这里，起码算是题目做出来了，而且这个方法也不差，能交差。</p>
@@ -232,7 +233,28 @@
 <p>再考虑队列前部还有窗口外元素的情况，窗口外的元素还留在队列里（可以称为过期元素），也就是说窗口内的单调队列最大值（也就是队列列首）比过期元素小。但这并不影响窗口元素那部分的选择，无论有没有过期元素，窗口那部分的单调队列都长一个样。所以过期元素可以简单地pop出来扔掉。</p>
 <p>总的来说，单调队列就是剔除了“必然不能争最大值”的那部分无用值。单调队列实现上没有什么难度，不再赘述。</p>
 <p>P.S. Python实现遇到超时问题，因为我没有用pop，而是选择到一个点，取出切片[:x]，然后又append。具体细节待调查。从耗时来看，很明显这一连串操作应该搞出了deep copy之类的耗时操作。都叫单调队列了，就好好用python collections里的deque。</p>
-<h3 id="Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode"><a href="#Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode" class="headerlink" title="Shortest Subarray with Sum at Least K (hard) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/">Shortest Subarray with Sum at Least K (hard) – LeetCode</a></h3> 
+<h3 id="Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode"><a href="#Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode" class="headerlink" title="Shortest Subarray with Sum at Least K (hard) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/">Shortest Subarray with Sum at Least K (hard) – LeetCode</a></h3><p>仔细读题，这个题的数组里有负数。滑动窗口的算法模板是没办法直接套用的，因为窗口收缩的停止条件是sum &lt; k，由于有负数，你不能在窗口sum &lt; k时停止，你必须继续收缩，否则就可能错过解。</p>
+<p>停留在滑动窗口算法模板这个框架里，是没办法找到解法的。</p>
+<p>这时候<del>只能躺平</del>。</p>
+<p>只能说先回答个O(n^2)的解法吧，聊胜于无。很明显，所有区间和都是可能的最佳答案，所以前缀和加<strong>二级遍历</strong>所有区间，能得到答案。</p>
+<p>当然可以优化，但是很难凭空想出来参考答案“单调队列”。接下来的说明是以知道“前缀和+单调队列是较好解法”为前提来看这个题目，所以没有什么顺理成章推导，全凭参考答案提示。</p>
+<p>单调队列维护什么？</p>
+<p>题目核心是求最短的合法子串，所以短是最核心的，和只要&gt;=k什么都行。那么假设当前看i，以i开头的最佳子串，当然是从i开始寻找第一个j，能使sum[i..j]&gt;k（前缀和数组里两个数减一下就好了）。j之后的都不用找了，没有比i到j更短的了。那么反过来思考，从i到j，中间可能有多个值，一一遍历就是暴力解法，优化当然是更快找到j，那么如何迅速定位到j呢？</p>
+<p>或者换个说法，i到j中间的多个可能性，有哪些是必然不可能的，可以直接过滤？答案是没得😛。因为如果从[i, n)区间提取出单调递增的部分，可以使用二分，但这个题应该用不着。那这个思路还有什么优势呢？我们一一遍历到j，然后得到这个i的最优解，然后i++，然后你还是得遍历过去，因为单调递增队列本身不能有更多的改动，最多把队列头比i小的pop出来。那换个角度，递增队列是不是能从后往前看，当某个靠后的j满足了条件，你能把它怎么样？你不能动它，因为接下来的i（更大的i）和j一起也能满足条件，这个窗口长度肯定比现在的短，你删了这个j，就丢掉了解。</p>
+<p>那么就应该考虑换个顺序，以当前j为标杆，去找前面的i，它有个什么好处呢？当你从前往后找i，某个i满足条件后，你可以大胆删了它，因为j会++，当前的i充分发挥价值（用来更新window len）后，就不需要了，后面的j和这个i组合是无意义的。</p>
+<p>P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看，跟以i找j没什么差别，它们跟暴力解法比，完全不是稳定降低复杂度，甚至可以劣到没区别。（于是Python实现也完美超时了）</p>
+<p>总的看“前缀和+单调队列”，大概的最好状态是每次O(1)，然后n个j，所以O(n)，比如，每次看队列头d[0]的preSum都很大，不能让preSum[j]-preSum[d[0]]&gt;=k，单调递增的d后面的元素也不能满足要求了，所以每次就立马完成。最差的状态可能是某次j，从0到j遍历，每次都符合条件，都要pop并更新window len。但很明显，队列最多跟n一样长，而且pop出去了又不会回来，所以次数最多n次，并不会膨胀。所以总的复杂度还是O(n)的。</p>
+<p>这道题还是很难的，难在拼出正确的方法，知道方法后，代码实现不难。</p>
+<h3 id="Max-Consecutive-Ones-III"><a href="#Max-Consecutive-Ones-III" class="headerlink" title="Max Consecutive Ones III"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/max-consecutive-ones-iii/">Max Consecutive Ones III</a></h3><p>突如其来的一道复习题。while-if即可，虽然和while-while实测没什么区别，大概是case的原因。</p>
+<h3 id="Replace-the-Substring-for-Balanced-String-medium-–-LeetCode"><a href="#Replace-the-Substring-for-Balanced-String-medium-–-LeetCode" class="headerlink" title="Replace the Substring for Balanced String (medium) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/replace-the-substring-for-balanced-string/">Replace the Substring for Balanced String (medium) – LeetCode</a></h3><p>题目是说要替换的字符包含在一个子串里，要求子串最短，子串符合某个条件即可，那就很适合套用滑动窗口模板了。</p>
+<h3 id="Count-Number-of-Nice-Subarrays-medium-–-LeetCode"><a href="#Count-Number-of-Nice-Subarrays-medium-–-LeetCode" class="headerlink" title="Count Number of Nice Subarrays (medium) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/count-number-of-nice-subarrays/">Count Number of Nice Subarrays (medium) – LeetCode</a></h3><p>这题一看就不适合立马套用模板，扩展和收缩求最长最短很有效，但这里没有用处。举例说明，当我们找到一个窗口恰好有k个奇数，此时可以滑动窗口么？当然不能。所以放弃吧。然后考虑到奇数是核心，先找到k个奇数的最小可能，它的左右两边如果分别有a个偶数和b个偶数，那么这里就有很多个子串可能，1+a+b+a*b。而找奇数，可以直接抽出奇数，这样奇数数组里每k个就是一个base，延展下两边的偶数。既没有重复也不会漏算。</p>
+<p>滑动窗口完结撒花🎉</p>
+<h2 id="Pattern-2-Two-Pointers"><a href="#Pattern-2-Two-Pointers" class="headerlink" title="Pattern 2 : Two Pointers"></a>Pattern 2 : Two Pointers</h2><h3 id="Pair-with-Target-Sum-easy-–-LeetCode"><a href="#Pair-with-Target-Sum-easy-–-LeetCode" class="headerlink" title="Pair with Target Sum (easy) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/two-sum/">Pair with Target Sum (easy) – LeetCode</a></h3><p>这题第一感觉是map或者排序后二分查找，双指针是个什么操作？</p>
+<p>双指针自然得用在排序后的数组上，头尾各一个，[left]+[right] == target返回，&gt;target right–，&lt;target left++。确实也比二分好写，如果不能用库函数二分，双指针编码不容易错，也是个很好的选择。</p>
+<p>就是答案要求返回索引，排序后的索引怎么查也是个问题。代价还是不小的。</p>
+<h3 id="Remove-Duplicates-easy-–-LeetCode"><a href="#Remove-Duplicates-easy-–-LeetCode" class="headerlink" title="Remove Duplicates (easy) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/">Remove Duplicates (easy) – LeetCode</a></h3><p>原地当然是要原地替换了，那么应该被替换的地方需要一个指针，理应替换到前面去的需要一个指针。</p>
+<p>比如，00111，第二位的0会被第三位1覆盖，那么第三位理论上是个空缺位，但编码上，不用管一位，因为一视同仁的话，序列等于是01111，第三位是1，也不并妨碍接着删除1。所以可以不用特别处理，代码会写的很简单。</p>
+<h3 id="Squaring-a-Sorted-Array-easy-–-LeetCode"><a href="#Squaring-a-Sorted-Array-easy-–-LeetCode" class="headerlink" title="Squaring a Sorted Array (easy) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/squares-of-a-sorted-array/">Squaring a Sorted Array (easy) – LeetCode</a></h3> 
       <!-- reward -->
       
     </div>

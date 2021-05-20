@@ -277,3 +277,31 @@ P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看
 ### [Squaring a Sorted Array (easy) -- LeetCode](https://leetcode.com/problems/squares-of-a-sorted-array/)
 
 非递增序列，类似概念还有：非递减，单调递增，单调递减。。。
+
+单调就是相邻两个数不会相等，非xx自然是可能相等的。
+
+用高数教材的定义，当x1<x2时，都有f(x1)<f(x2)，f(x)就是递增函数，increasing function。其实“单调”这个词有些干扰。
+
+increasing就是上升，不存在横着走，non-decreasing就是不下降，那自然可能横着走走（也就是，可能相邻几个数相等）。剩下两个同理。
+
+
+
+题目本身很简单，结果是从小到大，但是绝对值最小的数不好找，所以反其道而行之，找大的然后放在尾部就行了。
+
+### [Triplet Sum to Zero (medium) -- LeetCode](https://leetcode.com/problems/3sum)
+
+在此题必然用双指针的提示下，想到了固定1个数，然后变成两数之和问题，用双指针处理这一子问题。
+
+但这个题的输出很多限制，需要排除的东西很多，示例
+
+```
+Input: nums = [-1,0,1,2,-1,-4]
+Output: [[-1,-1,2],[-1,0,1]]
+```
+
+基本包含所有可能，完成这个test就能AC。
+
+编码上，可以避开很多不必要计算，始终记住，假设当前固定的数是nu ms[i]=a，双指针肯定是i<left<right。不要把left始终设为从0开始，没必要。
+
+### [Triplet Sum Close to Target (medium) -- LeetCode](https://leetcode.com/problems/3sum-closest/)
+

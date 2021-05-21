@@ -305,3 +305,19 @@ Output: [[-1,-1,2],[-1,0,1]]
 
 ### [Triplet Sum Close to Target (medium) -- LeetCode](https://leetcode.com/problems/3sum-closest/)
 
+其实比上一题简单，因为不用担心解重复的问题。注意的是result一开始设置一个极大值以便更新，别写做10^4了，这个python里会解释为14。表示次方使用两个星号。
+
+### [Triplets with Smaller Sum (medium, google) -- LintCode](https://www.lintcode.com/problem/3sum-smaller/description)
+
+不是直接套用模板能搞定的了，好好理解下面这个example。
+
+```
+Input:  nums = [-2,0,1,3], target = 2
+Output: 2
+Explanation:
+Because there are two triplets which sums are less than 2:
+[-2, 0, 1]
+[-2, 0, 3]
+```
+
+应该是能O(n^2)解决的，how？

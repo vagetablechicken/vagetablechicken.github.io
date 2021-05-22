@@ -9,9 +9,9 @@ categories: Algo
 
 [课程原地址]( https://www.educative.io/courses/grokking-the-coding-interview?aff=K7qB)
 
-[题目目录与答案 Python版](https://github.com/cl2333/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions)
+[题目目录与答案 Python版](https://github.com/cl2333/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions)——完整题目目录，包含challenge。 
 
-[题目目录与答案 C++版(附题目OJ的地址)](https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97)——推荐OJ测试自己的算法
+[题目目录与答案 C++版(附题目OJ的地址)](https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97)——推荐用OJ测试自己的算法，但是这个repo里基本没有challenge题目。
 
 ## Pattern 1 : Sliding Window
 
@@ -170,7 +170,25 @@ Explanation: Change one 'B' into 'A'.
 
 比上题更简单，只需要一个int变量就能描述一个窗口内的0的个数。
 
-### [Sliding Window Maximum (hard) -- LeetCode](https://leetcode.com/problems/sliding-window-maximum/)
+### [Problem Challenge 1 - Permutation in a String (hard)](https://leetcode-cn.com/problems/permutation-in-string/)
+
+排列，不允许多一个字符，所以窗口大小是固定的，滑动用来节省“更新窗口属性的代价”。题目如果对字符多加限制，比如此题限制只有小写字母，也就只有26个可能，其实描述窗口用长26的数组都可以，不用非要用counter。用counter有个麻烦点在于当某个字符的count为0时，你需要删掉它，不然就没法和s1的counter比大小。如果两个字符串的counter都先把26个字母的空间开出来，那还不如数组节省空间。
+
+### [Problem Challenge 2 - String Anagrams (hard)](https://leetcode-cn.com/problems/find-all-anagrams-in-a-string/submissions/)
+
+和challenge1没有区别
+
+### [Problem Challenge 3 - Smallest Window containing Substring (hard) *](https://leetcode-cn.com/problems/minimum-window-substring/)
+
+没啥特别，就是用collections.Counter()减法，比自己写的比较函数要慢不少，1200ms vs 500ms。
+
+### [Problem Challenge 4 - Words Concatenation (hard)](https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/)
+
+
+
+### Additional
+
+#### [Sliding Window Maximum (hard) -- LeetCode](https://leetcode.com/problems/sliding-window-maximum/)
 
 这个题跟滑动窗口模板毫无关系，窗口大小都固定牢了。唯一的问题点在于用什么结构体来提炼窗口信息，既能很快查到最大值，又能在窗口滑动时很快更新好（滑动本质就是加入一个数，去掉一个数）。快速查到最大值，可以想到利用堆。但是堆有一个明显问题，就是它不适合去删除内部的某个元素（不是堆首）。而“去掉一个数”这个操作很可能就是去删除某个中间的值。堆的删除操作是个不太ok的操作，因为这个堆是简单的堆（并非压平了看，完全有序的，不是堆排序之后的结果），也就是删除操作不能快速定位到要删除的元素。
 
@@ -214,7 +232,7 @@ nums = [1,3,-1,-3,-2,3,6,7], k = 3
 
 P.S. Python实现遇到超时问题，因为我没有用pop，而是选择到一个点，取出切片[:x]，然后又append。具体细节待调查。从耗时来看，很明显这一连串操作应该搞出了deep copy之类的耗时操作。都叫单调队列了，就好好用python collections里的deque。
 
-### [Shortest Subarray with Sum at Least K (hard) -- LeetCode](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)
+#### [Shortest Subarray with Sum at Least K (hard) -- LeetCode](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)
 
 仔细读题，这个题的数组里有负数。滑动窗口的算法模板是没办法直接套用的，因为窗口收缩的停止条件是sum < k，由于有负数，你不能在窗口sum < k时停止，你必须继续收缩，否则就可能错过解。
 
@@ -242,15 +260,15 @@ P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看
 
 这道题还是很难的，难在拼出正确的方法，知道方法后，代码实现不难。
 
-### [Max Consecutive Ones III](https://leetcode.com/problems/max-consecutive-ones-iii/)
+#### [Max Consecutive Ones III](https://leetcode.com/problems/max-consecutive-ones-iii/)
 
 突如其来的一道复习题。while-if即可，虽然和while-while实测没什么区别，大概是case的原因。
 
-### [Replace the Substring for Balanced String (medium) -- LeetCode](https://leetcode.com/problems/replace-the-substring-for-balanced-string/)
+#### [Replace the Substring for Balanced String (medium) -- LeetCode](https://leetcode.com/problems/replace-the-substring-for-balanced-string/)
 
 题目是说要替换的字符包含在一个子串里，要求子串最短，子串符合某个条件即可，那就很适合套用滑动窗口模板了。
 
-### [Count Number of Nice Subarrays (medium) -- LeetCode](https://leetcode.com/problems/count-number-of-nice-subarrays/)
+#### [Count Number of Nice Subarrays (medium) -- LeetCode](https://leetcode.com/problems/count-number-of-nice-subarrays/)
 
 这题一看就不适合立马套用模板，扩展和收缩求最长最短很有效，但这里没有用处。举例说明，当我们找到一个窗口恰好有k个奇数，此时可以滑动窗口么？当然不能。所以放弃吧。然后考虑到奇数是核心，先找到k个奇数的最小可能，它的左右两边如果分别有a个偶数和b个偶数，那么这里就有很多个子串可能，1+a+b+a*b。而找奇数，可以直接抽出奇数，这样奇数数组里每k个就是一个base，延展下两边的偶数。既没有重复也不会漏算。
 
@@ -320,4 +338,9 @@ Because there are two triplets which sums are less than 2:
 [-2, 0, 3]
 ```
 
-应该是能O(n^2)解决的，how？
+应该是能O(n^2)解决的。
+
+稍微暴力点，但容易想到的解法是for i, for j in [i+1, n)，这一层，可能有多个k可以是三数之和<target。这里可以考虑二分找，lower bound还是upper bound，不用细想，但可以知道二分方法能做到。但是复杂度就是n^2 * logn，肯定有优化点。忘记二分，如果我们顺序找k，从左或者从右都行，但考虑到“如果这一轮j找到了，j++后k是不需要跳回最右边的，k可以就从当前位置开始”，这个应该很好懂。所以如果k是从右往左找，代码就可以写的很简洁。而且明显降低了复杂性。
+
+再来思考下复杂度是多少，由于固定i后，j和k又是最多只会遍历[i+1,n)的部分，所以总的是O(n^2)。
+

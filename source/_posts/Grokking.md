@@ -184,7 +184,13 @@ Explanation: Change one 'B' into 'A'.
 
 ### [Problem Challenge 4 - Words Concatenation (hard)](https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/)
 
+注意读题！words长度相同！匆忙读题后，我还以为要处理不同的切割方式，以为会出现“一个substring里有几种正确的word排列”。那这题可能不止hard了。
 
+可以简单想到的办法就是窗口从0一直滑到尾，step为1，每一次窗口都得重新计算下word-count，然后和words参数比较。
+
+显然这个没有什么巧妙点，没有节约计算量，所以想要利用滑动窗口，当然得想点骚方法。其实就是，每一次都设置一个起点，从这个起点开始，只会按词长来拓展，这样就能像字符型的题目一样，充分利用滑动窗口的扩展收缩，减少计算。举例说明，就是一个单词长度为len，s串总长为n的话，第一趟是从0开始一个len切一刀，这样切割后的串扩展和收缩都是一个词的，第二趟就是从1开始切，以此类推，最后一次是len-1开始切。可以想到，这样也是把所有可能性都考虑到了。
+
+改进后的滑动窗口方法效果是明显的，1000ms到100ms。
 
 ### Additional
 
@@ -344,3 +350,16 @@ Because there are two triplets which sums are less than 2:
 
 再来思考下复杂度是多少，由于固定i后，j和k又是最多只会遍历[i+1,n)的部分，所以总的是O(n^2)。
 
+### [Subarrays with Product Less than a Target (medium) *](https://leetcode-cn.com/problems/subarray-product-less-than-k/)
+
+要求输出所有subarrays，也有要求输出subarrays个数。输出要求都不太难。
+
+套用双指针或者说是滑动窗口模板时，需要考虑到乘积的写法。尤其是当某一个数本身就>=k时，窗口应该收缩成0。这个用双while写起来就很怪，所以我是在最开头就判断下，如果是就重新设置那一堆变量，进入下一次循环。官方代码使用for-while把这一情况包含了，不用单独判断。这里可以再思考下，官方的是不是正确，当nums内有数字1或者k==1时又会不会有奇怪的问题出现？
+
+官方还有二分查找法，乘积[0, i]是非递减的，确实有道理。而且由于乘积可能很大，还用对数，很强势，看一看。
+
+
+
+- Problem Challenge 1 - Quadruple Sum to Target (medium) *
+- Problem Challenge 2 - Comparing Strings containing Backspaces (medium)
+- Problem Challenge 3 - Minimum Window Sort (medium) *

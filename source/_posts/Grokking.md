@@ -374,6 +374,10 @@ for-while的写法，就是可能会出现while结束后，start == end + 1，�
 
 - [ ] code
 
+题目有个麻烦点是不能有重复的四元组，如果不通过某种方式设置set（对四元组去重）的话，就需要跳过哪些重复的数字。也能写出来，就是代码有点丑，也需要case来调试。不能一气呵成。看一下题解。
+
+
+
 再思考下几数和问题，两数和就是双指针，线性复杂度，三数和就是指定一个数再解决两数和，平方复杂度，四数和三次方复杂度。
 
 - Problem Challenge 2 - Comparing Strings containing Backspaces (medium)

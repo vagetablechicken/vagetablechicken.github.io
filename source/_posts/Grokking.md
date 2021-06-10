@@ -13,7 +13,7 @@ categories: Algo
 
 [题目目录与答案 C++版(附题目OJ的地址)](https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97)——推荐用OJ测试自己的算法，但是这个repo里基本没有challenge题目。
 
-## Pattern 1 : Sliding Window
+## 1. Pattern: Sliding Window
 
 ### [Maximum Sum Subarray of Size K (easy) -- GeeksforGeeks](https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/)
 
@@ -282,7 +282,7 @@ P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看
 
 滑动窗口完结撒花🎉
 
-## Pattern 2 : Two Pointers 
+## 2. Pattern: Two Pointers
 
 ### [Pair with Target Sum (easy) -- LeetCode](https://leetcode.com/problems/two-sum/)
 
@@ -394,6 +394,82 @@ for-while的写法，就是可能会出现while结束后，start == end + 1，�
 
 ### [Problem Challenge 2 - Comparing Strings containing Backspaces (medium)](https://leetcode-cn.com/problems/backspace-string-compare/)
 
+顺序找规律怎么也找不到时，一定要记得反向试试。数组题一定要记得反向可能有奇效！！！
+
+此题没有什么巧妙写法，写出来的代码有点长，不过容易调试成功。
 
 
-- Problem Challenge 3 - Minimum Window Sort (medium) *
+
+### Problem Challenge 3 - Minimum Window Sort (medium) *
+
+```
+Given an array, find the length of the smallest subarray in it which when sorted will sort the whole array.
+
+Example 1:
+
+Input: [1, 2, 5, 3, 7, 10, 9, 12]
+Output: 5
+Explanation: We need to sort only the subarray [5, 3, 7, 10, 9] to make the whole array sorted
+
+Example 2:
+
+Input: [1, 3, 2, 0, -1, 7, 10]
+Output: 5
+Explanation: We need to sort only the subarray [1, 3, 2, 0, -1] to make the whole array sorted
+
+Example 3:
+
+Input: [1, 2, 3]
+Output: 0
+Explanation: The array is already sorted
+
+Example 4:
+
+Input: [3, 2, 1]
+Output: 3
+Explanation: The whole array needs to be sorted.
+```
+
+这个题没找到OJ地址。思考的时候想到了拐点，不过后续思考没跟上。
+
+首先，找到了subarray之后，这个subarray一旦能排好序，整个array就有序了。那么，非subarray的值就应该是它们应该在的位置。
+
+Example1中1和2在应该在的位置，就很容易想到指针找到第一个比右边还大的值（也就是拐点），也就是5。但Example2直接打脸，1本就不在该在的位置。
+
+到这儿就没继续沿着这个思路继续下去了。然后就没找到思路了。。。
+
+找到左右两边的拐点后，拐点之间的这个区间必然不是都在正确位置上，所以这个区间肯定在subarray里面。但Example2也提示了，找到了拐点区间[3,2,0,-1]，可以看到前面的1也是错的，为什么呢？因为1排序后也不应该站在它现在的位置，也就是说subarray应该还需要扩张。
+
+扩张的依据是什么？这个元素是否在当前区间的最大最小值之间。因为如果在之间，全局排序后，这个元素和当前区间的位置都是要变的。画一下折线图，纵坐标表示值的大小，横坐标是元素位置，就可以很直观的看到，区间的扩张是简单的，因为它只需要往外1个1个check就行了，没有什么复杂规则。
+
+- [ ] code
+
+
+
+## 3. Pattern: Fast & Slow pointers
+### [LinkedList Cycle (easy)](https://leetcode-cn.com/problems/linked-list-cycle/)
+
+题目描述很反人类，但其实就是给你一个链表（只有head指针），让你判断是否有环。进阶是只使用O(1)的空间，也就是常量空间。
+
+有环的链表肯定会访问到重复的节点，环内有1个或以上的节点。搞一个空间存已经访问过的节点，查到之前访问过就能判断了，但空间最坏能到O(n)。常量空间，自然要用快慢指针。
+
+推理一下，快慢指针什么时候能证明链表有环？
+
+猜想肯定是快慢指针指向同一个节点时，但怀疑是否存在“有环链表下快慢指针也不会同时指向同一个节点”。画画图，列一下方程式，假设链表入环前有s个节点，环上有c个节点，可以知道，当走整数倍c（2倍起，同时还得>s）的时候快慢指针是能遇到的，这个值不会不存在，还会多次相遇。所以不用担心快慢节点会永远遇不到。
+
+编码上很简单了，记住init时fast，slow都指向head，然后while内先走再check。
+
+### [Middle of the LinkedList (easy)](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
+
+
+
+- Start of LinkedList Cycle (medium) *
+- Happy Number (medium) *
+- Problem Challenge 1 - Palindrome LinkedList (medium) *
+- Problem Challenge 2 - Rearrange a LinkedList (medium)
+- Problem Challenge 3 - Cycle in a Circular Array (hard) *
+
+
+
+
+

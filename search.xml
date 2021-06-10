@@ -6,7 +6,7 @@
     <content><![CDATA[<h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p><a href="https://www.educative.io/courses/grokking-the-coding-interview?aff=K7qB">课程原地址</a></p>
 <p><a href="https://github.com/cl2333/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions">题目目录与答案 Python版</a>——完整题目目录，包含challenge。 </p>
 <p><a href="https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97">题目目录与答案 C++版(附题目OJ的地址)</a>——推荐用OJ测试自己的算法，但是这个repo里基本没有challenge题目。</p>
-<h2 id="Pattern-1-Sliding-Window"><a href="#Pattern-1-Sliding-Window" class="headerlink" title="Pattern 1 : Sliding Window"></a>Pattern 1 : Sliding Window</h2><h3 id="Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks"><a href="#Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks" class="headerlink" title="Maximum Sum Subarray of Size K (easy) – GeeksforGeeks"></a><a href="https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/">Maximum Sum Subarray of Size K (easy) – GeeksforGeeks</a></h3><p>k长的<strong>连续子序列</strong>，使该子序列和最大，这个和为output。<br>窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。</p>
+<h2 id="1-Pattern-Sliding-Window"><a href="#1-Pattern-Sliding-Window" class="headerlink" title="1. Pattern: Sliding Window"></a>1. Pattern: Sliding Window</h2><h3 id="Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks"><a href="#Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks" class="headerlink" title="Maximum Sum Subarray of Size K (easy) – GeeksforGeeks"></a><a href="https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/">Maximum Sum Subarray of Size K (easy) – GeeksforGeeks</a></h3><p>k长的<strong>连续子序列</strong>，使该子序列和最大，这个和为output。<br>窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。</p>
 <h3 id="Smallest-Subarray-with-a-given-sum-medium-–-LeetCode"><a href="#Smallest-Subarray-with-a-given-sum-medium-–-LeetCode" class="headerlink" title="Smallest Subarray with a given sum (medium) – LeetCode"></a><a href="https://leetcode.com/problems/minimum-size-subarray-sum/">Smallest Subarray with a given sum (medium) – LeetCode</a></h3><p>注意读题，nums都是正整数，target也是正整数。这个条件大概率需要用到。</p>
 <p>假设有一段连续子序列了，它已经&gt;=target了，就不需要再继续加入元素了（序列外右边第一个元素），因为再加的话size就变大了。而这个size可以向右横移一格，可以立马算出新的sum（这里很节约时间，降低算法复杂度）。</p>
 <p>这个sum如果 &gt;= target，那么它就有机会再小一点，而这一次需要的是减去序列内的第一个元素，可以理解为“收缩窗口”。<br>这个sum如果 &lt; target，那就可以再向右横移了，因为size扩大，对结果没有任何帮助。</p>
@@ -93,7 +93,7 @@
 <h4 id="Replace-the-Substring-for-Balanced-String-medium-–-LeetCode"><a href="#Replace-the-Substring-for-Balanced-String-medium-–-LeetCode" class="headerlink" title="Replace the Substring for Balanced String (medium) – LeetCode"></a><a href="https://leetcode.com/problems/replace-the-substring-for-balanced-string/">Replace the Substring for Balanced String (medium) – LeetCode</a></h4><p>题目是说要替换的字符包含在一个子串里，要求子串最短，子串符合某个条件即可，那就很适合套用滑动窗口模板了。</p>
 <h4 id="Count-Number-of-Nice-Subarrays-medium-–-LeetCode"><a href="#Count-Number-of-Nice-Subarrays-medium-–-LeetCode" class="headerlink" title="Count Number of Nice Subarrays (medium) – LeetCode"></a><a href="https://leetcode.com/problems/count-number-of-nice-subarrays/">Count Number of Nice Subarrays (medium) – LeetCode</a></h4><p>这题一看就不适合立马套用模板，扩展和收缩求最长最短很有效，但这里没有用处。举例说明，当我们找到一个窗口恰好有k个奇数，此时可以滑动窗口么？当然不能。所以放弃吧。然后考虑到奇数是核心，先找到k个奇数的最小可能，它的左右两边如果分别有a个偶数和b个偶数，那么这里就有很多个子串可能，1+a+b+a*b。而找奇数，可以直接抽出奇数，这样奇数数组里每k个就是一个base，延展下两边的偶数。既没有重复也不会漏算。</p>
 <p>滑动窗口完结撒花🎉</p>
-<h2 id="Pattern-2-Two-Pointers"><a href="#Pattern-2-Two-Pointers" class="headerlink" title="Pattern 2 : Two Pointers"></a>Pattern 2 : Two Pointers</h2><h3 id="Pair-with-Target-Sum-easy-–-LeetCode"><a href="#Pair-with-Target-Sum-easy-–-LeetCode" class="headerlink" title="Pair with Target Sum (easy) – LeetCode"></a><a href="https://leetcode.com/problems/two-sum/">Pair with Target Sum (easy) – LeetCode</a></h3><p>这题第一感觉是map或者排序后二分查找，双指针是个什么操作？</p>
+<h2 id="2-Pattern-Two-Pointers"><a href="#2-Pattern-Two-Pointers" class="headerlink" title="2. Pattern: Two Pointers"></a>2. Pattern: Two Pointers</h2><h3 id="Pair-with-Target-Sum-easy-–-LeetCode"><a href="#Pair-with-Target-Sum-easy-–-LeetCode" class="headerlink" title="Pair with Target Sum (easy) – LeetCode"></a><a href="https://leetcode.com/problems/two-sum/">Pair with Target Sum (easy) – LeetCode</a></h3><p>这题第一感觉是map或者排序后二分查找，双指针是个什么操作？</p>
 <p>双指针自然得用在排序后的数组上，头尾各一个，[left]+[right] == target返回，&gt;target right–，&lt;target left++。确实也比二分好写，如果不能用库函数二分，双指针编码不容易错，也是个很好的选择。</p>
 <p>就是答案要求返回索引，排序后的索引怎么查也是个问题。代价还是不小的。</p>
 <h3 id="Remove-Duplicates-easy-–-LeetCode"><a href="#Remove-Duplicates-easy-–-LeetCode" class="headerlink" title="Remove Duplicates (easy) – LeetCode"></a><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/">Remove Duplicates (easy) – LeetCode</a></h3><p>原地当然是要原地替换了，那么应该被替换的地方需要一个指针，理应替换到前面去的需要一个指针。</p>
@@ -138,8 +138,29 @@
 </li>
 </ol>
 <p>再思考下几数和问题，两数和就是双指针，线性复杂度，三数和就是指定一个数再解决两数和，平方复杂度，四数和三次方复杂度。</p>
-<h3 id="Problem-Challenge-2-Comparing-Strings-containing-Backspaces-medium"><a href="#Problem-Challenge-2-Comparing-Strings-containing-Backspaces-medium" class="headerlink" title="Problem Challenge 2 - Comparing Strings containing Backspaces (medium)"></a><a href="https://leetcode-cn.com/problems/backspace-string-compare/">Problem Challenge 2 - Comparing Strings containing Backspaces (medium)</a></h3><ul>
-<li>Problem Challenge 3 - Minimum Window Sort (medium) *</li>
+<h3 id="Problem-Challenge-2-Comparing-Strings-containing-Backspaces-medium"><a href="#Problem-Challenge-2-Comparing-Strings-containing-Backspaces-medium" class="headerlink" title="Problem Challenge 2 - Comparing Strings containing Backspaces (medium)"></a><a href="https://leetcode-cn.com/problems/backspace-string-compare/">Problem Challenge 2 - Comparing Strings containing Backspaces (medium)</a></h3><p>顺序找规律怎么也找不到时，一定要记得反向试试。数组题一定要记得反向可能有奇效！！！</p>
+<p>此题没有什么巧妙写法，写出来的代码有点长，不过容易调试成功。</p>
+<h3 id="Problem-Challenge-3-Minimum-Window-Sort-medium"><a href="#Problem-Challenge-3-Minimum-Window-Sort-medium" class="headerlink" title="Problem Challenge 3 - Minimum Window Sort (medium) *"></a>Problem Challenge 3 - Minimum Window Sort (medium) *</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Given an array, find the length of the smallest subarray in it which when sorted will sort the whole array.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: [1, 2, 5, 3, 7, 10, 9, 12]</span><br><span class="line">Output: 5</span><br><span class="line">Explanation: We need to sort only the subarray [5, 3, 7, 10, 9] to make the whole array sorted</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: [1, 3, 2, 0, -1, 7, 10]</span><br><span class="line">Output: 5</span><br><span class="line">Explanation: We need to sort only the subarray [1, 3, 2, 0, -1] to make the whole array sorted</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: [1, 2, 3]</span><br><span class="line">Output: 0</span><br><span class="line">Explanation: The array is already sorted</span><br><span class="line"></span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: [3, 2, 1]</span><br><span class="line">Output: 3</span><br><span class="line">Explanation: The whole array needs to be sorted.</span><br></pre></td></tr></table></figure>
+<p>这个题没找到OJ地址。思考的时候想到了拐点，不过后续思考没跟上。</p>
+<p>首先，找到了subarray之后，这个subarray一旦能排好序，整个array就有序了。那么，非subarray的值就应该是它们应该在的位置。</p>
+<p>Example1中1和2在应该在的位置，就很容易想到指针找到第一个比右边还大的值（也就是拐点），也就是5。但Example2直接打脸，1本就不在该在的位置。</p>
+<p>到这儿就没继续沿着这个思路继续下去了。然后就没找到思路了。。。</p>
+<p>找到左右两边的拐点后，拐点之间的这个区间必然不是都在正确位置上，所以这个区间肯定在subarray里面。但Example2也提示了，找到了拐点区间[3,2,0,-1]，可以看到前面的1也是错的，为什么呢？因为1排序后也不应该站在它现在的位置，也就是说subarray应该还需要扩张。</p>
+<p>扩张的依据是什么？这个元素是否在当前区间的最大最小值之间。因为如果在之间，全局排序后，这个元素和当前区间的位置都是要变的。画一下折线图，纵坐标表示值的大小，横坐标是元素位置，就可以很直观的看到，区间的扩张是简单的，因为它只需要往外1个1个check就行了，没有什么复杂规则。</p>
+<ul>
+<li><input disabled="" type="checkbox"> code</li>
+</ul>
+<h2 id="3-Pattern-Fast-amp-Slow-pointers"><a href="#3-Pattern-Fast-amp-Slow-pointers" class="headerlink" title="3. Pattern: Fast &amp; Slow pointers"></a>3. Pattern: Fast &amp; Slow pointers</h2><h3 id="LinkedList-Cycle-easy"><a href="#LinkedList-Cycle-easy" class="headerlink" title="LinkedList Cycle (easy)"></a><a href="https://leetcode-cn.com/problems/linked-list-cycle/">LinkedList Cycle (easy)</a></h3><p>题目描述很反人类，但其实就是给你一个链表（只有head指针），让你判断是否有环。进阶是只使用O(1)的空间，也就是常量空间。</p>
+<p>有环的链表肯定会访问到重复的节点，环内有1个或以上的节点。搞一个空间存已经访问过的节点，查到之前访问过就能判断了，但空间最坏能到O(n)。常量空间，自然要用快慢指针。</p>
+<p>推理一下，快慢指针什么时候能证明链表有环？</p>
+<p>猜想肯定是快慢指针指向同一个节点时，但怀疑是否存在“有环链表下快慢指针也不会同时指向同一个节点”。画画图，列一下方程式，假设链表入环前有s个节点，环上有c个节点，可以知道，当走整数倍c（2倍起，同时还得&gt;s）的时候快慢指针是能遇到的，这个值不会不存在，还会多次相遇。所以不用担心快慢节点会永远遇不到。</p>
+<p>编码上很简单了，记住init时fast，slow都指向head，然后while内先走再check。</p>
+<h3 id="Middle-of-the-LinkedList-easy"><a href="#Middle-of-the-LinkedList-easy" class="headerlink" title="Middle of the LinkedList (easy)"></a><a href="https://leetcode-cn.com/problems/middle-of-the-linked-list/">Middle of the LinkedList (easy)</a></h3><ul>
+<li>Start of LinkedList Cycle (medium) *</li>
+<li>Happy Number (medium) *</li>
+<li>Problem Challenge 1 - Palindrome LinkedList (medium) *</li>
+<li>Problem Challenge 2 - Rearrange a LinkedList (medium)</li>
+<li>Problem Challenge 3 - Cycle in a Circular Array (hard) *</li>
 </ul>
 ]]></content>
       <categories>

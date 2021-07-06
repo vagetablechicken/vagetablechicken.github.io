@@ -461,9 +461,28 @@ Example1中1和2在应该在的位置，就很容易想到指针找到第一个�
 
 ### [Middle of the LinkedList (easy)](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
 
+很简单的题，把两个case都手动推理一遍，就知道了。hint：fast先走，提前退出，slow就不用走了。
+
+### [Start of LinkedList Cycle (medium)](https://leetcode-cn.com/problems/linked-list-cycle-ii/) 
+
+这个题猜得到是需要快慢指针相遇后再加点什么操作的，但是推理容易卡壳。主要还是对快慢指针相遇的情况理解的不够。
+
+快慢指针相遇很好写，node地址相等就是了。但相遇时，快慢指针并不是可能走了无数圈。这里有一个点必须记住，就是“慢指针入环后，和快指针相遇时，慢指针在环上是不会走超过一圈的”。也就是慢指针入环后继续走，一圈以内必定碰到快指针。
+
+这个知识点，我以前应该用方程式推过，也不记得推理有没有漏洞了，这次做题还没推出来。所以这里最直观也正确的解法是数学归纳法。我们讲slow入环后和fast相遇，那么最快相的情况，当然是slow和fast直接在入环点直接相遇，0步。再麻烦点，就是fast在slow的前面（此刻的位置是fast.next==slow），这样两个相邻的节点，只需1步就能相遇。假设fast更远一点，即fast.next.next==slow，就需要2步，以此类推，入环时刻，fast和slow的距离（fast的n个next==slow）假设为n，就需要n步相遇。但fast和slow之间最大距离就是fast在slow的前一个，假设环里有k个节点，fast和slow的最大距离就是k-1，所以最多k-1步，fast和slow必定相遇。所以slow不可能在相遇前走几圈。
+
+知道slow在一圈内就会和fast相遇，其中几个关键长度如下图所示。那么相遇时slow的公式应该写为，slow=a+b，fast=a+b+n(b+c)。
+
+![示意图](https://assets.leetcode-cn.com/solution-static/142/142_fig1.png)
+
+再回到题目本身，当两指针在紫色点上相遇时，代入化简一下已有式子，得a+b=n(b+c)，即a=c+(n-1)(b+c)，为什么化简成这样？不是因为这样a可以通过等式右边得到，右边这式子也没法继续求。而是因为，右边写成这样，b+c是一整圈，也就是说，如果一个指针从链表头开始走起，另一个指针从紫色点走了c长度又走了几个完整圈，它们会在入环口相遇，另一个指针走几圈完全不用在意。
+
+但注意，这个式子可能有坑，思考下有没有可能a很小，c很大？
+
+n必然>=1，因为fast肯定走的多点，不然fast=a+b+n(b+c)就不对了。那么，a最小就等于c，不可能比c小。这个事情挺有趣的。没有想到一个很通俗易懂的表达，但数学证明了也就证明了吧。
 
 
-- Start of LinkedList Cycle (medium) *
+
 - Happy Number (medium) *
 - Problem Challenge 1 - Palindrome LinkedList (medium) *
 - Problem Challenge 2 - Rearrange a LinkedList (medium)

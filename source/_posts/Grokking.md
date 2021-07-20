@@ -515,8 +515,31 @@ P.S.
 
 这个题还有个递归解法，我不太擅长递归，经常起手就是迭代，所以这里值得再学习下。首先，递归能给我们什么？假设我们只是简单的print val，那么递归就能从尾到头，逆序读出每个节点的值。假设我们递归到底了，现在能读到尾部节点，这个时候我们应该拿头部节点和它进行比较，接着递归会读倒数第二个，而这时又应该拿顺数第二个节点比较。可以看到，从头部开始读也可以用一个指针来解决，但这个指针得是外部的变量，放在递归函数里面太困难了。再思考奇偶情况，奇数节点两指针地址会指向同一个节点，容易判断，偶数情况本来以为会麻烦点，但还好，因为两个指针指向的节点是相邻的，所以只要next判断一下就好了。leetcode官方解更飘逸，全遍历，不用提前返回，那对栈空间要求更高了。不大实用，但可以多熟悉下递归。论简单，还是递归这个写法代码少。
 
-- Problem Challenge 2 - Rearrange a LinkedList (medium)
-- Problem Challenge 3 - Cycle in a Circular Array (hard) *
+### Problem Challenge 2 - Rearrange a LinkedList (medium)
+
+```
+Given the head of a Singly LinkedList, write a method to modify the LinkedList such that the nodes from the second half of the LinkedList are inserted alternately to the nodes from the first half in reverse order. So if the LinkedList has nodes 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> null, your method should return 1 -> 6 -> 2 -> 5 -> 3 -> 4 -> null.
+
+Your algorithm should not use any extra space and the input LinkedList should be modified in-place.
+
+Example 1:
+
+Input: 2 -> 4 -> 6 -> 8 -> 10 -> 12 -> null
+Output: 2 -> 12 -> 4 -> 10 -> 6 -> 8 -> null
+
+Example 2:
+
+Input: 2 -> 4 -> 6 -> 8 -> 10 -> null
+Output: 2 -> 10 -> 4 -> 8 -> 6 -> null
+```
+
+跟challenge1类似，尝试了一下递归的写法，比较容易写，就是先把偶数链表搞定，再补一下奇数情况的判断就行了。但是注意，debug时别打印链表，修改中途的临时链表很可能是有环的，打印也打不出来。当然可以限制下打印的node个数，调试时还是可以有的。
+
+如果不用递归写法，这个题还是和challenge1一样，可以把后半部分链表原地反转。不多赘述。
+
+### [Problem Challenge 3 - Cycle in a Circular Array (hard)](https://leetcode-cn.com/problems/circular-array-loop/) 
+
+
 
 
 

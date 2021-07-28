@@ -558,10 +558,30 @@ Output: 2 -> 10 -> 4 -> 8 -> 6 -> null
 ## 4. Pattern: Merge Intervals
 ### [Merge Intervals (medium)](https://leetcode-cn.com/problems/merge-intervals/)
 
+挺简单的题，尤其是我对这种merge interval的题有一个印象，就是“反着比正着简单”。所以很容易就想到了，这题应该反向来看intervals，所以遍历顺序是end大的到end小的，合并interval或者即时push interval到result里，都很简单，不用多注意什么。
+
+### [Insert Interval (medium) *](https://leetcode-cn.com/problems/insert-interval/)
+
+这个题目纯粹是恶心人，没啥别的作用了。由于每个interval都有两个数表示，又得两个interval之间比较，绕的很晕。
+
+大概逻辑很好想，由于加入new interval（后面简称new），可能new和intervals内的多个interval（后面简称i）有重叠，所以可能会消除多个i，为了代码简洁，肯定是新建一个list，符合条件的才插入，这个逻辑比较好。
+
+又回到new和多个i的合并上，重叠就需要合并，合并后的new'可能还是不应该插入，毕竟可能多个i都需要跟new合并，所以需要一个tmp interval。很容易发现，直接用new来做这个tmp interval正好。
+
+本来思路到这儿还是很清晰的，但是由于对“重叠”的定义没先弄清楚，所以写出了漏洞百出的算法。这一点需要吸取教训。算法如果一开始用数学很难表示，就应该先用形容，能把算法定义清晰了，再翻译为数学。不要总想一步到位。
+
+而“重叠”定义，最简单的办法就是画图，画两个interval的相对位置关系，可以看到，分四种情况，a的右边跟b重叠，a的左边跟b重叠，a完全在b内，a完全包容b。当然数学上，由于与或非关系，可以把前三个写为一个判断式，但第四个无法合并，很容易忘记这一种情况，要细心。
+
+当然，可以反向来看，那就是“不重叠”的非集就是“重叠”。而“不重叠”的判定更简单（我一开始是这么想的，但当时对“重叠”情况的处理很混乱，所以换了思路）。如果再次做此题，正向反向都容易想到，没有特别的坑。
+
+当扩展后的new和当前i不再重合时，需要把new和i都加入result里。这里需要一个布尔量表示new有没有已经被加入，这个步骤没办法写的更优雅。
+
+coding时，还可以注意，我在妄想一步到位时，写满了[0]，[1]。。。把自己都给绕进去了。python是可以`for left, right in intervals`这么写的，所以别折磨自己，python is beautiful!
+
+### [Intervals Intersection (medium)](https://leetcode-cn.com/problems/interval-list-intersections/)
 
 
-- Insert Interval (medium) *
-- Intervals Intersection (medium)
+
 - Conflicting Appointments (medium)
 - Problem Challenge 1 - Minimum Meeting Rooms (hard) *
 - Problem Challenge 2 - Maximum CPU Load (hard)

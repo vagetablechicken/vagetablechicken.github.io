@@ -580,10 +580,72 @@ coding时，还可以注意，我在妄想一步到位时，写满了[0]，[1]�
 
 ### [Intervals Intersection (medium)](https://leetcode-cn.com/problems/interval-list-intersections/)
 
+拟定一下算法流程，照着流程过一遍example，就没什么坑了。没什么巧思，一个一个if-else保证正确就行了。
+
+### Conflicting Appointments (medium)
+
+```
+Problem Statement
+Given an array of intervals representing ‘N’ appointments, find out if a person can attend all the appointments.
+
+Example 1:
+
+Appointments: [[1,4], [2,5], [7,9]]
+Output: false
+Explanation: Since [1,4] and [2,5] overlap, a person cannot attend both of these appointments.
+
+Example 2:
+
+Appointments: [[6,7], [2,4], [8,12]]
+Output: true
+Explanation: None of the appointments overlap, therefore a person can attend all of them.
+
+Example 3:
+
+Appointments: [[4,5], [2,3], [3,6]]
+Output: false
+Explanation: Since [4,5] and [3,6] overlap, a person cannot attend both of these appointments.
+```
+
+最简单的区间问题，排序完了，遍历就行了。排序是正着还是反着都行。反正拍完序，只需要看相邻两个区间有没有相交。
+
+### Problem Challenge 1 - Minimum Meeting Rooms (hard) 
+
+https://leetcode-cn.com/problems/meeting-rooms-ii/ plus
+
+```
+Given a list of intervals representing the start and end time of ‘N’ meetings,
+find the minimum number of rooms required to hold all the meetings.
+
+Example 1:
+
+Meetings: [[1,4], [2,5], [7,9]]
+Output: 2
+Explanation: Since [1,4] and [2,5] overlap, we need two rooms to hold these two meetings. [7,9] can
+occur in any of the two rooms later.
+
+Example 2:
+
+Meetings: [[6,7], [2,4], [8,12]]
+Output: 1
+Explanation: None of the meetings overlap, therefore we only need one room to hold all meetings.
+
+Example 3:
+
+Meetings: [[1,4], [2,3], [3,6]]
+Output:2
+Explanation: Since [1,4] overlaps with the other two meetings [2,3] and [3,6], we need two rooms to
+hold all the meetings.
+
+Example 4:
+
+Meetings: [[4,5], [2,3], [2,4], [3,5]]
+Output: 2
+Explanation: We will need one room for [2,3] and [3,5], and another room for [2,4] and [4,5].
+```
 
 
-- Conflicting Appointments (medium)
-- Problem Challenge 1 - Minimum Meeting Rooms (hard) *
+
 - Problem Challenge 2 - Maximum CPU Load (hard)
 - Problem Challenge 3 - Employee Free Time (hard) *
 

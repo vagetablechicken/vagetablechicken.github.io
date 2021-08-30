@@ -644,9 +644,50 @@ Output: 2
 Explanation: We will need one room for [2,3] and [3,5], and another room for [2,4] and [4,5].
 ```
 
+因为所有intervals都得被满足，所以贪心策略可能可以得到最优解？
+
+简单设想一下，已经排序好的intervals，一个一个尽量排，重叠了就新增一个room。
+
+假设，此时已经用贪心策略得到了2个room，r1和r2，假设r1.end <= r2.end，这时又想加入一个interval，它的start如果比两个end都小，那必然得出第三个room，这个不可能缩减。而如果start比一个小比一个大，那肯定是放入，但放1还是2？我们先比较，肯定是选r1（end最小的room）来比，如果end最小都放不下新的itv，就新增room。如果r1能放下新的itv，为了代码简洁，也应该直接放下了。（假设r2也放得下新itv，那么下一个itv也能放到r2，不会新建room；假设r2放不下新的itv，那就更不可能放r2了，至于下一个itv，就看更新后的r1r2能否满足了。）
+
+——这一部分用数学推理下。
+
+但显然，room不可能只限2个，所以可以考虑一个排序的容器，保存room的end。容器需要支持重复key，因为多个room的end可能数字一样。容器只需要取的出最小的end，之后end可能更新变大再插回容器，其他位置不用管。所以用优先队列最符合要求，而且python没有multiset，想不用优先队列都不行。
+
+代码写起来还是很简单，rooms只会“堆顶被pop再更新push”和“pop新的room”两种情况。不过题解里有一个很骚的操作，就是会把rooms里end<=itv.start的元素都pop掉。怎么理解这个东西？
+
+首先按我原本的设计，rooms的len只会不变和变大，不仅如此，当前itv的end是必然会进优先队列的，区别只在于堆顶会不会pop（也可以理解为itv是会进入优先队列的，因为这里需要考虑itv.start了）。原本设计里优先队列“时刻对应”rooms的已有排列。但前面的思考里，也体现出了，rooms内可能多个room的end都<=itv.start，这部分rooms不会对当前itv和之后的itv产生影响。无法产生影响，就可以直接当做“不存在”。“不存在”，所以可以从heapq里剔除掉，当前itv必然加入heapq（itv会不会影响，要看下一个itv的比较），当然，这时的heapq可能比“当前实际rooms len”小，所以用max来追踪heapq的len最长的时候。
+
+（题解思路还不够清晰，有空再思考下）
+
+### Problem Challenge 2 - Maximum CPU Load (hard)
+
+```
+We are given a list of Jobs. Each job has a Start time, an End time, and a CPU load when it is running.
+Our goal is to find the maximum CPU load at any time if all the jobs are running on the same machine.
+
+Example 1:
+
+Jobs: [[1,4,3], [2,5,4], [7,9,6]]
+Output: 7
+Explanation: Since [1,4,3] and [2,5,4] overlap, their maximum CPU load (3+4=7) will be when both the
+jobs are running at the same time i.e., during the time interval (2,4).
+
+Example 2:
+
+Jobs: [[6,7,10], [2,4,11], [8,12,15]]
+Output: 15
+Explanation: None of the jobs overlap, therefore we will take the maximum load of any job which is 15.
+
+Example 3:
+
+Jobs: [[1,4,2], [2,4,1], [3,6,5]]
+Output: 8
+Explanation: Maximum CPU load will be 8 as all jobs overlap during the time interval [3,4].
+```
 
 
-- Problem Challenge 2 - Maximum CPU Load (hard)
+
 - Problem Challenge 3 - Employee Free Time (hard) *
 
 

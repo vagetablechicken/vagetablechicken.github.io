@@ -686,7 +686,11 @@ Output: 8
 Explanation: Maximum CPU load will be 8 as all jobs overlap during the time interval [3,4].
 ```
 
+很容易发现这个题和上一题安排会议，抽象下来是一样的。最容易想到的push/poppush的方法，但由于题目是求max load，所以要尝试改造，然后发现不行。因为这种方法没办法跟踪当前load sum。举例说明，假设itv已经排好序，start小的排前面，start相等时end小的排前面，如果itv1和itv2重合一部分，itv3和itv2重合，但是它并不与itv1重合，在看itv2和3重合的那一段时，load应该是2和3的load之和；而如果itv3和itv1也重合了，这时就应该是三个itv的load之和。但push/poppush是区分不了的，因为它只和heap top比较了一下，摸不到别的itv。
 
+再想到while pop这个方法，虽然在上一题里它很不容易理解，但这道题反而该使用这个方法。核心在于while pop出和当前itv无关的itv，并相应减掉它们的load，就能够实时追踪到某一个时刻的load之和了。
+
+- [ ] 再理解下上一题和while pop方法。
 
 - Problem Challenge 3 - Employee Free Time (hard) *
 

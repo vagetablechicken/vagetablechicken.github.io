@@ -692,9 +692,33 @@ Explanation: Maximum CPU load will be 8 as all jobs overlap during the time inte
 
 - [ ] 再理解下上一题和while pop方法。
 
-- Problem Challenge 3 - Employee Free Time (hard) *
+### Problem Challenge 3 - Employee Free Time (hard) 
 
+https://leetcode-cn.com/problems/employee-free-time/ plus
 
+```
+For ‘K’ employees, we are given a list of intervals representing the working hours of each employee.
+Our goal is to find out if there is a free interval that is common to all employees.
+You can assume that each list of employee working hours is sorted on the start time.
+
+Example 1:
+
+Input: Employee Working Hours=[[[1,3], [5,6]], [[2,3], [6,8]]]
+Output: [3,5]
+Explanation: Both the employess are free between [3,5].
+
+Example 2:
+
+Input: Employee Working Hours=[[[1,3], [9,12]], [[2,4]], [[6,8]]]
+Output: [4,6], [8,9]
+Explanation: All employess are free between [4,6] and [8,9].
+
+Example 3:
+
+Input: Employee Working Hours=[[[1,3]], [[2,4]], [[3,5], [7,9]]]
+Output: [5,7]
+Explanation: All employess are free between [5,7].
+```
 
 这题本质是求区间的反，所以可以用交集并集差集来理解这个题，方便快速的分辨多个解法的复杂度。当然，最佳算法可能比这种逻辑运算更简单，但不熟悉这类题目的情况下，越抽象的思考越简单。
 

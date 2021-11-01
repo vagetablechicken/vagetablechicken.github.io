@@ -740,6 +740,8 @@ Explanation: All employess are free between [5,7].
 
 后面处理部分很好说，核心是前面的部分，即考虑“k个中选最小的”怎么高效，基本的归并算法就两路，if-else都能行，k路肯定是不可能一个一个比的，很明显可以利用最小堆，每次的top就是最小的，top取出来后，top所在的list就应该补充一个区间进入最小堆。python中也就是使用heapq，可以极快的写完代码。
 
+##### 堆
+
 首先是二叉堆，巩固下：
 
 我们希望有一个数据结构，它可以迅速pop出最小的，push一个新的数也希望是对数时间里完成，这样的时间复杂度才有价值，不然简单的有序数组pop/push都是O(n)就足够了，还简单。
@@ -768,11 +770,21 @@ Explanation: All employess are free between [5,7].
 
 - [ ] 具体的再搜搜资料。
 
-##### 败者树
+winner/loser tree很像B+树，非叶子节点是不存值的，所以所以所以，它们可以用在“外排序external sorting”上。
 
-败者树和胜者树又是可以一起看的类似结构。胜/败者树都是类似B+树，只有叶子节点是真实值，非叶子节点是胜者/败者的标号，而且它得是完全二叉树，不会有歧义。
+https://www.cise.ufl.edu/~sahni/cop5536/ 这个网站有很详细的exteral sorting的ppt，需要好好看看。
 
-但胜者树和败者树**不是**单纯的一个非叶子节点记录胜者，一个非叶子节点记录败者，否则这两种就应该是一种树，只要compare函数求个反就行了。
+针对winner/loser tree（统一可以叫做Tournament Tree）来讲，你需要知道，Tournament Tree可以利用于improve run generation, 也可以improve run merging。
+
+解释下run generation。外排序不可能把所有的扔进内存里，所以只能先切分成小部分排序，然后做merge，这两步叫做，run generation和run merging。A run is a sorted squence of records。
+
+improve run generation最简单的就是reduce the number of runs(也就是increase average run length)。但这也是有极限的，而且由于外排序在IO上很耗时，所以overlap IO也是一个优化方法。都在课件里，之后再慢慢看。
+
+- [ ] 优先学习课件lec05，主要讲解tournament tree。
+
+##### tournament tree
+
+败者树和胜者树又是可以一起看的类似结构。胜/败者树都是类似B+树，只有叶子节点是真实值，非叶子节点是胜者/败者的标号，而且它得是完全二叉树，不会有歧义。但胜者树和败者树**不是**单纯的一个非叶子节点记录胜者，一个非叶子节点记录败者，否则这两种就应该是一种树，只要compare函数求个反就行了。
 
 胜者树更简单，我们先看胜者树，比如小的是胜者，那么每个非叶节点都是它的子节点中更小的那个标号，树顶就是最小元素的标号。当我们改变其中一个元素（对应于堆的pop又push，堆无法变成一个操作，而在胜者树里，可以是一个操作），要让现在的树又变成胜者树，我们只需要“叶子节点一路往上到根节点”的比较，不需要像堆一样来两遍。
 

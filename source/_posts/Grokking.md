@@ -772,7 +772,7 @@ Explanation: All employess are free between [5,7].
 
 winner/loser tree很像B+树，非叶子节点是不存值的，所以所以所以，它们可以用在“外排序external sorting”上。
 
-https://www.cise.ufl.edu/~sahni/cop5536/ 这个网站有很详细的exteral sorting的ppt，需要好好看看。
+https://www.cise.ufl.edu/~sahni/cop5536/ 这个网站有很详细的exteral sorting的ppt，需要好好看看。（但是很难懂。。可以当作提纲）
 
 针对winner/loser tree（统一可以叫做Tournament Tree）来讲，你需要知道，Tournament Tree可以利用于improve run generation, 也可以improve run merging。
 
@@ -780,9 +780,11 @@ https://www.cise.ufl.edu/~sahni/cop5536/ 这个网站有很详细的exteral sort
 
 improve run generation最简单的就是reduce the number of runs(也就是increase average run length)。但这也是有极限的，而且由于外排序在IO上很耗时，所以overlap IO也是一个优化方法。都在课件里，之后再慢慢看。
 
-- [ ] 优先学习课件lec05，主要讲解tournament tree。
-
 ##### tournament tree
+
+https://www.geeksforgeeks.org/tournament-tree-and-binary-heap/
+
+- [ ] 看geeks学
 
 败者树和胜者树又是可以一起看的类似结构。胜/败者树都是类似B+树，只有叶子节点是真实值，非叶子节点是胜者/败者的标号，而且它得是完全二叉树，不会有歧义。但胜者树和败者树**不是**单纯的一个非叶子节点记录胜者，一个非叶子节点记录败者，否则这两种就应该是一种树，只要compare函数求个反就行了。
 

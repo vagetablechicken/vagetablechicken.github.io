@@ -796,7 +796,9 @@ improve run generation最简单的就是reduce the number of runs(也就是incre
 
 而且注意，胜者树是所有参赛者都作为叶子节点的，比如，有3个叶子节点时怎么建树？有6个叶子结点时，最后一层3个节点，那它的上一层又怎么办？
 
+https://karanchauhan16.medium.com/tournament-winner-solution-in-python-f304c46dec8d
 
+- [ ] 这个实现看一下
 
 败者树
 

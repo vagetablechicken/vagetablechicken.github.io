@@ -32,10 +32,12 @@ k长的**连续子序列**，使该子序列和最大，这个和为output。
 总体看下来，只要横移和收缩，算法复杂度是O(n)。
 
 #### 初步思路
+
 初步思路是，先算个nums[0...x]之和 >= target的窗口，然后这个窗口开始向右移并尝试收缩。但其实不对，因为第一个窗口，不是非得从第0个元素开始，这个窗口自身就应该尝试收缩。这个逻辑补上后是能ac的。
 不过，初步思路翻译为代码，还是有些小坑，肉眼很难查。建议背一个滑动窗口模板。
 
 #### 滑动窗口模板思路
+
 此思路最核心的思想就是，不强求窗口横移，反正先向右扩展1个，再左边收缩一个，就达到了横移。
 因此滑动窗口的头尾都可以移动，而且是分别移动，用两个变量来表示，（start，end）。
 因为收缩（start向右移）和扩展（end向右移）可以各做各的，所以没必要先找到一个总和 >= target的初始窗口了。
@@ -44,13 +46,14 @@ k长的**连续子序列**，使该子序列和最大，这个和为output。
 
 ```
 while end < n:
-	tmp_sum += nums[end]
-	while tmp_sum >= target:
-		win_size = min(win_size, end-start+1)
-		tmp_sum -= nums[start]
-		start += 1
-	end += 1
+    tmp_sum += nums[end]
+    while tmp_sum >= target:
+        win_size = min(win_size, end-start+1)
+        tmp_sum -= nums[start]
+        start += 1
+    end += 1
 ```
+
 至于几个变量的初始值，现场推理一下也可以得到，不做赘述。
 P.S. win_size没必要用int的max，用len(nums)+1就可以了，反正都是不可能的值。
 
@@ -77,8 +80,6 @@ Given a string, find the length of the longest substring in it with no more than
 所以update longest string len是在while循环外，而且是之后。
 至于如何实现dict和distinct_count，随便吧，简单也好，高效也好。
 
-
-
 P.S.注意到了吗，这个题目和前面一题Smallest Subarray的区别？
 
 看不出来也正常，我做了几道题才突然回头发现的😂而且明明之前做过笔记，重蹈覆撤🙄️
@@ -91,14 +92,14 @@ P.S.注意到了吗，这个题目和前面一题Smallest Subarray的区别？
 
 ```
 while end < n:
-	dic[s[end]]+=1
-	while len(dic)>k:
-		dic[s[start]]-=1
-		if dic[s[start]]==0:
-			del dic[s[start]]
-		start+=1
-	longest = max(longest, end-start+1)
-	end+=1
+    dic[s[end]]+=1
+    while len(dic)>k:
+        dic[s[start]]-=1
+        if dic[s[start]]==0:
+            del dic[s[start]]
+        start+=1
+    longest = max(longest, end-start+1)
+    end+=1
 ```
 
 这样的写法，保证了longest变量更新时，当前窗口都是len(dic)<=k的，也就是合法的情况。但确实可能会出现窗口被收缩的很小的时候（为了合法），此时max更新也是白干的（longest还是原值）。
@@ -107,14 +108,14 @@ while end < n:
 
 ```
 while end < n:
-	dic[s[end]]+=1
-	if len(dic)>k:
-		dic[s[start]]-=1
-		if dic[s[start]]==0:
-			del dic[s[start]]
-		start+=1
-	longest = max(longest, end-start+1)
-	end+=1
+    dic[s[end]]+=1
+    if len(dic)>k:
+        dic[s[start]]-=1
+        if dic[s[start]]==0:
+            del dic[s[start]]
+        start+=1
+    longest = max(longest, end-start+1)
+    end+=1
 ```
 
 自然，在longest更新时，当前窗口可能都还满足条件，不合法，但仍旧去做了一次longest的更新。但从数值上来讲，由于不满足条件会被收缩一次，加上前面的end扩展一次，窗口等于做了一次平移。那么end=start+1的值就不会变大，longest的更新自然也是不会有实际作用的。
@@ -144,7 +145,6 @@ while end < n:
 ### [Longest Substring with Same Letters after Replacement (medium, amazon) -- GeeksforGeeks](https://practice.geeksforgeeks.org/problems/maximum-sub-string-after-at-most-k-changes/0)
 
 We have a string **s** of length n, which consist only UPPERCASE characters and we have a number k (always less than n and greater than 0). We can make at most k changes in our string such that we can get a sub-string of maximum length which have all same characters.
-
 
 **Example 1:**
 
@@ -262,8 +262,6 @@ P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看
 
 总的看“前缀和+单调队列”，大概的最好状态是每次O(1)，然后n个j，所以O(n)，比如，每次看队列头d[0]的preSum都很大，不能让preSum[j]-preSum[d[0]]>=k，单调递增的d后面的元素也不能满足要求了，所以每次就立马完成。最差的状态可能是某次j，从0到j遍历，每次都符合条件，都要pop并更新window len。但很明显，队列最多跟n一样长，而且pop出去了又不会回来，所以次数最多n次，并不会膨胀。所以总的复杂度还是O(n)的。
 
-
-
 这道题还是很难的，难在拼出正确的方法，知道方法后，代码实现不难。
 
 #### [Max Consecutive Ones III](https://leetcode.com/problems/max-consecutive-ones-iii/)
@@ -277,8 +275,6 @@ P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看
 #### [Count Number of Nice Subarrays (medium) -- LeetCode](https://leetcode.com/problems/count-number-of-nice-subarrays/)
 
 这题一看就不适合立马套用模板，扩展和收缩求最长最短很有效，但这里没有用处。举例说明，当我们找到一个窗口恰好有k个奇数，此时可以滑动窗口么？当然不能。所以放弃吧。然后考虑到奇数是核心，先找到k个奇数的最小可能，它的左右两边如果分别有a个偶数和b个偶数，那么这里就有很多个子串可能，1+a+b+a*b。而找奇数，可以直接抽出奇数，这样奇数数组里每k个就是一个base，延展下两边的偶数。既没有重复也不会漏算。
-
-
 
 滑动窗口完结撒花🎉
 
@@ -307,8 +303,6 @@ P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看
 用高数教材的定义，当x1<x2时，都有f(x1)<f(x2)，f(x)就是递增函数，increasing function。其实“单调”这个词有些干扰。
 
 increasing就是上升，不存在横着走，non-decreasing就是不下降，那自然可能横着走走（也就是，可能相邻几个数相等）。剩下两个同理。
-
-
 
 题目本身很简单，结果是从小到大，但是绝对值最小的数不好找，所以反其道而行之，找大的然后放在尾部就行了。
 
@@ -377,18 +371,16 @@ for-while的写法，就是可能会出现while结束后，start == end + 1，�
 这个比较顺畅的思路是：
 
 1. 首先思考第一个和第二个数，简写为a和b，它们都是for循环，比较类似。
-
+   
    假设a固定，看b的移动。b如果右移还是同样的值，“右移之后的解集”只会小于等于“右移前”的（cd因为b的右移，可能性变少了），可以想到，解集不会增加任何可能性，反而只可能减少，b的取值却又是一模一样，那么右移后的abcd组合，在右移前遍历中都考虑完了，自然完全没必要重复遍历，所以b要一直跳到和前一个值不一样的地方，才需要进行遍历求解。
-
+   
    而a的情况也一样，a的右移只可能使得bcd组合减少，没有新花样，a右移前后的解，值都一样，右移后的完全可以被跳过。所以a也是要跳到和前一个值不一样的地方。
 
 2. 再思考cd两个值，如何过滤重复的解。
-
+   
    c+d不等于想要的值时，方向很明确，只会left或者right某一个移动。如果c移动到下一个值还是不变，那还是c+d不等于期望值。所以不等于的情况不用过滤。而c+d==期望值时，如果只有left右移，那么肯定要跳过重复的值。但如果是right那边重复，只left跳过重复值，能否解决问题？答案是可以。举例说明，当left这边序列是11111xxx时，1+d==期望值，那么left一直移动到最后一个1，下一个数就不是1的时候，abcd这个组合可以成为一个合法解，然后left++，那么下一次while时就是大于1的数+没有动的d，那肯定是大于期望值，right那边就会左移，遇到重复的right还是左移，并不需要考虑过滤。
-
+   
    当然，只做right的重复过滤也可以。没必要做两边的。当然两边都跳过也行，但少写代码少错😄。
-
-
 
 再思考下几数和问题，两数和就是双指针，线性复杂度，三数和就是指定一个数再解决两数和，平方复杂度，四数和三次方复杂度。
 
@@ -397,8 +389,6 @@ for-while的写法，就是可能会出现while结束后，start == end + 1，�
 顺序找规律怎么也找不到时，一定要记得反向试试。数组题一定要记得反向可能有奇效！！！
 
 此题没有什么巧妙写法，写出来的代码有点长，不过容易调试成功。
-
-
 
 ### Problem Challenge 3 - Minimum Window Sort (medium) *
 
@@ -444,9 +434,8 @@ Example1中1和2在应该在的位置，就很容易想到指针找到第一个�
 
 - [ ] code
 
-
-
 ## 3. Pattern: Fast & Slow pointers
+
 ### [LinkedList Cycle (easy)](https://leetcode-cn.com/problems/linked-list-cycle/)
 
 题目描述很反人类，但其实就是给你一个链表（只有head指针），让你判断是否有环。进阶是只使用O(1)的空间，也就是常量空间。
@@ -463,7 +452,7 @@ Example1中1和2在应该在的位置，就很容易想到指针找到第一个�
 
 很简单的题，把两个case都手动推理一遍，就知道了。hint：fast先走，提前退出，slow就不用走了。
 
-### [Start of LinkedList Cycle (medium)](https://leetcode-cn.com/problems/linked-list-cycle-ii/) 
+### [Start of LinkedList Cycle (medium)](https://leetcode-cn.com/problems/linked-list-cycle-ii/)
 
 这个题猜得到是需要快慢指针相遇后再加点什么操作的，但是推理容易卡壳。主要还是对快慢指针相遇的情况理解的不够。
 
@@ -483,7 +472,7 @@ Example1中1和2在应该在的位置，就很容易想到指针找到第一个�
 
 n必然>=1，因为fast肯定走的多点，不然fast=a+b+n(b+c)就不对了。那么，a最小就等于c，不可能比c小。这个事情挺有趣的。没有想到一个很通俗易懂的表达，但数学证明了也就证明了吧。
 
-### [Happy Number (medium)](https://leetcode-cn.com/problems/happy-number/) 
+### [Happy Number (medium)](https://leetcode-cn.com/problems/happy-number/)
 
 这题现在是简单😂
 
@@ -503,7 +492,7 @@ n必然>=1，因为fast肯定走的多点，不然fast=a+b+n(b+c)就不对了。
 
 而这样的问题缩减，有什么好处呢？好处在于，243个数字，最大值也就是243，大可以暴力算加是否已存在判定，最大空间复杂度也就到243，比起给一个数就缓存，空间占用要小一些。（其实应该也小不了多少，毕竟收缩很快）但把<=243的数字直接打成表，对于频繁查快乐数的情况，就会节约时间的多。oj时间上节省的会比较明显。如果只是一次快乐数判定，当然打表反而还浪费时间。
 
-### [Problem Challenge 1 - Palindrome LinkedList (medium)](https://leetcode-cn.com/problems/palindrome-linked-list/) 
+### [Problem Challenge 1 - Palindrome LinkedList (medium)](https://leetcode-cn.com/problems/palindrome-linked-list/)
 
 难度简单。
 
@@ -537,7 +526,7 @@ Output: 2 -> 10 -> 4 -> 8 -> 6 -> null
 
 如果不用递归写法，这个题还是和challenge1一样，可以把后半部分链表原地反转。不多赘述。
 
-### [Problem Challenge 3 - Cycle in a Circular Array (hard)](https://leetcode-cn.com/problems/circular-array-loop/) 
+### [Problem Challenge 3 - Cycle in a Circular Array (hard)](https://leetcode-cn.com/problems/circular-array-loop/)
 
 题目有点难读，但解析下来，题目的意思是，首先有个环有n个节点，节点里的值表示下一步会向前or向后跳几个节点，可以理解为**在做链表的next链接**。这样下来很可能会出现环状的链表，而且题目定义的链表更狭窄点，k=1（一个节点自环）的不算，不算一会儿前进一会儿后退的。
 
@@ -556,6 +545,7 @@ Output: 2 -> 10 -> 4 -> 8 -> 6 -> null
 这个思路比快慢指针代码上简单点，时间复杂度上却不是变少，因为这个思路走满环，最坏时能达到数组长度，O(n)，快慢指针中fast指针和slow指针第一次相遇时slow也没有走满环，fast多一倍步数，也没差多少。所以这个思路也不会带来质变，聊胜于无。
 
 ## 4. Pattern: Merge Intervals
+
 ### [Merge Intervals (medium)](https://leetcode-cn.com/problems/merge-intervals/)
 
 挺简单的题，尤其是我对这种merge interval的题有一个印象，就是“反着比正着简单”。所以很容易就想到了，这题应该反向来看intervals，所以遍历顺序是end大的到end小的，合并interval或者即时push interval到result里，都很简单，不用多注意什么。
@@ -609,7 +599,7 @@ Explanation: Since [4,5] and [3,6] overlap, a person cannot attend both of these
 
 最简单的区间问题，排序完了，遍历就行了。排序是正着还是反着都行。反正拍完序，只需要看相邻两个区间有没有相交。
 
-### Problem Challenge 1 - Minimum Meeting Rooms (hard) 
+### Problem Challenge 1 - Minimum Meeting Rooms (hard)
 
 https://leetcode-cn.com/problems/meeting-rooms-ii/ plus
 
@@ -692,7 +682,7 @@ Explanation: Maximum CPU load will be 8 as all jobs overlap during the time inte
 
 - [ ] 再理解下上一题和while pop方法。
 
-### Problem Challenge 3 - Employee Free Time (hard) 
+### Problem Challenge 3 - Employee Free Time (hard)
 
 https://leetcode-cn.com/problems/employee-free-time/ plus
 
@@ -720,25 +710,31 @@ Output: [5,7]
 Explanation: All employess are free between [5,7].
 ```
 
-这题本质是求区间的反，所以可以用交集并集差集来理解这个题，方便快速的分辨多个解法的复杂度。当然，最佳算法可能比这种逻辑运算的计算量更小，但不熟悉这类题目的情况下，越抽象的思考越容易做。
+这题本质是一种反向，题目提过工作时间，让你求非工作的某种时间，所以可以用交集并集差集来理解这个题，方便快速的分辨多个解法的复杂度。当然，最佳算法可能比这种逻辑运算的计算量更小，但不熟悉这类题目的情况下，越抽象的思考越容易做。
 
 可以看到k个list，每个list都多个interval，所有的interval的并集，就是所有员工的工作时间，这个集合的反，就是所有的空闲区间（空闲区间显然也可以是多个）。
 
-题目说明了，k个list，list内的区间都是有序的。这很像k路归并排序。按理可以比所有inteval混在一起排序更高效。那我们先mark这个归并思路，放在一边。
+题目说明了，k个list，list内的区间都是有序的。这很像k路归并排序。按理可以比所有inteval混在一起排序更高效。那我们先mark这个归并思路，放在一边。（有序基本就是在提醒我们存在“利用有序”的优化算法）
 
-假设经过某种排序算法后，现在已经得到了所有interval的排序结果，求反只需要遍历就行了。再优化，肯定是不去全排序，而利用list内interval有序来做类似归并排序的操作。好，又回到了归并思路。再放放，不急。
+#### 简单思路
 
-再思考一下，还可以想到，我先不把所有list合在一起，我每个list先求反，得到每个员工的空闲时间，所有的空闲时间的交集就是最终答案。但空闲时间区间个数不见得比工作区间个数少多少（应该是，对每个list，空闲区间=工作区间-1）。并没有把复杂降低的感觉。而且空闲时间的交集这个概念比并集复杂，因为空闲区间没办法全部一起求交集。想象一下，假设5个员工，有1个在[0,t]之间都不空闲，但是另外4个可以求出交集，但是这个交集是不能要的，因为有一个人不空闲。区间全混在一起时，根本无法判断。所以还是求并集吧。
+假设经过某种算法，已经计算出了所有working hours的并集，这个并集当然可能是多个区间，不一定是一个连续区间。求反只需要遍历这一堆区间就行了。
 
-回归“求并集再求反”的思路。全排序的方法很好写。不过我老老实实先求并再求反，也就是两步，实际上这两步可以并成一步。“有序区间列表”的并集再求反，其实就是求区间的gap。当所有工作区间排序好后，上一个和下一个区间如果有重合，就说明没有gap。没有重合时，这里一定有一个gap。所以一次遍历就可以了。
+再来考虑，这个“某种算法”求并集，怎么做。最简单的肯定是全排序。每个区间先比较start，小的排在前面，end随意。这里很可能会出现连续几个区间是有重合部分的，所以，求并集，还得遍历一边，重组一下区间，得到并集（不重合的区间组成的数组）。然后还得再遍历求反。
 
-当然，还是避不开归并优化的问题。来思考如何利用归并。
+简单一想，也知道，最后一次遍历多余了。
+
+所以，可以立马优化为，遍历已排序的区间时就求空闲区间。
+
+可以再思考一下，我先每个list先求反，得到每个员工的空闲时间，所有的空闲时间的交集也是最终答案。但空闲时间区间个数不见得比工作区间个数少多少（应该是，对每个list，空闲区间=工作区间-1）。并没有把复杂降低。而且求交集比求并集复杂，因为空闲区间没办法全部一起求交集。想象一下，假设5个员工，有1个在[0,t]之间都不空闲，但是另外4个却可以在[0,t]这个时间内存在交集，但是这个交集是不能要的，因为那一个人不空闲。区间全混在一起时，根本无法判断。所以还是求并集吧。
 
 #### 归并思路
 
-归并思路，k个list也就是k路，每次都从k个list的头上选出最小的。这个pick出来的区间，和前面已经pick出来的区间是有序的，所以只要比一下current intv的end和pick出来的intv的start，如果不重合就说明有一段空间，如果重合就选end最大的那个作为current intv，循环下去。
+每个list“有序“，自然是提醒我们要充分利用这个特性。全排序肯定不够用。而list内interval有序，很显然可以做类似归并排序的操作。
 
-后面处理部分很好说，核心是前面的部分，即考虑“k个中选最小的”怎么高效，基本的归并算法就两路，if-else都能行，k路肯定是不可能一个一个比的，很明显可以利用最小堆，每次的top就是最小的，top取出来后，top所在的list就应该补充一个区间进入最小堆。python中也就是使用heapq，可以极快的写完代码。
+归并思路，k个list也就是k路，每次都从k个list的头上选出最小的。这k个区间比还呆在list里的区间的start都要小，在k个中选出来的start最小的区间，也就是全局start最小的区间。所以，当我们将k个中选start最小看作一个模块时，我们从这个模块中拿出“剩余区间”中start最小那个区间。一个一个拿，就是总能按顺序拿出区间了。
+
+核心是这个模块如何实现，即考虑“k个中选最小的”怎么高效，归并算法如果只有两路，当然if-else都能行，但k路肯定是不可能一个一个比的，很明显可以利用最小堆，每次的top就是最小的，top取出来后，top所在的list就应该补充一个区间进入最小堆。python中也就是使用heapq，可以极快的写完代码。
 
 ##### 堆
 
@@ -750,27 +746,35 @@ Explanation: All employess are free between [5,7].
 
 再说什么树，因为没有什么限定条件，二叉树就是最简单的。然后再想，n个数去构建二叉树，如果n不是2^k-1，那这个二叉树就不满，不满也不能乱搞，因为对数时间，你当然希望这个树足够矮小，不然最坏情况又是线性了。所以平衡二叉树是理想形态。
 
-而平衡二叉树是不用非要链表组成树的，它可以用连续数组表示。这也是让代码更简单的一个优点。
+而平衡二叉树并不必须用链表作为节点，它可以用连续数组表示。这也是让代码更简单的一个优点。
 
-再来说说二叉树的基本操作逻辑。一个是pop，pop出堆顶后，树的根节点就空了，这个“树”就不是有效的树了，那得想个办法修好，办法就是把最尾部的元素移动到堆顶，这个时候不满足堆有序，那么就去让它有序，画画图也可以发现，只有堆顶也就是根节点不符合堆有序，那么调整根节点和它的两个子节点，比如它和左子节点交换，它们三个就堆有序了。但因为左子节点变了，它和它的两个子节点可能又乱了，就继续调整。一层一层往下，也叫做“下沉”。只会沿着某一条路径下沉到叶子，所以复杂度是logn，不会影响别的路径。
+再来说说二叉树的基本操作逻辑。
 
-二是push，新增一个元素到已形成的堆，将新元素塞入树中间显然不合理，放在最后一个位置，就像是多给某个节点加了个子节点。然后，这个节点和它的一个或两个子节点，可能不满足堆有序，就需要调整。调整后，它做为子节点，可能又不能有序，于是就“上浮”，上浮到根节点就结束了。同样的，只会影响一条路径，也是O(n)。
+一个是pop，pop出堆顶后，树的根节点就空了，这个“树”就不是有效的树了，那得想个办法修好，办法就是把最尾部的元素移动到堆顶，这个时候不满足堆有序，那么就去让它有序，画画图也可以发现，只有堆顶也就是根节点不符合堆有序，那么调整根节点和它的两个子节点，比如它和左子节点交换，它们三个就堆有序了。但因为左子节点变了，它和它的两个子节点可能又乱了，就继续调整。一层一层往下，也叫做“下沉”。只会沿着某一条路径下沉到叶子，所以复杂度是logn，不会影响别的路径。
 
-再提一嘴python的heapq，优先队列一般底层结构就是二叉堆，具体二叉堆怎么实现都行，python这里也是使用数组，但是它的内部方法实现不是前面提到的算法，它更高效，可以仔细看下heapq的实现和注释，实名diss了前面的算法。
+二是push，新增一个元素到已形成的堆，将新元素塞入树中间显然不合理，放在最后一个位置，就像是多给某个节点加了个子节点。然后，这个节点和它的一个或两个子节点，可能不满足堆有序，就需要调整。调整后，它作为子节点，可能又不能有序，于是就一直“上浮”，上浮到根节点就结束了。同样的，只会影响一条路径，也是O(n)。（如果当前堆已经满了呢？新加的节点，在逻辑上看，就是树多加了一层，这一层只有一个节点。说得通。）
 
-但这个不影响时间复杂度，不可能比logn更小，只是时间优化。
+再提一嘴python的heapq，优先队列一般底层结构就是二叉堆，具体二叉堆怎么实现都行，python这里也是使用数组，但是它的内部方法实现不是前面提到的算法，它更高效，可以仔细看下heapq的实现和注释，实名diss了前面的常规算法。但这个不影响时间复杂度，不可能比logn更小，只是时间优化。（heapq算法里的siftup,siftdown和上浮下沉就对不上了。有空可以学习下。）
 
-具体到这个题目所需要的操作，首先要思考这个堆该如何运行，放多少数据，pop出来后又push多少进去，初步设计应该尽量分割步骤，目标是迅速理解，后面再做优化。
+而且heapq提供heapreplace，也就是把堆的pop和push两步放在一步完成，因为size恒定。你如果pop[0]，就把新的元素放在[0]就行，让它下沉，就pop了堆化一次，又push，加一个尾部元素，又堆化一次。
+
+注意heapq.heapreplace是一定replace的，它不会管你想push的元素会不会比heap top更小。它一定输出heap的top，再把push值塞进heap里。不过我们这个题目，是可以保证push的大于等于heap top的，不会有问题。
+
+如果没有这一点保证，你想做的就是push后pop，因为你想从heap和想push的新值一起看的集合中最小的值，可以使用headpq.heappushpop。不过，这个自己写也行，逻辑不复杂，就是先peek一下堆顶，如果push的新值更小，就直接返回，如果不是，就把堆顶值取出，把新值放在堆顶，然后堆化。
+
+##### 返回题目
+
+具体到这个题目所需要的操作，首先要思考这个堆该如何运行，放多少数据，pop出来后又push多少进去，初步设计应该尽量分割步骤，目标是迅速写出正确的算法，后面再做优化。
 
 所以初步设想是，k路数组，每个数组自己内部有序，但k个数组的头，我们是不知道谁最小的，所以把k个数组的头放进堆，我们就可以立马拿到最小的数，此时堆里剩k-1个数，这时候应该将pop出去的那一路的新头补充进堆，因为我们知道数组内的都比堆里的大，只有堆里的有资格比拼一下，所以堆大小在运行期间应该保持为k，不需要多放，多了增加复杂度，少了就比不出全局最小了。
 
-堆算法完成了。再讨论的话，就是堆的pop和push两步，其实可以一步完成，因为size恒定，你如果pop[0]，就把新的元素放在[0]就行，不用去拿尾部元素。
+##### 败者树
 
-但是如果提到有没有别的思路，就肯定要说到败者树算法了。本质都是树，不会有数量级提升。但总有些区别。
+堆解法不是终点， 如果提到有没有别的思路，就肯定要说到败者树算法了。本质都是树，不会有数量级提升。但总有些区别。
 
-- [ ] 具体的再搜搜资料。
+###### 外排序todo
 
-winner/loser tree很像B+树，非叶子节点是不存值的，所以所以所以，它们可以用在“外排序external sorting”上。
+winner/loser tree很像B+树，非叶子节点是不存值的，所以，和B+树蕾丝，它们可以用在“外排序external sorting”上。
 
 https://www.cise.ufl.edu/~sahni/cop5536/ 这个网站有很详细的exteral sorting的ppt，需要好好看看。（但是很难懂。。可以当作提纲）
 
@@ -780,15 +784,21 @@ https://www.cise.ufl.edu/~sahni/cop5536/ 这个网站有很详细的exteral sort
 
 improve run generation最简单的就是reduce the number of runs(也就是increase average run length)。但这也是有极限的，而且由于外排序在IO上很耗时，所以overlap IO也是一个优化方法。都在课件里，之后再慢慢看。
 
-##### tournament tree
+###### 返回tournament tree
 
-https://www.geeksforgeeks.org/tournament-tree-and-binary-heap/
+败者树和胜者树是可以一起看的类似结构。胜/败者树都是类似B+树，只有叶子节点是真实值，非叶子节点是胜者/败者的标号，而且它是完全二叉树，不会有歧义。但胜者树和败者树**不是**单纯的一个非叶子节点记录胜者，一个非叶子节点记录败者，否则这两种就应该是一种树，只要compare函数求个反就行了。
 
-- [ ] 看geeks学
+胜者树
 
-败者树和胜者树又是可以一起看的类似结构。胜/败者树都是类似B+树，只有叶子节点是真实值，非叶子节点是胜者/败者的标号，而且它得是完全二叉树，不会有歧义。但胜者树和败者树**不是**单纯的一个非叶子节点记录胜者，一个非叶子节点记录败者，否则这两种就应该是一种树，只要compare函数求个反就行了。
+胜者树更简单，我们先看胜者树，比如小的是胜者，那么每个非叶节点都是它的子节点中更小的那一个。原理很简单，实现上要捋一捋。
 
-胜者树更简单，我们先看胜者树，比如小的是胜者，那么每个非叶节点都是它的子节点中更小的那个标号，树顶就是最小元素的标号。当我们改变其中一个元素（对应于堆的pop又push，堆无法变成一个操作，而在胜者树里，可以是一个操作），要让现在的树又变成胜者树，我们只需要“叶子节点一路往上到根节点”的比较，不需要像堆一样来两遍。
+可以把整个建树过程理解为打比赛，那比赛，肯定是从下往上打。最下层的非叶子结点先被填上值。按最简单的想法，胜者树用数组表示，每个元素是值（比较大小的值，不是索引）。这样子会有什么问题？当我们把胜者根节点拿出去，我们都不知道应该补上哪个list的元素。所以这个胜者树的节点，应该有索引，标记第i个list，这样就可以补充list[i].top进来。节点可以又保存值，又保存list标号，不过被拿来建树用的k个区间，本来也会放在一个地方，可以叫做ext数组，这样，胜者树节点只需要保存list标号就行了。ext[i]可以取值，list[i].top可以拿到补充用的区间。
+
+而且注意，胜者树是所有参赛者都作为叶子节点的，比如，有3个叶子节点时怎么建树？有6个叶子结点时，最后一层3个节点，那它的上一层又怎么办？
+
+
+
+败者树
 
 而败者树呢，非叶节点是记录败者，但是往上送的参赛者是“胜者”（关键点）。
 
@@ -823,4 +833,3 @@ https://www.geeksforgeeks.org/tournament-tree-and-binary-heap/
 - [ ] Todo
 
 题解里的答案。。。
-

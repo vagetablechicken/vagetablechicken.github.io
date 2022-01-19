@@ -871,3 +871,33 @@ Output: [1, 2, 3, 4, 5, 6]
 但这个排序算法的意义何在呢？接下来的题目里可以提现。
 
 ### [Find the Missing Number (easy) -- LeetCode](https://leetcode.com/problems/missing-number/)
+
+这个题目当然可以用cyclic sort做，但是需要注意，题目中是0-n少了某一个，然后乱序放在n长的数组里。假设缺少的那个数不是n，那么数组里就有n，上个题解中的cyclic sort，当然是不能把n这个数放对位置的，因为n长数组idx最大到n-1，没有n。
+
+这怎么办呢？看了[Coding Patterns: Cyclic Sort - emre.me](https://emre.me/coding-patterns/cyclic-sort/)就知道了，只需要忽略n就可以了，如果访问到n，就跳过n，往后访问。这样，遍历操作一遍后，就会出现，n在“不存在的那个数”的位置上，其他数都在对应的位置上。再遍历一次数组，就可以找到missing number了，显然如果遍历一遍数字都对，那么就是missing n这个数了。
+
+这个题目有多种解法，bitmap等等，还能用数学的方法来做。但cyclic sort有一个好处，就是完全没有用额外空间。
+
+### [Find all Missing Numbers (easy)](https://leetcode-cn.com/problems/find-all-numbers-disappeared-in-an-array/)
+
+跟上题不一样了，输入n长的数组，里面就是1-n的某些，数字可重复，要输出all missing numbers。
+
+但也容易做出来，拿example 1推演一遍就知道该怎么做了。把”错误位置的元素swap到正确位置“这一条规则不变，但如果有重复元素，就会出现nums[i]!=i and nums[nums[i]] == nums[i]（意思是这么，但实际上idx从0到n-1，数值从1-n，代码里得偏移），此时nums[i]这个元素就是多余的，做一个特殊标记就行了，比如0或者-1，遍历中也要先ignore特殊值。于是missing numbers就是有特殊标记的那些，因为找不到值放在这些特殊位置上，说明这些值不存在。~~代码也简单，不多赘述。~~
+
+同样，什么bitmap之类的都能做这个题，但cyclic sort可以O(n) and without extra space。
+
+说代码简单，但也撞上错误了。主要是想节约空间，就直接拿nums[nums[i]]来swap，python swap a,b = b,a 也是有执行顺序的，nums[i]中途变了，最后结果反而是没有swap。很神奇。
+
+[algorithm - How swapping variables is implemented in Python? - Stack Overflow](https://stackoverflow.com/a/62038590)可以知道，a,b=b,a实际上是x1=a, x2=b,a=x2,b=x1，当然x1、x2是栈空间，还是需要auxiliary temporary locations。swap也没有magic。
+
+不过还有一个点，就是swap这个写法，等式右边也是寻址才能拿到值，不是常量值，这里的规则是先把=右边算出来，详情见[algorithm - python a,b = b,a implementation? How is it different from C++ swap function? - Stack Overflow](https://stackoverflow.com/a/51950571)。假设nums[i]值为v1，nums[nums[i]]值为v2，
+
+nums[i], nums[nums[i]] = nums[nums[i]], nums[i]这一句会先拿出=右边的值，于是等价于nums[i], nums[nums[i]] = v2, v1。
+
+然后这个时候才会真正找左边的地址，走x1，x2那一套交换。先找nums[i]，找到了，然后赋值v2，然后nums[nums[i]]就是nums[v2]，会把v1赋值给nums[v2]。
+
+本来这个写法最多就是触发了错误的赋值，因为nums[v2]这个位置原本不应该参与进来。
+
+但有趣的是，如果case比较巧合，碰上了v2==i，例如[2,1,0]，取i=0，nums[i]=2，v1=2，nums[nums[i]]=0，v2=0，这就给循环上了。于是nums[i]先被赋值为v2，也就是nums[0]=0(v2)，然后nums[v2]被赋值v1，也就是nums[0]=2，搞了半天，什么也没有变，nums[i]这个位置的值变了又变回来。
+
+恰好我随便写的例子[4,3,2,1]完美符合。而leetcode的case1 [4,3,2,7,8,2,3,1]，虽然不直接符合，但也会死循环。举例说明，第一次交换时用的4和7(idx 0和3)，即num[i], nums[nums[i]-1] = (7, 4)，nums[0]=7，nums[7-1]=4，而第二次交换就要num[i], nums[nums[i]-1] = (4, 7)，nums[0]=4, nums[4-1]=7，第三次交换则是num[i], num[nums[i]-1]=(7, 4)，然后无限循环。这么说肯定很难懂，可以自己推演四五次交换，就会发现，由于第一次交换，无脑地使num[7-1]=4，导致之后，nums[4-1]和nums[7-1]就都不会变了，永远是7和4。然后nums[i]也就是nums[0]不是赋值为7就是赋值为4。这个case是真的牛。

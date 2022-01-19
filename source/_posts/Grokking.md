@@ -764,9 +764,11 @@ Explanation: All employess are free between [5,7].
 
 ##### 返回题目
 
-具体到这个题目所需要的操作，首先要思考这个堆该如何运行，放多少数据，pop出来后又push多少进去，初步设计应该尽量分割步骤，目标是迅速写出正确的算法，后面再做优化。
+具体到这个题目，首先要思考这个堆该如何运行，放多少数据，pop出来后又push多少进去，初步设计应该尽量分割步骤，目标是迅速写出正确的算法，后面再做优化。
 
 所以初步设想是，k路数组，每个数组自己内部有序，但k个数组的头，我们是不知道谁最小的，所以把k个数组的头放进堆，我们就可以立马拿到最小的数，此时堆里剩k-1个数，这时候应该将pop出去的那一路的新头补充进堆，因为我们知道数组内的都比堆里的大，只有堆里的有资格比拼一下，所以堆大小在运行期间应该保持为k，不需要多放，多了增加复杂度，少了就比不出全局最小了。
+
+Grokking标准答案也是使用python heapq来做，这个确实写得最快。
 
 ##### 败者树
 
@@ -774,7 +776,7 @@ Explanation: All employess are free between [5,7].
 
 ###### 外排序todo
 
-winner/loser tree很像B+树，非叶子节点是不存值的，所以，和B+树蕾丝，它们可以用在“外排序external sorting”上。
+winner/loser tree很像B+树，非叶子节点是不存值的，所以，和B+树类似，它们可以用在“外排序external sorting”上。
 
 https://www.cise.ufl.edu/~sahni/cop5536/ 这个网站有很详细的exteral sorting的ppt，需要好好看看。（但是很难懂。。可以当作提纲）
 
@@ -826,6 +828,46 @@ complete binary tree不用数组怪浪费的。而且node指针构建树，一�
 
 败者树则是必须更新winner所在的值，因为败者树要保证只更改胜者走的那条路径。有了这个保证，才能肯定parent存的败者一定是兄弟节点，才可以避免访问兄弟节点。败者树也得一路到根节点，不能因为以前是胜者，现在还是，就不往上比较了，值变了！！！
 
+## 5. Pattern Cyclic Sort
 
+这个cyclic sort，需要一点预备知识。cyclic sort条件是，数组元素必须是1到n，虽然乱序，但我们可以确定这个n长的数组里一定是1到n这n个数字，不会有别的数字。如果要对这种特别的数组排序，就可以环型排序，也可以叫圈排序。都知道1到n了还排序就很离谱，所以这并不是cyclic sort的使用场景。事实上，使用场景是Cyclic Sort这一题之外的题目。
 
-题解里的答案。。。
+### Cyclic Sort (easy)
+
+```
+Problem Statement
+We are given an array containing ‘n’ objects. Each object, when created, was assigned a unique number from 1 to ‘n’ based on their creation sequence.
+This means that the object with sequence number ‘3’ was created just before the object with sequence number ‘4’.
+
+Write a function to sort the objects in-place on their creation sequence number in O(n) and without any extra space.
+For simplicity, let’s assume we are passed an integer array containing only the sequence numbers, though each number is actually an object.
+
+Example 1:
+
+Input: [3, 1, 5, 4, 2]
+Output: [1, 2, 3, 4, 5]
+
+Example 2:
+
+Input: [2, 6, 4, 3, 1, 5]
+Output: [1, 2, 3, 4, 5, 6]
+
+Example 3:
+
+Input: [1, 5, 6, 4, 3, 2]
+Output: [1, 2, 3, 4, 5, 6]
+```
+
+这个题目着实惊呆我了，我遍历一遍直接将第i个元素改成i+1都通过测试。
+
+不过老实做题的话，这个确实可以用cyclic sort做。cyclic sort具体步骤是，遍历，当当前的元素不在它应该在的位置时，把它和它应该在的那个位置的值做个交换，比如数组[4,3,2,1]，当前看第一个元素4，它应该在最后，所以就交换一下，变成[1,3,2,4]。并且下一个要处理的元素还是当前，因为被交换了过来的元素可能也不是正确位置。
+
+这个排序法的时间复杂度看起来很诡异，不知道怎么算。但可以这么考虑，因为我每一次swap，必然把一个元素放对位置了，所以swap次数最多就n-1次。因为n-1个元素位置对了，自然最后一个元素位置就对了，所以只有n-1次。
+
+可以举个最差例子，[3,1,2]每个元素都不在正确位置。看3，swap后为[2,1,3]，3就放对了，继续看2，swap后[1,2,3]，由于2放对了，最后剩的一个元素就对了。
+
+代码很好写，不用赘述。
+
+但这个排序算法的意义何在呢？接下来的题目里可以提现。
+
+### [Find the Missing Number (easy) -- LeetCode](https://leetcode.com/problems/missing-number/)

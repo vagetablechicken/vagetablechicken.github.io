@@ -918,5 +918,100 @@ leetcode的限制下，就不一样了，最简单当然是set/hash存，但不�
 
 不过确实也是个思路，而且不能直接套用基础版的二分查找，需要一定的改动，就算没改动，也需要证明可行性。整理了一下，没什么特别的坑，很容易做出来。算法设计期间需要注意，[left, right]这个搜索范围能不能缩小，如果某些情况不能缩小，自然不能最后缩小为最终答案一个值。
 
+### [Find all Duplicate Numbers (medium) -- LeetCode](https://leetcode-cn.com/problems/find-all-duplicates-in-an-array/)
+
+这一题grokking和leetcode要求类似了，grokking不允许额外空间（一些临时变量的栈空间肯定是允许的，不然代码都写不了），也就是常数量级的空间了。
+
+这题用cyclic sort很容易做。因为题目保证了数字最多出现2次，“出现2次”在cyclic sort框架里是可以判断的，比如规则写为“出现一次的就在对应的位置上，当又想swap该值到对应位置，就说明该值第二次出现，该位置记为-2”，当你读到-2的时候就说明i这个值出现了2次。出现更多次也可以以此类推。cyclic sort可以说是完美的，不论统计出现几次的值，都可以做到。
+
+但包括这个题和之前的题目，都有另一种常见做法。本质上是hash算法，因为通过自定义的hash，我们能把原数组变成hash桶，原来的nums内每一个位置都是一个数值，hash以后，nums每一个位置i都表示“数值i”出现的情况（这个情况实际当然是数字，而且由于是原地修改nums数组，这个“情况”是编码后的样子，得对应解码才能得出真实信息。）核心就是“编码规则”。设想下，如果你不编码，假设遇到i位置上值为x，你改了nums[x]，并且不理会nums[x]原来位置的值，如果x大于i，你之后遍历到x位置时，就丢了这个数。所以必须编码，用一种方法，能够保留住原数值信息，同时也能存下这个位置i表示的数i出现了多少次。
+
+最简单的做法就是+n+1，因为值最大到n，当你遍历数组时，发现i处的数值>n+1时，说明i值在前面出现过，而出现几次就相应+n+1，这样数值为x时，可以x//(n+1)得到出现次数，而x%(n+1)就可以得到i位置原始的数值，不会漏数。这就是一种编解码规则。
+
+P.S. 也可以+n，当然，计算公式要跟着改变，[1,n]中如果取值n，求余就只能得到0了，所以值-1再求余，才可以。刚好，余数直接对应idx，+n+1的情况余数是真实数值，还得减一才能得到idx。
+
+取反也是可以使用的编解码规则，出现一次就取反，但出现第二次还取反的话，就不行了，所以最多做到得出“出现两次”这个信息（都只能即时拿到，不能二次取反写入nums数组，这样跟一次没出现的情况就混在一次了），不可能辨别有没有出现第三次。
+
+### Problem Challenge 1 - Find the Corrupt Pair (easy)
+
+```
+We are given an unsorted array containing ‘n’ numbers taken from the range 1 to ‘n’. The array originally contained all the numbers from 1 to ‘n’, but due to a data error, one of the numbers got duplicated which also resulted in one number going missing. Find both these numbers.
+
+Example 1:
+
+Input: [3, 1, 2, 5, 2]
+Output: [2, 4]
+Explanation: '2' is duplicated and '4' is missing.
+
+Example 2:
+
+Input: [3, 1, 2, 3, 6, 4]
+Output: [3, 5]
+Explanation: '3' is duplicated and '5' is missing.
+```
+
+题目不难，还是满足cyclic sort，但if-else有点多，不太简洁。因为我没有当发现duplicate number后即时保存，而是标记为-2，missing number则是标记为0。这样的算法，覆盖面更广，如果有多个duplicate或者missing number，都可以被查出来。但这个题已经明确说了dup和missing都只有一个，所以可以更简化一点。
+
+回归最简单的cyclic sort，拿example推演一下，如果发现了nums[i]想要换到的位置已经有了，这个时候dup就知道了，但是这一次要不要swap？
+
+举例说明，[1,2,3,2]，当我们看到第二个2时，显然不能swap，会死循环。不swap，那怎么做呢？按前面的算法逻辑，就该把[i]这个位置标记为0或者什么。但这么做的话，又会增加if-else，因为下一次读[i]可能有0这个值了，必须单独考虑。
+
+所以，再简单点，不swap，我也不操作了，就i+=1去搞下一个元素。这么做，是没问题的，很类似Find the Missing Number (easy)“n长的数组，是0到n这n+1个数缺了某个数”。Find the Missing Number (easy)的数组中可能有n，n是没办法交换到它应该在的位置的，所以放着就好了，它会在missing的那个位置上，或者整个数组都ok，n这个值就是missing的那一个。
+
+再总结，例如[1,2,3,2]这个数组，我们忽略第二个2，那么数组最后的样子就是[1,2,3,2]，再次遍历数组，i为3时[i]!=i+1，说明了什么？说明这个地方应该出现的值没在，所以i+1是missing number，而[i]==2，说明2是多的那个，所以[i]是dup number。
+
+最后，再理解一下，这个题目其实和Find the Missing Number一模一样，因为dup和missing number都是通过错误的那一个位置可以得到。
+
+代码见 https://gist.github.com/vagetablechicken/31b210446ec55944cb490c658c3c6a04
+
+### Problem Challenge 2 - Find the Smallest Missing Positive Number (medium)
+
+```
+Given an unsorted array containing numbers, find the smallest missing positive number in it.
+
+Example 1:
+
+Input: [-3, 1, 5, 4, 2]
+Output: 3
+Explanation: The smallest missing positive number is '3'
+
+Example 2:
+
+Input: [3, -2, 0, 1, 2]
+Output: 4
+
+Example 3:
+
+Input: [3, 2, 5, 1]
+Output: 4
+```
+
+这个题目简单一想，就是cyclic sort，sort完后第一个nums[i]!=i+1的地方就是the smallest missing positive number。但是要注意到（就算没注意到，example 3也过不了），nums中可能会出现>len+1的数，cyclic sort时也没办法把这种数放到“正确的位置”。再细想一下，总共就len这么多个数字，如果真就[1,len]每个数字出现一次，smallest missing positive number自然就只能是len+1了。所以，smallest missing positive number的取值范围只可能是[1,len+1]，不会更大了。
+
+### Problem Challenge 3 - Find the First K Missing Positive Numbers (hard)
+
+```
+Given an unsorted array containing numbers and a number ‘k’, find the first ‘k’ missing positive numbers in the array.
+
+Example 1:
+
+Input: [3, -1, 4, 5, 5], k=3
+Output: [1, 2, 6]
+Explanation: The smallest missing positive numbers are 1, 2 and 6.
+
+Example 2:
+
+Input: [2, 3, 4], k=3
+Output: [1, 5, 6]
+Explanation: The smallest missing positive numbers are 1, 5 and 6.
+
+Example 3:
+
+Input: [-2, -3, 4], k=2
+Output: [1, 2]
+Explanation: The smallest missing positive numbers are 1 and 2.
+```
+
+
 
 

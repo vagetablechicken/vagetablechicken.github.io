@@ -918,6 +918,8 @@ leetcode的限制下，就不一样了，最简单当然是set/hash存，但不�
 
 不过确实也是个思路，而且不能直接套用基础版的二分查找，需要一定的改动，就算没改动，也需要证明可行性。整理了一下，没什么特别的坑，很容易做出来。算法设计期间需要注意，[left, right]这个搜索范围能不能缩小，如果某些情况不能缩小，自然不能最后缩小为最终答案一个值。
 
+- [ ] 链表方法解这道题
+
 ### [Find all Duplicate Numbers (medium) -- LeetCode](https://leetcode-cn.com/problems/find-all-duplicates-in-an-array/)
 
 这一题grokking和leetcode要求类似了，grokking不允许额外空间（一些临时变量的栈空间肯定是允许的，不然代码都写不了），也就是常数量级的空间了。
@@ -1012,6 +1014,5 @@ Output: [1, 2]
 Explanation: The smallest missing positive numbers are 1 and 2.
 ```
 
-
-
+看起来是挺简单的变种题目，但并不是。首先数组内元素没有限制，如果数组里存在>len的数，它是会影响结果的，不能直接忽略。
 

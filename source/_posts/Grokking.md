@@ -1016,3 +1016,35 @@ Explanation: The smallest missing positive numbers are 1 and 2.
 
 看起来是挺简单的变种题目，但并不是。首先数组内元素没有限制，如果数组里存在>len的数，它是会影响结果的，不能直接忽略。
 
+可以也先不管>len的数，但这样的结果就是，可以O(n)知道<=len的missing numbers，更大的missing numbers只能枚举，而且还得排除存在于nums数组里的，所以得有个set保存nums中存在的>len的数，每个数都要查一次是否存在，O(nlogn)。
+
+这个>len的查询是省不掉的。参考答案里也是这个方法，简单朴实。
+
+注意一下example1，因为它有重复的5和5，不能用最简单的
+
+```
+while i<len:
+    if cond and nums[i] != i+1:
+        swap
+    else:
+        i+=1
+```
+
+这么的话，经过几次swap，num[0]==5了，5想要被换到idx 4的地方，但恰好这里又是5，陷入死循环。
+
+更好的逻辑是
+
+```
+while i<len:
+    j = nums[i]-1
+    if cond and nums[i] != nums[j]:
+        swap
+    else:
+        i+=1
+```
+
+因为nums[i]==i+1时，j就等于i，指向的同一个位置i，[i]!=[j]就可以判断了，还避免了重复情况。
+
+其他坑，例如要保证output个数为k个等等都比较好修复。
+
+

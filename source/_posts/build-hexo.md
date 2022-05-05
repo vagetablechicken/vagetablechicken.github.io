@@ -40,4 +40,12 @@ hexo publish <draft_name>
 hexo clean && hexo d
 ```
 
-If you want to delete a post, delete it in the source folder.
+If you want to delete a post, just delete it in the source folder.
+
+## Hexo writing
+
+### link to another post
+Ref [Include Posts](https://hexo.io/docs/tag-plugins.html#Include-Posts).
+```
+{% post_path filename %}
+```

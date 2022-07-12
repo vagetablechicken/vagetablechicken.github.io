@@ -18,6 +18,10 @@ date: 2022-05-07 00:23:43
 
 [homebrew](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/)，[homebrew-bottles](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew-bottles/)。（注意，这两个都要配置）
 
+#### gdb/lldb
+
+mac中使用lldb，不需要指定bin。`lldb -c /cores/xxx`即可。
+
 ### linux
 
 ### debian源
@@ -70,8 +74,28 @@ ps axu | grep xx | awk '{print $2}' | xargs kill -9
 netstat -ltnup
 ```
 
+### run bins
+
+运行当前目录下所有文件，测试时常用。
+
+```
+for f in *; do ./$f; done
+```
+
+
+
 ## npm
 
 如果目的是pnpm，不用单独下载npm，直接下载pnpm就行。 https://pnpm.io/zh/installation
 
 如果是npm，下载nvm更合适管理node版本。
+
+
+
+## keyboard
+
+rk61键盘配合mac使用，支持很差，还是需要改键。使用karabiner-element做改键。
+
+可以直接修改`~/.config/karabiner/karabiner.json`，注意里面的device是有vendor id和product id的，得填对，可以用karabiner直接查到。
+
+- [ ] config文件具体配置上传

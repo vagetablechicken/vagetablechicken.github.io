@@ -82,15 +82,11 @@ netstat -ltnup
 for f in *; do ./$f; done
 ```
 
-
-
 ## npm
 
 如果目的是pnpm，不用单独下载npm，直接下载pnpm就行。 https://pnpm.io/zh/installation
 
 如果是npm，下载nvm更合适管理node版本。
-
-
 
 ## keyboard
 
@@ -99,3 +95,19 @@ rk61键盘配合mac使用，支持很差，还是需要改键。使用karabiner-
 可以直接修改`~/.config/karabiner/karabiner.json`，注意里面的device是有vendor id和product id的，得填对，可以用karabiner直接查到。
 
 - [ ] config文件具体配置上传
+
+## docker源
+
+就是`registry-mirrors`这个配置项。linux直接在 `/etc/docker/daemon.json`里改，mac可以在docker desktop设置里找到配置文件，也是一样的修改。
+
+```
+{
+    "registry-mirrors": [
+        "http://hub-mirror.c.163.com",
+        "https://docker.mirrors.ustc.edu.cn",
+        "https://registry.docker-cn.com"
+    ]
+}
+```
+
+重启后`docker info`可以查看。

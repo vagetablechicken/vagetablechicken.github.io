@@ -40,6 +40,10 @@ Given the head of a LinkedList and a number ‘k’, reverse every ‘k’ sized
 If, in the end, you are left with a sub-list with less than ‘k’ elements, reverse it too.
 ```
 
+首先看边界，因为末尾不足k的也翻转，所以可以无脑翻转。如果题目末尾变成不足k的**不可以翻转**（[leetcode 原题](https://leetcode.cn/problems/reverse-nodes-in-k-group/)），那么就得先数k，不到k个就退出，有k个再翻转，多了一次遍历，不过也是O(n)。
+
+题目有些细节，但本质还是两个指针的事情，不难做对。不过我第一反应是不会改动初始链表的，但这一题如果加哨兵（一个dummy node接上链表head），会更简单点，不用在遍历while里写if判断是不是首次翻转，如果是首次，需要存下这个new head。（效率还是更高的，虽然不算太重要）
+
 ### Problem Challenge 1 - Reverse alternating K-element Sub-list (medium)
 
 ```

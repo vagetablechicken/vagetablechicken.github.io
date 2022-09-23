@@ -9,6 +9,7 @@ description: 'Hey'
 keywords:
 author: Huang Wei
 language: en
+  # - zh-cn # need _posts/zh-cn
 timezone: ''
 
 # URL
@@ -103,7 +104,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: ayer
+theme: minos
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

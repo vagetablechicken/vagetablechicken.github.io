@@ -32,8 +32,10 @@ chrome的`开发者工具-setting`中`Network-Disable cache(while DevTools is op
 npm install -g hexo-cli
 cd <blog-source>
 npm install
+# if ERROR Package xxx is not installed
+npm install xxx
 
-hexo new draft <draft_name>
+hexo new draft <draft_name> # just the name, no .md
 # writing, writing, ...
 hexo publish <draft_name>
 ```

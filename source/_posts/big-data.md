@@ -1,7 +1,9 @@
 ---
-title: big-data
+title: BigData
+date: 2022-09-23 14:27:15
 tags:
 ---
+
 
 # BigData Interview Questions
 

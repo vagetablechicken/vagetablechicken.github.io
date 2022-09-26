@@ -94,7 +94,7 @@ rk61键盘配合mac使用，支持很差，还是需要改键。使用karabiner-
 
 可以直接修改`~/.config/karabiner/karabiner.json`，注意里面的device是有vendor id和product id的，得填对，可以用karabiner直接查到。
 
-- [ ] config文件具体配置上传
+windows下改键，使用PowerToys的键盘管理器。
 
 ## docker源
 

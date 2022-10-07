@@ -53,5 +53,5 @@ If you want to delete a post, just delete it in the source folder.
 Ref [Include Posts](https://hexo.io/docs/tag-plugins.html#Include-Posts).
 
 ```
-{% post_path filename %}
+{% post_link 要跳转文章md文件名(不要后缀) %}
 ```

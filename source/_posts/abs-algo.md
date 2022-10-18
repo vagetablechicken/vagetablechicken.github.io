@@ -69,3 +69,56 @@ exhange rmark and left
 实际oj测试，还是双mark快点。
 
 另一种写法见[leetcode题解](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/jian-zhi-offer-40-zui-xiao-de-k-ge-shu-j-9yze/)，3 while用的i < j，注意写法是右标先移动，否则有问题。这种大概率记不住，先左后右比较顺。
+
+## Binary Tree Traversal
+
+二叉树遍历
+
+二叉树的三种遍历递归写法都没难度，不过稍微加点东西就容易搞不定了。还是不够熟悉递归，不够熟悉将稍复杂的逻辑想清楚，所以转换为代码会卡住。
+
+### 中序遍历 
+
+https://leetcode.cn/problems/binary-tree-inorder-traversal/
+
+中序递归遍历，一般就用result数组来存结果就行了，因为result在递归中也是一个一个append结果的。拼接的写法`inorder(root.left)+[root]+inorder(root.right)`大可不必，空间消耗有点过分了，也没简单多少。
+
+而中序迭代遍历，该怎么写？首先得加个辅助结构，或者改当前的数据结构，否则不够用。
+
+我们先说“加辅助结构”的算法。中序是左-中-右，递归不用额外结构因为它可以回到中，即使已经在左子树游了一圈了。那迭代就需要记住中，因二叉树单向的，往下走回不来，不缓存起来就回不去。不管是栈还是队列，一维数组肯定够了。当然一般“递归->迭代”都是栈，递归本质也是先进后出。
+
+再看怎么使用栈，其实就是模仿递归，递归往左下走到底后，可以逐步回来，所以迭代里就应该往左下走，并且记录每个“中”节点。到底后，就可以向result加结果了。拿最左的叶子节点举例，它左子节点None了，就类似递归回到了它，它作为中节点，被加入result，那么此时还应该考虑它的右子节点。而以这个右子节点作为起始，做的实际还是中序遍历，不过是子树的中序遍历，所以这里代码可以复用，只需要以右子节点作为起始节点。可以看出，中先进栈，左子再进，把左子和中都弹出栈后，右子才会进栈，不用担心右子节点遍历完了后就断了，因为中的上一层还在栈里面。
+
+伪代码写作：
+```
+cur = root
+stack = []
+while ?:
+	while cur:
+		cur -> stack
+		cur = cur.left
+	# no more left child, cur == None now
+	top = stack.pop
+	top -> result
+	cur = top.right # next loop will traversal the right child
+```
+
+最后看终止条件怎么写，stack为空，没法pop，肯定得保护，但是因为内层while也在填充stack，所以并不是stack为空就得终止，内层while可能会补充。不过如果cur和stack都为空，那就没必要了。
+
+所以终止条件为`while cur or stack`。
+
+### 前序遍历/先序遍历
+
+https://leetcode.cn/problems/binary-tree-preorder-traversal/
+
+递归写法是“中-左子-右子”，因为中就是当前，左子就`.left`往左走就行了，所以只需存右子，且是先进后出。用简单例子演示一遍也可以知道，伪代码可以写作：
+```
+stack, cur = [], root
+while ?:
+	if not cur:
+		cur = stack.pop
+	cur -> result
+	if cur.right: -> stack
+	cur = cur.left # be the new traversal root
+```
+
+最后看终止条件，stack为空，如果有cur，也可以走下去（比如root节点）；如果cur为空，stack还有，也能走（比如走到树的最底层，但树右边还有节点没遍历到）。所以终止条件还是`while cur or stack`。

@@ -122,3 +122,7 @@ while ?:
 ```
 
 最后看终止条件，stack为空，如果有cur，也可以走下去（比如root节点）；如果cur为空，stack还有，也能走（比如走到树的最底层，但树右边还有节点没遍历到）。所以终止条件还是`while cur or stack`。
+
+### 后序遍历
+
+https://leetcode.cn/problems/binary-tree-postorder-traversal/

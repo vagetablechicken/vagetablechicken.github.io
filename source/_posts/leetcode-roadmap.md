@@ -7,7 +7,7 @@ categories: Algo
 
 推荐站点：
 
-https://qoogle.top/how-to-brush-leetcode/
+https://qoogle.top/xiaoxu-explaination-leetcode/
 
 https://codetop.cc/ 
 

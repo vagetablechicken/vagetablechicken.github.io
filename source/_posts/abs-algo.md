@@ -19,43 +19,72 @@ categories: Algo
 
 快排建议记忆单循环的写法，该写法也不用死记，需要记住几个点：
 
-1. 单次循环，又每个元素都得参与比较，所以for循环肯定是[l, r-1] 或者[l+1, r]的。
-2. pivot选最右的那一个，这样可以直接利用range左闭右开的性质。（这里很容易想成最左作为pivot，然后就会陷入pivot的空洞怎么swap的疑惑里。注意只要想**不要交换空洞**就好了。也就是如果最左为pivot，那也是从l+1开始才会有交换。）
-3. 遍历用i，那么还得有个标号j来表示[left, j]区间都是<=pivot的，初始可以j = left - 1，表示此时还没有能保证<=pivot的数，每次都先++再交换（不然就动了left-1的数了，也不可能）。划重点，[left, j]闭区间都是<=pivot的。
-4. 什么时候交换？可以看到<=pivot的空间要增大，那么[i]<=pivot时，就应该挪到前面去。为什么不是 < pivot才交换？其实都可以😂，例如[这个题解就是用的小于做判断](https://segmentfault.com/a/1190000004410119)。j先++再i、j交换，j++后的值可能是已经被访问过的>pivot的，也可能是i自身，但都ok，>pivot的放后面不会错，自己跟自己交换也不会错。极端情况就是pivot就是最大的值，一路访问过来，到r-1的位置都不会实际交换。
-5. 最后结果是i访问完了，没有什么指示性。j则肯定代表点什么。j位置必然是<= pivot的，那j本身肯定不能跟pivot交换，不能把小于等于pivot的换到尾部吧。所以应该是j+1。
+- 单次循环，那么就是把每个比piv（pivot的value）小的数都挪到前面去。
+- 第一次挪怎么挪？第一个数是piv，从第二个数开始比大小，如果第二个数小于piv，是原地不动还是扔到第一个位置？这里重点记忆**不要交换pivot，pivot最后再交换**。可以推理出，第二个数如果小于piv，就应该放在第二个位置，就是原处。如果它大于等于piv，它不动，就比下一个数，如果它小于piv，就挪到前面去。
+  - 总结规则是：当某数大于等于piv时，是跳过，直接看下一个数。如果小于piv，交换，交换到此处的值，可能是大于等于piv的，也可能就是原地交换（比如piv就是最大的值，就会一直触发原地交换），但反正不用再次考虑，还是可以直接下一个数。
+- 遍历完成后，就形成了三块区域，[piv, < piv, >=piv]。这个时候交换piv和< piv的最后一个数，区域就可以变成[< piv, piv, >=piv]，符合快排partition后的结果。
+- partition函数有了，快排的递归partition怎么写？重点要注意的是怎么标记partition的输入范围，是左闭右开，还是全闭？目前感觉都可以，因为快排的衍生问题都是pivot很重要，区间问题不影响pivot，pivot不会漂移。
+所以伪代码写为：
+```
+def partition:
+	# [lo, hi)
+	piv, j = a[lo], lo
+	for i in range(lo+1,hi):
+		if a[i] < piv:
+			j ++
+			swap i,j
+	swap lo, j
+	return h
+def qsort:
+	if lo + 1 >= hi: # 长度为1或0都不需要排序
+		return
+	pi = partition(a, lo, hi)
+	qsort(a, lo, pi) # 这里指排序[lo,pi)，pi不参与排序
+	qsort(a, pi+1, hi)
+```
 
-判断条件用 <= 或 < 应该都可以，[oj](https://leetcode.cn/problems/kth-largest-element-in-an-array)上也没测出问题来。
+如果partition函数像做成全闭的，那么< piv的游标j和循环的取值范围，以及qsort里的退出条件和qsort递归范围变化一下就好了，没什么坑。
+如果侥幸你记得pivot可以选最右（我每次都记不得），那么< piv的游标j和循环的取值范围要改一下，以及最后应该交换pivot和j+1。感觉没简单化什么东西，不必记忆。
 
-
-单mark重点在于保证mark左边都是<=piv的，所以初始时mark可以是-1，意味着还没有保证任何元素<=piv。保证左边，那pi当然没理由在左边找，游标到pi位置时怎么整，还得折磨一番。所以pi选最右。自然游标从left到right-1就好了，不用看最右这个right（也是pi）。循环结束后，pi这个位子的piv是==piv的，完全可以又交换到左边（被交换到最右的那个值必然是>piv的，合理），成为一个分界点。
+判断条件用 <= 或 < 应该都可以，只要能保证最后pivot的交换能满足快排定义。看网上题解 <= 多，但我觉得 < 挺好用的，减少一些swap可能，比如[这个题解就是用的小于做判断](https://segmentfault.com/a/1190000004410119)，[oj](https://leetcode.cn/problems/kth-largest-element-in-an-array)上也没测出问题来。
 
 ### 3 while思路
 
-3 while思路，推荐在[陈斌老师的写法](https://www.bilibili.com/video/BV1Ya4y1x771?p=7)上改进一点点，一点点就可以。重点就是双mark由于写法过长容易产生的坑。
+3 while思路，推荐在[陈斌老师的写法](https://www.bilibili.com/video/BV1Ya4y1x771?p=7)上改进一点点，也就是去掉done这个flag，没什么必要加它。3 while思路的难写点在于，双mark写法过长，可能做不好越界保护。
 
 首先看基础思路：
 
 我们先暂时放下while的保护条件，先讨论理想情况。两个游标怎么游？算法中不是要< piv, piv, > piv，毕竟可能piv有多个，而是<=piv, piv, >=piv，**注意，两边都可能==piv，不是必须在哪一边**。因此内层两个while判定条件是<=piv ++,  >=piv --，遇到等于的可以继续游，不需要停下。
-
-而游标停下来有几种情况？因为我们涉及交换，所以可以想想离得近的情况，比如lmark+1=rmark，或lmark==rmark。第一个相邻好说，你都停下来了，必然是lmark的数> piv，rmark的数< piv，它们需要交换，正常进行。而lmark==rmark这是不可能的，因为一个数它跟piv比只有三种情况，而三种情况，两个游标都不可能同时停下，必然有人要跨过去，所以安全。内层双while结束时，很可能有lmark>rmark的(不会有==，当然，如果有保护机制，可能影响)。那我们就应该在lmark>rmark时终止，==不应该存在（甚至可以assert看看），也别去记它，干扰思路。反正lmark>rmark时不能交换，交换前也要判断这一情况，所以可以外层True，内层break（陈斌老师用的done变量，没必要）。**重点记忆，“交错”(lmark>rmark)就停止**。
-
-外层while也跳出后，是个什么样子？lmark>rmark了，piv该放哪儿，和左还是右交换？由于piv是拿的最左边，交换到最左边的当然应该是<=piv的，所以拿rmark是ok的。rmark已经在lmark左边了，它必然指向了<=piv的值，没必要用lmark做更多的处理。那么**交换一下rmark和pi（最左）就ok了**。
-
-所以partition**初步**的伪代码为：
+所以伪代码可写为：
 ```
 while True:
 	while … and [lmark]<=piv: lmark++
 	while … and [rmark]>=piv: rmark--
-	if lmark > rmark:
-		break
+	some cases
 	exchange
-exhange rmark and left
+handle pivot
 ```
+很明显，内层2个while不可能让2个mark一直++/--，所以我在2个while判断的最前面都留了保护条件。
 
-现在还需要加保护。比如piv刚好是最小的值，lmark能一直走穿，partition函数如果只对局部数组做，还可能踩到错误地方。lmark可以<=right（当前partition输入数组的最右），也可以<=rmark，因为lmark>rmark就会退出循环了，不需要让它继续发展。所以推荐rmark。那rmark也一样，只要交错就可以退了，不需要用最左边当边界，所以rmark>=lmark就行了。需要有==，不然就保护太过了，不可能出现游标交错。
+让我们思考下这个保护和2个while结束后，哪些情况不能走到exchange，或者得直接退出外层while。
 
-可以理解为，**核心是“交错”，交错就停止，只要不交错，3 while都可以继续**。
+首先，可以提醒自己**交换价值**，就是2个mark什么时候是需要交换的，值得交换的，不值得的时候，可能要跳过或退出（也就是上面代码的some cases）。通常的看，当然是lmark < rmark时应该交换，lmark==rmark和lmark > rmark时都是不应该交换的。那么，假设走完内层2个while时可以存在lmark==rmark的情况，我们该干什么？
+
+如果while保护条件为lmark < rmark，那很可能出现这个lmark==rmark。可能是lmark知道了前面的值<= piv，所以++到了此处，由于保护条件，第2个while就也跳过了。又或者lmark确实到了此处，它>piv，rmark又走过>=piv的值，到了此处，被保护条件卡住。可能还有别的情况，但总的来讲，就是**你无法明确lmark==rmark时，这个位置的值是个什么情况，它没有保证**。为了这个情况，就得单独去判定大小，并看往哪儿放。不是说不可以这么写，就是挺麻烦。
+
+举例说明：
+[5,7,2,8]它以5为piv，会交换一次7和2，成为[5,2,7,8]，然后就会遇到lmark==rmark，也就是7所在的位置2。简单地想，pivot 5和双mark指向的7应该交换，但是这个例子不能，得先判断出7比piv大，不能动，然后往左看到2，发现它可以和piv交换。这里又会衍生，要不要保护，pivot是不是就是最小的，不用交换等等情况。特殊情况就很多，很烦，容易想漏想错。
+
+而如果保护条件是lmark <= rmark，就会发现，走过2个while后，不存在lmark==rmark的情况（可以assert看看）。因为一个数它跟piv比只有三种情况，而三种情况，两个游标都不可能同时停下，必然有人要跨过去，所以安全。那么，lmark>rmark时我们退出外层while，这时候如何处理pivot？
+
+lmark > rmark除了这个位置关系，数组当前会是什么情况，能保证一些什么关系？首先明确它们只可能是lmark=rmark+1，就是相邻的，不可能交错后继续拉开距离。
+
+- lmark > rmark可能是lmark先走，触发保护，然后rmark的while直接跳过。这个情况，lmark都能穿过rmark，自然lmark的左边（不包含自己）都是<=piv的。此时rmark可能是走动过，也可能是完全没移动过，但都ok。走动过，那么它必然是停在了< piv 的值上，也保证它的右边全是>= piv的。这个大小关系下，很自然，pivot和rmark交换下就好了，把< piv的值放到最左边，很合理。
+- lmark停在了>piv的值上，rmark一直往左，穿过了lmark。这里也保证了rmark的右边都是>=piv的，rmark当前位置unknown，因为rmark只是因为保护停下。但考虑到lmark停在此处，当然是rmark停在了<=piv的值上，而lmark在紧邻的右边。这个关系下，pivot和rmark交换，也很合理。
+
+可以看到，保护条件是lmark <= rmark时，rmark指向的值有明显的大小保证，不需要再次确认什么。所以，用lmark <= rmark这样的保护条件最好，对应的lmark > rmark时退出外层while。**重点记忆，“交错”(lmark>rmark)就停止**，自然，不交错的话游标还可以继续跑，所以内层2while的保护条件是lmark <= rmark。（这个记忆法仅用于记忆，没办法去推理代码的完备性。）
+
+总结为：**核心是“交错”，交错就停止，只要不交错，3 while都可以继续**。
 ```
 while True:
 	while lmark<=rmark and [lmark]<=piv: lmark++
@@ -66,7 +95,7 @@ while True:
 exhange rmark and left
 ```
 
-实际oj测试，还是双mark快点。
+实际oj测试，还是双mark速度快点。
 
 另一种写法见[leetcode题解](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/jian-zhi-offer-40-zui-xiao-de-k-ge-shu-j-9yze/)，3 while用的i < j，注意写法是右标先移动，否则有问题。这种大概率记不住，先左后右比较顺。
 

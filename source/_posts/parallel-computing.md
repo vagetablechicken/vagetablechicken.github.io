@@ -1,7 +1,9 @@
 ---
 title: ParallelComputing
+date: 2023-01-08 18:34:22
 tags:
 ---
+
 
 # Why Use Parallel Computing?
 blabla.

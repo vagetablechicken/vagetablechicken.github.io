@@ -46,6 +46,11 @@ hexo clean && hexo d
 
 If you want to delete a post, just delete it in the source folder.
 
+Localhost debug way:
+```
+hexo s --debug
+```
+
 ## Hexo writing
 
 ### link to another post

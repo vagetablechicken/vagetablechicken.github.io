@@ -215,6 +215,10 @@ heapq原理在代码里也不过，就观察下整个源码实现吧。
 	它并不是在while里，用当前pos跟它的两个子节点比大小，选择跟哪个子节点交换，而是无条件交换。也就是说while不是一次完整下沉，所以是while+siftdown组成一次完整下沉。
 	看下它的[注释](https://github.com/python/cpython/blob/e47b13934b2eb50914e4dbae91f1dc59f8325e30/Lib/heapq.py#L221)。
 
+在这个函数之前的评论区中，作者已经解释了他们为什么做出这样的选择，这初看起来效率较低，但在实践中却发现会导致更少的比较。
+
+We could break out of the loop as soon as we find a pos where newitem <= both its children, but turns out that's not a good idea, and despite that many books write the algorithm that way. During a heap pop, the last array element is sifted in, and that tends to be large, so that comparing it against values starting from the root usually doesn't pay (= usually doesn't get us out of the loop early). See Knuth, Volume 3, where this is explained and quantified in an exercise.
+
 heapq提供[heapreplace](https://github.com/python/cpython/blob/e47b13934b2eb50914e4dbae91f1dc59f8325e30/Lib/heapq.py#L147)，也就是把堆的pop和push两步放在一步完成，因为size恒定。你如果pop[0]，就把新的元素放在[0]就行，让它下沉。
 
 注意heapq.heapreplace是一定replace的，它不会管你想push的元素会不会比heap top更小。它一定输出heap的top，再把push值塞进heap里。不过我们这个题目，是可以保证push的大于等于heap top的，不会有问题。

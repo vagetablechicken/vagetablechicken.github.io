@@ -170,3 +170,53 @@ https://leetcode.cn/problems/binary-tree-postorder-traversal/
 ## skiplist
 
 https://mp.weixin.qq.com/s/czkZcQL8mEqG2xeX8huqsA
+
+
+## Heap
+
+堆，一般指二叉堆。
+
+我们希望有一个数据结构，它可以迅速pop出最小的，push一个新的数也希望是对数时间里完成，这样的时间复杂度才有价值，不然简单的有序数组pop/push都是O(n)就足够了，还简单。
+
+这个理想的数据结构，应该考虑树形，毕竟对数时间。
+
+再说什么树，因为没有什么限定条件，二叉树就是最简单的。然后再想，n个数去构建二叉树，如果n不是2^k-1，那这个二叉树就不满，不满也不能乱搞，因为对数时间，你当然希望这个树足够矮小，不然最坏情况又是线性了。所以平衡二叉树是理想形态。
+
+而平衡二叉树并不必须用链表作为节点，**它可以用连续数组表示**。这也是让代码更简单的一个优点。
+
+再来说说堆的基本操作逻辑。
+
+一个是pop，pop出堆顶后，树的根节点就空了，这个“树”就不是有效的树了，那得想个办法修好，办法就是把最尾部的元素移动到堆顶，这个时候不满足堆有序，那么就去让它有序，画画图也可以发现，只有堆顶也就是根节点不符合堆有序，那么调整根节点和它的两个子节点，比如它和左子节点交换，它们三个就堆有序了。但因为左子节点变了，它和它的两个子节点可能又乱了，就继续调整。一层一层往下，也叫做“下沉”。只会沿着某一条路径下沉到叶子，所以复杂度是logn，不会影响别的路径。
+
+二是push，新增一个元素到已形成的堆，将新元素塞入树中间显然不合理，放在最后一个位置，就像是多给某个节点加了个子节点。然后，这个节点和它的一个或两个子节点，可能不满足堆有序，就需要调整。调整后，它作为子节点，可能又不能有序，于是就一直“上浮”，上浮到根节点就结束了。同样的，只会影响一条路径，也是O(k)（k层的树，n个节点树高也就是k=logn）。（如果当前堆已经满了呢？新加的节点，在逻辑上看，就是树多加了一层，这一层只有一个节点。说得通。）
+
+### Python heapq
+
+再提一嘴python的heapq，优先队列一般底层结构就是二叉堆，具体二叉堆怎么实现都行，python这里也是使用数组，但是它的内部方法实现不是前面提到的算法，它更高效，可以仔细看下heapq的实现和注释，实名diss了前面的常规算法???。但这个不影响时间复杂度，不可能比logn更小，只是时间优化。（heapq算法里的siftup,siftdown和上浮下沉就对不上了。有空可以学习下。）
+
+heapq原理在代码里也不过，就观察下整个源码实现吧。
+- heappush，就是新加一个elem到heap，源码实现为，append到数组末尾，然后siftdown(0,last),第二个参数last指从这个节点开始，往上走到第一个参数0，也就是根节点。其实就是一次上浮（对应Algorithm 4th的swim），但不知道为什么叫down？
+
+	>  Pasanen, Tomi (November 1996). Elementary Average Case Analysis of Floyd's Algorithm to Construct Heaps (Technical report). Turku Centre for Computer Science. CiteSeerX 10.1.1.15.9526. ISBN 951-650-888-X. TUCS Technical Report No. 64. Note that this paper uses Floyd's original terminology "siftup" for what is now called sifting down.
+	> https://en.wikipedia.org/wiki/Binary_heap#cite_ref-13
+
+	Floyd大概是[这一篇](https://dl.acm.org/doi/pdf/10.1145/355588.365103)，里面siftup确实是j=2*i，往下走的，可能python heapq按照这个逻辑来的吧。
+- heappop，和抽象的算法没有区别，把堆顶拿走，把最后一个数放到堆顶，然后下沉（sink），只是heapq里叫siftup。siftup有个神奇的点是它在最后call了一次siftdown。注意整个siftup的实现，简化一下是这样的：
+  ```
+  siftup(pos):
+	newitem = heap[pos]
+	while childpos < endpos:
+		childpos = max(left, right)
+		heap[pos] = heap[childpos]
+		pos = childpos
+	heap[pos] = newitem
+	siftdown(pos)
+  ```
+	它并不是在while里，用当前pos跟它的两个子节点比大小，选择跟哪个子节点交换，而是无条件交换。也就是说while不是一次完整下沉，所以是while+siftdown组成一次完整下沉。
+	看下它的[注释](https://github.com/python/cpython/blob/e47b13934b2eb50914e4dbae91f1dc59f8325e30/Lib/heapq.py#L221)。
+
+heapq提供[heapreplace](https://github.com/python/cpython/blob/e47b13934b2eb50914e4dbae91f1dc59f8325e30/Lib/heapq.py#L147)，也就是把堆的pop和push两步放在一步完成，因为size恒定。你如果pop[0]，就把新的元素放在[0]就行，让它下沉。
+
+注意heapq.heapreplace是一定replace的，它不会管你想push的元素会不会比heap top更小。它一定输出heap的top，再把push值塞进heap里。不过我们这个题目，是可以保证push的大于等于heap top的，不会有问题。
+
+如果没有这一点保证，你想做的事情就应该抽象为“push后pop”（当然内部应该优化，不是愚蠢地真的push后又pop），因为你想从heap和想push的新值一起看的集合中最小的值，可以使用headpq.heappushpop。不过，这个自己写也行，逻辑不复杂，就是先peek一下堆顶，如果push的新值更小，就直接返回，如果不是，就把堆顶值取出，把新值放在堆顶，然后堆化。

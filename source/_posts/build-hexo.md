@@ -60,3 +60,25 @@ Ref [Include Posts](https://hexo.io/docs/tag-plugins.html#Include-Posts).
 ```
 {% post_link 要跳转文章md文件名(不要后缀) %}
 ```
+
+## NPM install
+
+如果`apt install npm`遇到gcc update-alternatives slave问题，就先把update-alternatives清理了，再添加也方便，[清除参考写法](https://gist.github.com/ArseniyShestakov/a458b96a354014f80ab8d95676100c03)。
+
+```
+# cleanup
+update-alternatives --remove-all gcc
+# set one g++
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 10
+# recover
+update-alternatives --remove-all cc
+update-alternatives --remove-all c++
+update-alternatives --remove-all gcc 
+update-alternatives --remove-all g++
+update-alternatives --remove-all clang
+update-alternatives --remove-all clang++
+update-alternatives --remove-all icc
+update-alternatives --remove-all icc++
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8 --slave /usr/bin/c++ c++ /usr/bin/g++
+```
+slave有个好处是不怕个别版本被修改，还是建议维持这个样子。

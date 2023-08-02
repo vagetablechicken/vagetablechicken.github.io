@@ -3,6 +3,7 @@
 git clone git@github.com:vagetablechicken/vagetablechicken.github.io.git
 cd vagetablechicken.github.io
 git remote add raw git@github.com:vagetablechicken/blog-raw.git
+git fetch raw
 git checkout raw
 ```
 

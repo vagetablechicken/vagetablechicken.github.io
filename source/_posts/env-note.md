@@ -82,6 +82,15 @@ netstat -ltnup
 for f in *; do ./$f; done
 ```
 
+### top record
+
+记录一段时间进程cpu mem等资源的变化，适合抓出程序最大占用内存的时间点。
+```bash
+while true; do sleep 10 && top -b -p 25440 -n1 | tail -1 ; done >> process.top
+# add time
+while true; do sleep 10 && date && top -b -p 25440 -n1 | tail -1 ; done >> process.top
+```
+
 ## npm
 
 如果目的是pnpm，不用单独下载npm，直接下载pnpm就行。 https://pnpm.io/zh/installation

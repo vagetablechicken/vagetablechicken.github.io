@@ -120,3 +120,7 @@ windows下改键，使用PowerToys的键盘管理器。
 ```
 
 重启后`docker info`可以查看。
+
+## tmux
+
+tmux如果另一个没退，就又attach，可能分辨率会用另一个的，就会右边下边出现很多点点。可以ctrl-b/a，再shift-b（大写B），选择分辨率，选小的就能撑满屏幕。

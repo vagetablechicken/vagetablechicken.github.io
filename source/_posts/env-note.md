@@ -124,3 +124,10 @@ windows下改键，使用PowerToys的键盘管理器。
 ## tmux
 
 tmux如果另一个没退，就又attach，可能分辨率会用另一个的，就会右边下边出现很多点点。可以ctrl-b/a，再shift-b（大写B），选择分辨率，选小的就能撑满屏幕。
+
+## debug
+
+### oom
+
+怀疑进程被oom kill了，需要查日志，dmesg -T没有权限要求，但它的时间[不准确](https://zhuanlan.zhihu.com/p/619173424?utm_id=0)，甚至可能是未来时间。最好查/var/log/messages，但它可能需要root权限。
+Docker内的进程也是被物理机管理的，如果占满内存，也是会被kill，而且在物理机上会有日志。

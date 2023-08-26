@@ -32,6 +32,41 @@ apt update
 
 apt install maven
 
+### Windows
+
+Windows下的终端Terminal，如何加入snippet，参考https://github.com/microsoft/terminal/issues/6412#issuecomment-964343941。我个人常为OpenMLDB加的snippet：
+```json
+        {
+            "command": {
+                "action": "sendInput",
+                "input": "set @@execute_mode='online';\r"
+            },
+            "name": "on"
+        },
+        {
+            "command": {
+                "action": "sendInput",
+                "input": "set @@execute_mode='offline';\r"
+            },
+            "name": "off"
+        },
+        {
+            "command": {
+                "action": "sendInput",
+                "input": "set @@sync_job=true;\r"
+            },
+            "name": "sync"
+        },
+        {
+            "command": {
+                "action": "sendInput",
+                "input": ":set mouse-=a\r"
+            },
+            "name": "mouse"
+        }
+```
+不需要快捷键，`Ctrl+Shift+P`可以根据name快速选择，快捷键还懒得记。
+
 ## vim
 
 vim时用鼠标选择一段文本，可能进入VISUAL模式。VISUAL模式下的复制/粘贴/剪切得用`y`,`p`,`d`。注意，VISUAL模式下复制的文本，不会记录在剪贴板，只能在vim中使用，拷贝不出去。

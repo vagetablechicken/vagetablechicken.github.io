@@ -82,3 +82,20 @@ update-alternatives --remove-all icc++
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8 --slave /usr/bin/c++ c++ /usr/bin/g++
 ```
 slave有个好处是不怕个别版本被修改，还是建议维持这个样子。
+
+但ubuntu版本早的话，node.js版本可能太低了，hexo没法用，报错：
+```
+TypeError: line.matchAll is not a function
+       at res.value.res.value.split.map.line (/root/vagetablechicken.github.io/node_modules/hexo-util/lib/highlight.js:121:26
+```
+比如，我ubuntu20.04装的node就是10.19.0，需要12及以上的。
+升级：
+```
+sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt -y install nodejs
+```
+
+`hexo version`可以查到相关version。
+
+然后又可能遇到`npm rebuild node-sass`很慢的问题，卡在github上下载node-sass了。可以换下源试试，`npm i node-sass --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/`。socks5代理会hang up，不知道是不是暂时的不稳定。

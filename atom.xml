@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Wei</title>
+  
+  
+  <link href="http://vagetablechicken.github.io/atom.xml" rel="self"/>
+  
+  <link href="http://vagetablechicken.github.io/"/>
+  <updated>2023-07-31T11:29:59.161Z</updated>
+  <id>http://vagetablechicken.github.io/</id>
+  
+  <author>
+    <name>Huang Wei</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>pwm</title>
+    <link href="http://vagetablechicken.github.io/2023/07/31/pwm/"/>
+    <id>http://vagetablechicken.github.io/2023/07/31/pwm/</id>
+    <published>2023-07-31T11:08:40.000Z</published>
+    <updated>2023-07-31T11:29:59.161Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;PWM-脉冲宽度调制&quot;&gt;&lt;a href=&quot;#PWM-脉冲宽度调制&quot; class=&quot;headerlink&quot; title=&quot;PWM 脉冲宽度调制&quot;&gt;&lt;/a&gt;PWM 脉冲宽度调制&lt;/h1&gt;&lt;p&gt;Pulse width modulation，&lt;a</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>ParallelComputing</title>
+    <link href="http://vagetablechicken.github.io/2023/01/08/parallel-computing/"/>
+    <id>http://vagetablechicken.github.io/2023/01/08/parallel-computing/</id>
+    <published>2023-01-08T10:34:22.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Why-Use-Parallel-Computing&quot;&gt;&lt;a href=&quot;#Why-Use-Parallel-Computing&quot; class=&quot;headerlink&quot; title=&quot;Why Use Parallel Computing?&quot;&gt;&lt;/a&gt;Why</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>抽象算法</title>
+    <link href="http://vagetablechicken.github.io/2022/10/07/abs-algo/"/>
+    <id>http://vagetablechicken.github.io/2022/10/07/abs-algo/</id>
+    <published>2022-10-07T11:48:30.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;很多题目都有基础的数据结构和算法，但也有它独特的corner case。所以，本文主要记录抽象的算法，避免重复记录。&lt;/p&gt;
+&lt;h2 id=&quot;Quick-Sort&quot;&gt;&lt;a href=&quot;#Quick-Sort&quot; class=&quot;headerlink&quot; title=&quot;Quick</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>BigData</title>
+    <link href="http://vagetablechicken.github.io/2022/09/23/big-data/"/>
+    <id>http://vagetablechicken.github.io/2022/09/23/big-data/</id>
+    <published>2022-09-23T06:27:15.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;BigData-Interview-Questions&quot;&gt;&lt;a href=&quot;#BigData-Interview-Questions&quot; class=&quot;headerlink&quot; title=&quot;BigData Interview</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>环境note</title>
+    <link href="http://vagetablechicken.github.io/2022/05/07/env-note/"/>
+    <id>http://vagetablechicken.github.io/2022/05/07/env-note/</id>
+    <published>2022-05-06T16:23:43.000Z</published>
+    <updated>2023-08-26T04:17:54.447Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;环境note&quot;&gt;&lt;a href=&quot;#环境note&quot; class=&quot;headerlink&quot; title=&quot;环境note&quot;&gt;&lt;/a&gt;环境note&lt;/h1&gt;&lt;h2 id=&quot;About-OS&quot;&gt;&lt;a href=&quot;#About-OS&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="env" scheme="http://vagetablechicken.github.io/tags/env/"/>
+    
+    <category term="os" scheme="http://vagetablechicken.github.io/tags/os/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Grokking Pattern 3</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-3/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-3/</id>
+    <published>2021-05-06T02:58:13.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Grokking Pattern 2</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-2/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-2/</id>
+    <published>2021-05-06T02:58:13.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Grokking Pattern 6</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-6/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-6/</id>
+    <published>2021-05-06T02:58:13.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Grokking Pattern 1</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-1/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-1/</id>
+    <published>2021-05-06T02:58:13.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Grokking Pattern 4</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-4/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-4/</id>
+    <published>2021-05-06T02:58:13.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Grokking Pattern 5</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-5/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-5/</id>
+    <published>2021-05-06T02:58:13.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>leetcode-roadmap</title>
+    <link href="http://vagetablechicken.github.io/2021/03/22/leetcode-roadmap/"/>
+    <id>http://vagetablechicken.github.io/2021/03/22/leetcode-roadmap/</id>
+    <published>2021-03-22T12:15:54.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;推荐站点：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://qoogle.top/xiaoxu-explaination-leetcode/&quot;&gt;https://qoogle.top/xiaoxu-explaination-leetcode/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Bookmarks</title>
+    <link href="http://vagetablechicken.github.io/2021/01/08/bookmark/"/>
+    <id>http://vagetablechicken.github.io/2021/01/08/bookmark/</id>
+    <published>2021-01-08T08:35:53.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Bookmarks&quot;&gt;&lt;a href=&quot;#Bookmarks&quot; class=&quot;headerlink&quot; title=&quot;Bookmarks&quot;&gt;&lt;/a&gt;Bookmarks&lt;/h1&gt;&lt;p&gt;C &amp;amp; Go 对照表：&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="tool" scheme="http://vagetablechicken.github.io/categories/tool/"/>
+    
+    
+    <category term="bookmark" scheme="http://vagetablechicken.github.io/tags/bookmark/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JAVA String Charset</title>
+    <link href="http://vagetablechicken.github.io/2021/01/07/java-string-charset/"/>
+    <id>http://vagetablechicken.github.io/2021/01/07/java-string-charset/</id>
+    <published>2021-01-07T08:25:05.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;JAVA-String-Charset&quot;&gt;&lt;a href=&quot;#JAVA-String-Charset&quot; class=&quot;headerlink&quot; title=&quot;JAVA String Charset&quot;&gt;&lt;/a&gt;JAVA String</summary>
+        
+      
+    
+    
+    
+    <category term="programming" scheme="http://vagetablechicken.github.io/categories/programming/"/>
+    
+    
+    <category term="JAVA" scheme="http://vagetablechicken.github.io/tags/JAVA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hexo</title>
+    <link href="http://vagetablechicken.github.io/2021/01/06/build-hexo/"/>
+    <id>http://vagetablechicken.github.io/2021/01/06/build-hexo/</id>
+    <published>2021-01-06T03:18:37.000Z</published>
+    <updated>2023-08-26T04:32:50.963Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Hexo&quot;&gt;&lt;a href=&quot;#Hexo&quot; class=&quot;headerlink&quot; title=&quot;Hexo&quot;&gt;&lt;/a&gt;Hexo&lt;/h1&gt;&lt;p&gt;Hexo的创建使用不多赘述。&lt;/p&gt;
+&lt;h2 id=&quot;With-github&quot;&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="build" scheme="http://vagetablechicken.github.io/categories/build/"/>
+    
+    
+    <category term="hexo" scheme="http://vagetablechicken.github.io/tags/hexo/"/>
+    
+  </entry>
+  
+</feed>

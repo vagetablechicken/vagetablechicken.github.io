@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"vagetablechicken.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Grokking the Coding Interview: Patterns for Coding QuestionsSee Grokking Pattern 1. 5. Pattern Cyclic Sort这个cyclic sort，需要一点预备知识。cyclic sort条件是，数组元素必须是1到n，虽然乱序，但我们可以确定这个n长的数组里一定是1到n这n个数字，不会有别的数字。如果要对这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grokking Pattern 5">
+<meta property="og:url" content="http://vagetablechicken.github.io/2021/05/06/grokking-5/index.html">
+<meta property="og:site_name" content="Wei">
+<meta property="og:description" content="Grokking the Coding Interview: Patterns for Coding QuestionsSee Grokking Pattern 1. 5. Pattern Cyclic Sort这个cyclic sort，需要一点预备知识。cyclic sort条件是，数组元素必须是1到n，虽然乱序，但我们可以确定这个n长的数组里一定是1到n这n个数字，不会有别的数字。如果要对这">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-05-06T02:58:13.000Z">
+<meta property="article:modified_time" content="2023-07-31T10:56:53.712Z">
+<meta property="article:author" content="Huang Wei">
+<meta property="article:tag" content="Algo">
+<meta property="article:tag" content="LeetCode">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://vagetablechicken.github.io/2021/05/06/grokking-5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Grokking Pattern 5 | Wei</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Wei" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Wei</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2021/05/06/grokking-5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Grokking Pattern 5
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-05-06 10:58:13" itemprop="dateCreated datePublished" datetime="2021-05-06T10:58:13+08:00">2021-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algo/" itemprop="url" rel="index"><span itemprop="name">Algo</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p>See <a href="/2021/05/06/grokking-1/" title="Grokking Pattern 1">Grokking Pattern 1</a>.</p>
+<h2 id="5-Pattern-Cyclic-Sort"><a href="#5-Pattern-Cyclic-Sort" class="headerlink" title="5. Pattern Cyclic Sort"></a>5. Pattern Cyclic Sort</h2><p>这个cyclic sort，需要一点预备知识。cyclic sort条件是，数组元素必须是1到n，虽然乱序，但我们可以确定这个n长的数组里一定是1到n这n个数字，不会有别的数字。如果要对这种特别的数组排序，就可以环型排序，也可以叫圈排序。都知道1到n了还排序就很离谱，所以这并不是cyclic sort的使用场景。事实上，使用场景是Cyclic Sort这一题之外的题目。</p>
+<h3 id="Cyclic-Sort-easy"><a href="#Cyclic-Sort-easy" class="headerlink" title="Cyclic Sort (easy)"></a>Cyclic Sort (easy)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Problem Statement</span><br><span class="line">We are given an array containing ‘n’ objects. Each object, when created, was assigned a unique number from 1 to ‘n’ based on their creation sequence.</span><br><span class="line">This means that the object with sequence number ‘3’ was created just before the object with sequence number ‘4’.</span><br><span class="line"></span><br><span class="line">Write a function to sort the objects in-place on their creation sequence number in O(n) and without any extra space.</span><br><span class="line">For simplicity, let’s assume we are passed an integer array containing only the sequence numbers, though each number is actually an object.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: [3, 1, 5, 4, 2]</span><br><span class="line">Output: [1, 2, 3, 4, 5]</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: [2, 6, 4, 3, 1, 5]</span><br><span class="line">Output: [1, 2, 3, 4, 5, 6]</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: [1, 5, 6, 4, 3, 2]</span><br><span class="line">Output: [1, 2, 3, 4, 5, 6]</span><br></pre></td></tr></table></figure>
+
+<p>这个题目着实惊呆我了，我遍历一遍直接将第i个元素改成i+1都通过测试。</p>
+<p>不过老实做题的话，这个确实可以用cyclic sort做。cyclic sort具体步骤是，遍历，当当前的元素不在它应该在的位置时，把它和它应该在的那个位置的值做个交换，比如数组[4,3,2,1]，当前看第一个元素4，它应该在最后，所以就交换一下，变成[1,3,2,4]。并且下一个要处理的元素还是当前，因为被交换了过来的元素可能也不是正确位置。</p>
+<p>这个排序法的时间复杂度看起来很诡异，不知道怎么算。但可以这么考虑，因为我每一次swap，必然把一个元素放对位置了，所以swap次数最多就n-1次。因为n-1个元素位置对了，自然最后一个元素位置就对了，所以只有n-1次。</p>
+<p>可以举个最差例子，[3,1,2]每个元素都不在正确位置。看3，swap后为[2,1,3]，3就放对了，继续看2，swap后[1,2,3]，由于2放对了，最后剩的一个元素就对了。</p>
+<p>代码很好写，不用赘述。</p>
+<p>但这个排序算法的意义何在呢？接下来的题目里可以提现。</p>
+<h3 id="Find-the-Missing-Number-easy-–-LeetCode"><a href="#Find-the-Missing-Number-easy-–-LeetCode" class="headerlink" title="Find the Missing Number (easy) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode.com/problems/missing-number/">Find the Missing Number (easy) – LeetCode</a></h3><p>这个题目当然可以用cyclic sort做，但是需要注意，题目中是0-n少了某一个，然后乱序放在n长的数组里。假设缺少的那个数不是n，那么数组里就有n，上个题解中的cyclic sort，当然是不能把n这个数放对位置的，因为n长数组idx最大到n-1，没有n。</p>
+<p>这怎么办呢？看了<a target="_blank" rel="noopener" href="https://emre.me/coding-patterns/cyclic-sort/">Coding Patterns: Cyclic Sort - emre.me</a>就知道了，只需要忽略n就可以了，如果访问到n，就跳过n，往后访问。这样，遍历操作一遍后，就会出现，n在“不存在的那个数”的位置上，其他数都在对应的位置上。再遍历一次数组，就可以找到missing number了，显然如果遍历一遍数字都对，那么就是missing n这个数了。</p>
+<p>这个题目有多种解法，bitmap等等，还能用数学的方法来做。但cyclic sort有一个好处，就是完全没有用额外空间。</p>
+<h3 id="Find-all-Missing-Numbers-easy"><a href="#Find-all-Missing-Numbers-easy" class="headerlink" title="Find all Missing Numbers (easy)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/find-all-numbers-disappeared-in-an-array/">Find all Missing Numbers (easy)</a></h3><p>跟上题不一样了，输入n长的数组，里面就是1-n的某些，数字可重复，要输出all missing numbers。</p>
+<p>但也容易做出来，拿example 1推演一遍就知道该怎么做了。把”错误位置的元素swap到正确位置“这一条规则不变，但如果有重复元素，就会出现nums[i]!=i and nums[nums[i]] == nums[i]（意思是这么，但实际上idx从0到n-1，数值从1-n，代码里得偏移），此时nums[i]这个元素就是多余的，做一个特殊标记就行了，比如0或者-1，遍历中也要先ignore特殊值。于是missing numbers就是有特殊标记的那些，因为找不到值放在这些特殊位置上，说明这些值不存在。<del>代码也简单，不多赘述。</del></p>
+<p>同样，什么bitmap之类的都能做这个题，但cyclic sort可以O(n) and without extra space。</p>
+<p>说代码简单，但也撞上错误了。主要是想节约空间，就直接拿nums[nums[i]]来swap，python swap a,b = b,a 也是有执行顺序的，nums[i]中途变了，最后结果反而是没有swap。很神奇。</p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/62038590">algorithm - How swapping variables is implemented in Python? - Stack Overflow</a>可以知道，a,b=b,a实际上是x1=a, x2=b,a=x2,b=x1，当然x1、x2是栈空间，还是需要auxiliary temporary locations。swap也没有magic。</p>
+<p>不过还有一个点，就是swap这个写法，等式右边也是寻址才能拿到值，不是常量值，这里的规则是先把=右边算出来，详情见<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/51950571">algorithm - python a,b = b,a implementation? How is it different from C++ swap function? - Stack Overflow</a>。假设nums[i]值为v1，nums[nums[i]]值为v2，</p>
+<p>nums[i], nums[nums[i]] = nums[nums[i]], nums[i]这一句会先拿出=右边的值，于是等价于nums[i], nums[nums[i]] = v2, v1。</p>
+<p>然后这个时候才会真正找左边的地址，走x1，x2那一套交换。先找nums[i]，找到了，然后赋值v2，然后nums[nums[i]]就是nums[v2]，会把v1赋值给nums[v2]。</p>
+<p>本来这个写法最多就是触发了错误的赋值，因为nums[v2]这个位置原本不应该参与进来。</p>
+<p>但有趣的是，如果case比较巧合，碰上了v2==i，例如[2,1,0]，取i=0，nums[i]=2，v1=2，nums[nums[i]]=0，v2=0，这就给循环上了。于是nums[i]先被赋值为v2，也就是nums[0]=0(v2)，然后nums[v2]被赋值v1，也就是nums[0]=2，搞了半天，什么也没有变，nums[i]这个位置的值变了又变回来。</p>
+<p>恰好我随便写的例子[4,3,2,1]完美符合。</p>
+<p>而leetcode的case1 [4,3,2,7,8,2,3,1]，也会死循环。举例说明，第一次交换时用的4和7(idx 0和3)，即num[i], nums[nums[i]-1] = (7, 4)，nums[0]=7，nums[7-1]=4，而第二次交换就要num[i], nums[nums[i]-1] = (4, 7)，nums[0]=4, nums[4-1]=7，第三次交换则是num[i], num[nums[i]-1]=(7, 4)，然后无限循环。这么说肯定很难懂，可以自己推演四五次交换，就会发现，由于第一次交换，无脑地使num[7-1]=4，导致之后，nums[4-1]和nums[7-1]就都不会变了，永远是7和4。然后nums[i]也就是nums[0]不是赋值为7就是赋值为4。</p>
+<p>如果用nums[i]=v1,nums[v1]=v2来表示，假设nums[v2]可以访问，第一次交换后，nums[i]的值就会v1、v2反复横跳，nums[v1]永远=v2，nums[v2]永远=v1，虽然是（从1次开始计数）奇数次给v2赋值，偶数次给v1赋值，但第2次交换开始，给v1、v2赋的值永远一样，看起来就是永远不变。leetcode case1并没有太特别，只需要nums[v2]可以访问，就能永远死循环下去。</p>
+<p>总之，一旦python swap的时候值是嵌套定位的，就要小心，最好避免swap里有嵌套。</p>
+<h3 id="Find-the-Duplicate-Number-medium-–-LeetCode"><a href="#Find-the-Duplicate-Number-medium-–-LeetCode" class="headerlink" title="Find the Duplicate Number (medium) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/find-the-duplicate-number/">Find the Duplicate Number (medium) – LeetCode</a></h3><p>这个题目grokking和leetcode的要求不一样，grokking是不允许额外空间，但可以修改输入数组。leetcode则是不能修改输入数组，并且只是用常数量的额外空间。</p>
+<p>grokking的限制下，当然还是cyclic sort了，sort途中就能发现重复的那一个数（题目说只有一个，发现后立刻返回就行了）。</p>
+<p>leetcode的限制下，就不一样了，最简单当然是set/hash存，但不满足额外空间的限制。不能简单求和，因为他不是保证1到n都出现，而是只限制在[1, n]范围内，而且虽然只有一个数重复出现，但它可以出现2次以上。没有预备知识，很难想到这个题目可以用二分查找或者链表来解，链表还好说点，二分查找这个方法真有点过绕了，而且复杂度也要到nlogn，纯属脑筋急转弯。。。</p>
+<p>不过确实也是个思路，而且不能直接套用基础版的二分查找，需要一定的改动，就算没改动，也需要证明可行性。整理了一下，没什么特别的坑，很容易做出来。算法设计期间需要注意，[left, right]这个搜索范围能不能缩小，如果某些情况不能缩小，自然不能最后缩小为最终答案一个值。</p>
+<ul>
+<li><input disabled="" type="checkbox"> 链表方法解这道题</li>
+</ul>
+<h3 id="Find-all-Duplicate-Numbers-medium-–-LeetCode"><a href="#Find-all-Duplicate-Numbers-medium-–-LeetCode" class="headerlink" title="Find all Duplicate Numbers (medium) – LeetCode"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/find-all-duplicates-in-an-array/">Find all Duplicate Numbers (medium) – LeetCode</a></h3><p>这一题grokking和leetcode要求类似了，grokking不允许额外空间（一些临时变量的栈空间肯定是允许的，不然代码都写不了），也就是常数量级的空间了。</p>
+<p>这题用cyclic sort很容易做。因为题目保证了数字最多出现2次，“出现2次”在cyclic sort框架里是可以判断的，比如规则写为“出现一次的就在对应的位置上，当又想swap该值到对应位置，就说明该值第二次出现，该位置记为-2”，当你读到-2的时候就说明i这个值出现了2次。出现更多次也可以以此类推。cyclic sort可以说是完美的，不论统计出现几次的值，都可以做到。</p>
+<p>但包括这个题和之前的题目，都有另一种常见做法。本质上是hash算法，因为通过自定义的hash，我们能把原数组变成hash桶，原来的nums内每一个位置都是一个数值，hash以后，nums每一个位置i都表示“数值i”出现的情况（这个情况实际当然是数字，而且由于是原地修改nums数组，这个“情况”是编码后的样子，得对应解码才能得出真实信息。）核心就是“编码规则”。设想下，如果你不编码，假设遇到i位置上值为x，你改了nums[x]，并且不理会nums[x]原来位置的值，如果x大于i，你之后遍历到x位置时，就丢了这个数。所以必须编码，用一种方法，能够保留住原数值信息，同时也能存下这个位置i表示的数i出现了多少次。</p>
+<p>最简单的做法就是+n+1，因为值最大到n，当你遍历数组时，发现i处的数值&gt;n+1时，说明i值在前面出现过，而出现几次就相应+n+1，这样数值为x时，可以x//(n+1)得到出现次数，而x%(n+1)就可以得到i位置原始的数值，不会漏数。这就是一种编解码规则。</p>
+<p>P.S. 也可以+n，当然，计算公式要跟着改变，[1,n]中如果取值n，求余就只能得到0了，所以值-1再求余，才可以。刚好，余数直接对应idx，+n+1的情况余数是真实数值，还得减一才能得到idx。</p>
+<p>取反也是可以使用的编解码规则，出现一次就取反，但出现第二次还取反的话，就不行了，所以最多做到得出“出现两次”这个信息（都只能即时拿到，不能二次取反写入nums数组，这样跟一次没出现的情况就混在一次了），不可能辨别有没有出现第三次。</p>
+<h3 id="Problem-Challenge-1-Find-the-Corrupt-Pair-easy"><a href="#Problem-Challenge-1-Find-the-Corrupt-Pair-easy" class="headerlink" title="Problem Challenge 1 - Find the Corrupt Pair (easy)"></a>Problem Challenge 1 - Find the Corrupt Pair (easy)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">We are given an unsorted array containing ‘n’ numbers taken from the range 1 to ‘n’. The array originally contained all the numbers from 1 to ‘n’, but due to a data error, one of the numbers got duplicated which also resulted in one number going missing. Find both these numbers.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: [3, 1, 2, 5, 2]</span><br><span class="line">Output: [2, 4]</span><br><span class="line">Explanation: &#x27;2&#x27; is duplicated and &#x27;4&#x27; is missing.</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: [3, 1, 2, 3, 6, 4]</span><br><span class="line">Output: [3, 5]</span><br><span class="line">Explanation: &#x27;3&#x27; is duplicated and &#x27;5&#x27; is missing.</span><br></pre></td></tr></table></figure>
+
+<p>题目不难，还是满足cyclic sort，但if-else有点多，不太简洁。因为我没有当发现duplicate number后即时保存，而是标记为-2，missing number则是标记为0。这样的算法，覆盖面更广，如果有多个duplicate或者missing number，都可以被查出来。但这个题已经明确说了dup和missing都只有一个，所以可以更简化一点。</p>
+<p>回归最简单的cyclic sort，拿example推演一下，如果发现了nums[i]想要换到的位置已经有了，这个时候dup就知道了，但是这一次要不要swap？</p>
+<p>举例说明，[1,2,3,2]，当我们看到第二个2时，显然不能swap，会死循环。不swap，那怎么做呢？按前面的算法逻辑，就该把[i]这个位置标记为0或者什么。但这么做的话，又会增加if-else，因为下一次读[i]可能有0这个值了，必须单独考虑。</p>
+<p>所以，再简单点，不swap，我也不操作了，就i+=1去搞下一个元素。这么做，是没问题的，很类似Find the Missing Number (easy)“n长的数组，是0到n这n+1个数缺了某个数”。Find the Missing Number (easy)的数组中可能有n，n是没办法交换到它应该在的位置的，所以放着就好了，它会在missing的那个位置上，或者整个数组都ok，n这个值就是missing的那一个。</p>
+<p>再总结，例如[1,2,3,2]这个数组，我们忽略第二个2，那么数组最后的样子就是[1,2,3,2]，再次遍历数组，i为3时[i]!=i+1，说明了什么？说明这个地方应该出现的值没在，所以i+1是missing number，而[i]==2，说明2是多的那个，所以[i]是dup number。</p>
+<p>最后，再理解一下，这个题目其实和Find the Missing Number一模一样，因为dup和missing number都是通过错误的那一个位置可以得到。</p>
+<p>代码见 <a target="_blank" rel="noopener" href="https://gist.github.com/vagetablechicken/31b210446ec55944cb490c658c3c6a04">https://gist.github.com/vagetablechicken/31b210446ec55944cb490c658c3c6a04</a></p>
+<h3 id="Problem-Challenge-2-Find-the-Smallest-Missing-Positive-Number-medium"><a href="#Problem-Challenge-2-Find-the-Smallest-Missing-Positive-Number-medium" class="headerlink" title="Problem Challenge 2 - Find the Smallest Missing Positive Number (medium)"></a>Problem Challenge 2 - Find the Smallest Missing Positive Number (medium)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Given an unsorted array containing numbers, find the smallest missing positive number in it.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: [-3, 1, 5, 4, 2]</span><br><span class="line">Output: 3</span><br><span class="line">Explanation: The smallest missing positive number is &#x27;3&#x27;</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: [3, -2, 0, 1, 2]</span><br><span class="line">Output: 4</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: [3, 2, 5, 1]</span><br><span class="line">Output: 4</span><br></pre></td></tr></table></figure>
+
+<p>这个题目简单一想，就是cyclic sort，sort完后第一个nums[i]!=i+1的地方就是the smallest missing positive number。但是要注意到（就算没注意到，example 3也过不了），nums中可能会出现&gt;len+1的数，cyclic sort时也没办法把这种数放到“正确的位置”。再细想一下，总共就len这么多个数字，如果真就[1,len]每个数字出现一次，smallest missing positive number自然就只能是len+1了。所以，smallest missing positive number的取值范围只可能是[1,len+1]，不会更大了。</p>
+<h3 id="Problem-Challenge-3-Find-the-First-K-Missing-Positive-Numbers-hard"><a href="#Problem-Challenge-3-Find-the-First-K-Missing-Positive-Numbers-hard" class="headerlink" title="Problem Challenge 3 - Find the First K Missing Positive Numbers (hard)"></a>Problem Challenge 3 - Find the First K Missing Positive Numbers (hard)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Given an unsorted array containing numbers and a number ‘k’, find the first ‘k’ missing positive numbers in the array.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: [3, -1, 4, 5, 5], k=3</span><br><span class="line">Output: [1, 2, 6]</span><br><span class="line">Explanation: The smallest missing positive numbers are 1, 2 and 6.</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: [2, 3, 4], k=3</span><br><span class="line">Output: [1, 5, 6]</span><br><span class="line">Explanation: The smallest missing positive numbers are 1, 5 and 6.</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: [-2, -3, 4], k=2</span><br><span class="line">Output: [1, 2]</span><br><span class="line">Explanation: The smallest missing positive numbers are 1 and 2.</span><br></pre></td></tr></table></figure>
+
+<p>看起来是挺简单的变种题目，但并不是。首先数组内元素没有限制，如果数组里存在&gt;len的数，它是会影响结果的，不能直接忽略。</p>
+<p>可以也先不管&gt;len的数，但这样的结果就是，可以O(n)知道&lt;=len的missing numbers，更大的missing numbers只能枚举，而且还得排除存在于nums数组里的，所以得有个set保存nums中存在的&gt;len的数，每个数都要查一次是否存在，O(nlogn)。</p>
+<p>这个&gt;len的查询是省不掉的。参考答案里也是这个方法，简单朴实。</p>
+<p>注意一下example1，因为它有重复的5和5，不能用最简单的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">while i&lt;len:</span><br><span class="line">    if cond and nums[i] != i+1:</span><br><span class="line">        swap</span><br><span class="line">    else:</span><br><span class="line">        i+=1</span><br></pre></td></tr></table></figure>
+
+<p>这么的话，经过几次swap，num[0]==5了，5想要被换到idx 4的地方，但恰好这里又是5，陷入死循环。</p>
+<p>更好的逻辑是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">while i&lt;len:</span><br><span class="line">    j = nums[i]-1</span><br><span class="line">    if cond and nums[i] != nums[j]:</span><br><span class="line">        swap</span><br><span class="line">    else:</span><br><span class="line">        i+=1</span><br></pre></td></tr></table></figure>
+
+<p>因为nums[i]==i+1时，j就等于i，指向的同一个位置i，[i]!=[j]就可以判断了，还避免了重复情况。</p>
+<p>其他坑，例如要保证output个数为k个等等都比较好修复。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Algo/" rel="tag"># Algo</a>
+              <a href="/tags/LeetCode/" rel="tag"># LeetCode</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/22/leetcode-roadmap/" rel="prev" title="leetcode-roadmap">
+      <i class="fa fa-chevron-left"></i> leetcode-roadmap
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/06/grokking-4/" rel="next" title="Grokking Pattern 4">
+      Grokking Pattern 4 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><span class="nav-number">1.</span> <span class="nav-text">Grokking the Coding Interview: Patterns for Coding Questions</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Pattern-Cyclic-Sort"><span class="nav-number">1.1.</span> <span class="nav-text">5. Pattern Cyclic Sort</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cyclic-Sort-easy"><span class="nav-number">1.1.1.</span> <span class="nav-text">Cyclic Sort (easy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Find-the-Missing-Number-easy-%E2%80%93-LeetCode"><span class="nav-number">1.1.2.</span> <span class="nav-text">Find the Missing Number (easy) – LeetCode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Find-all-Missing-Numbers-easy"><span class="nav-number">1.1.3.</span> <span class="nav-text">Find all Missing Numbers (easy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Find-the-Duplicate-Number-medium-%E2%80%93-LeetCode"><span class="nav-number">1.1.4.</span> <span class="nav-text">Find the Duplicate Number (medium) – LeetCode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Find-all-Duplicate-Numbers-medium-%E2%80%93-LeetCode"><span class="nav-number">1.1.5.</span> <span class="nav-text">Find all Duplicate Numbers (medium) – LeetCode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Challenge-1-Find-the-Corrupt-Pair-easy"><span class="nav-number">1.1.6.</span> <span class="nav-text">Problem Challenge 1 - Find the Corrupt Pair (easy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Challenge-2-Find-the-Smallest-Missing-Positive-Number-medium"><span class="nav-number">1.1.7.</span> <span class="nav-text">Problem Challenge 2 - Find the Smallest Missing Positive Number (medium)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Challenge-3-Find-the-First-K-Missing-Positive-Numbers-hard"><span class="nav-number">1.1.8.</span> <span class="nav-text">Problem Challenge 3 - Find the First K Missing Positive Numbers (hard)</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Huang Wei</p>
+  <div class="site-description" itemprop="description">Hey</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huang Wei</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

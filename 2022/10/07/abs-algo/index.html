@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"vagetablechicken.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="很多题目都有基础的数据结构和算法，但也有它独特的corner case。所以，本文主要记录抽象的算法，避免重复记录。 Quick Sort快速排序 快排容易想的方法是3个while，一个while外循环，加每次左标移动和右标移动两个while。但这个翻译成代码很容易出错，主要是感觉while的保护和退出条件不容易记忆。出错了，你没法跑单测就很难补好洞。虽然面试的自己可能都写不出来，但他复制你的代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="抽象算法">
+<meta property="og:url" content="http://vagetablechicken.github.io/2022/10/07/abs-algo/index.html">
+<meta property="og:site_name" content="Wei">
+<meta property="og:description" content="很多题目都有基础的数据结构和算法，但也有它独特的corner case。所以，本文主要记录抽象的算法，避免重复记录。 Quick Sort快速排序 快排容易想的方法是3个while，一个while外循环，加每次左标移动和右标移动两个while。但这个翻译成代码很容易出错，主要是感觉while的保护和退出条件不容易记忆。出错了，你没法跑单测就很难补好洞。虽然面试的自己可能都写不出来，但他复制你的代码">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-10-07T11:48:30.000Z">
+<meta property="article:modified_time" content="2023-07-31T10:56:53.712Z">
+<meta property="article:author" content="Huang Wei">
+<meta property="article:tag" content="Algo">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://vagetablechicken.github.io/2022/10/07/abs-algo/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>抽象算法 | Wei</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Wei" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Wei</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2022/10/07/abs-algo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          抽象算法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-10-07 19:48:30" itemprop="dateCreated datePublished" datetime="2022-10-07T19:48:30+08:00">2022-10-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algo/" itemprop="url" rel="index"><span itemprop="name">Algo</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>很多题目都有基础的数据结构和算法，但也有它独特的corner case。所以，本文主要记录抽象的算法，避免重复记录。</p>
+<h2 id="Quick-Sort"><a href="#Quick-Sort" class="headerlink" title="Quick Sort"></a>Quick Sort</h2><p>快速排序</p>
+<p>快排容易想的方法是3个while，一个while外循环，加每次左标移动和右标移动两个while。但这个翻译成代码很容易出错，主要是感觉while的保护和退出条件不容易记忆。出错了，你没法跑单测就很难补好洞。虽然面试的自己可能都写不出来，但他复制你的代码去跑，那就还是你gg。所以我倾向于记忆单循环的写法，主要是不需要什么保护和退出，简单。不过，3 while确实更加贴近抽象算法的原理，可以尝试记忆一下。</p>
+<p>我们记锚点为pi，它位置上的值为piv。</p>
+<h3 id="单循环思路"><a href="#单循环思路" class="headerlink" title="单循环思路"></a>单循环思路</h3><p>快排建议记忆单循环的写法，该写法也不用死记，需要记住几个点：</p>
+<ul>
+<li>单次循环，那么就是把每个比piv（pivot的value）小的数都挪到前面去。</li>
+<li>第一次挪怎么挪？第一个数是piv，从第二个数开始比大小，如果第二个数小于piv，是原地不动还是扔到第一个位置？这里重点记忆<strong>不要交换pivot，pivot最后再交换</strong>。可以推理出，第二个数如果小于piv，就应该放在第二个位置，就是原处。如果它大于等于piv，它不动，就比下一个数，如果它小于piv，就挪到前面去。<ul>
+<li>总结规则是：当某数大于等于piv时，是跳过，直接看下一个数。如果小于piv，交换，交换到此处的值，可能是大于等于piv的，也可能就是原地交换（比如piv就是最大的值，就会一直触发原地交换），但反正不用再次考虑，还是可以直接下一个数。</li>
+</ul>
+</li>
+<li>遍历完成后，就形成了三块区域，[piv, &lt; piv, &gt;=piv]。这个时候交换piv和&lt; piv的最后一个数，区域就可以变成[&lt; piv, piv, &gt;=piv]，符合快排partition后的结果。</li>
+<li>partition函数有了，快排的递归partition怎么写？重点要注意的是怎么标记partition的输入范围，是左闭右开，还是全闭？目前感觉都可以，因为快排的衍生问题都是pivot很重要，区间问题不影响pivot，pivot不会漂移。<br>所以伪代码写为：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">def partition:</span><br><span class="line">	# [lo, hi)</span><br><span class="line">	piv, j = a[lo], lo</span><br><span class="line">	for i in range(lo+1,hi):</span><br><span class="line">		if a[i] &lt; piv:</span><br><span class="line">			j ++</span><br><span class="line">			swap i,j</span><br><span class="line">	swap lo, j</span><br><span class="line">	return h</span><br><span class="line">def qsort:</span><br><span class="line">	if lo + 1 &gt;= hi: # 长度为1或0都不需要排序</span><br><span class="line">		return</span><br><span class="line">	pi = partition(a, lo, hi)</span><br><span class="line">	qsort(a, lo, pi) # 这里指排序[lo,pi)，pi不参与排序</span><br><span class="line">	qsort(a, pi+1, hi)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>如果partition函数像做成全闭的，那么&lt; piv的游标j和循环的取值范围，以及qsort里的退出条件和qsort递归范围变化一下就好了，没什么坑。<br>如果侥幸你记得pivot可以选最右（我每次都记不得），那么&lt; piv的游标j和循环的取值范围要改一下，以及最后应该交换pivot和j+1。感觉没简单化什么东西，不必记忆。</p>
+<p>判断条件用 &lt;= 或 &lt; 应该都可以，只要能保证最后pivot的交换能满足快排定义。看网上题解 &lt;= 多，但我觉得 &lt; 挺好用的，减少一些swap可能，比如<a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000004410119">这个题解就是用的小于做判断</a>，<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/kth-largest-element-in-an-array">oj</a>上也没测出问题来。</p>
+<h3 id="3-while思路"><a href="#3-while思路" class="headerlink" title="3 while思路"></a>3 while思路</h3><p>3 while思路，推荐在<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Ya4y1x771?p=7">陈斌老师的写法</a>上改进一点点，也就是去掉done这个flag，没什么必要加它。3 while思路的难写点在于，双mark写法过长，可能做不好越界保护。</p>
+<p>首先看基础思路：</p>
+<p>我们先暂时放下while的保护条件，先讨论理想情况。两个游标怎么游？算法中不是要&lt; piv, piv, &gt; piv，毕竟可能piv有多个，而是&lt;=piv, piv, &gt;=piv，<strong>注意，两边都可能==piv，不是必须在哪一边</strong>。因此内层两个while判定条件是&lt;=piv ++,  &gt;=piv –，遇到等于的可以继续游，不需要停下。<br>所以伪代码可写为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">while True:</span><br><span class="line">	while … and [lmark]&lt;=piv: lmark++</span><br><span class="line">	while … and [rmark]&gt;=piv: rmark--</span><br><span class="line">	some cases</span><br><span class="line">	exchange</span><br><span class="line">handle pivot</span><br></pre></td></tr></table></figure>
+<p>很明显，内层2个while不可能让2个mark一直++/–，所以我在2个while判断的最前面都留了保护条件。</p>
+<p>让我们思考下这个保护和2个while结束后，哪些情况不能走到exchange，或者得直接退出外层while。</p>
+<p>首先，可以提醒自己<strong>交换价值</strong>，就是2个mark什么时候是需要交换的，值得交换的，不值得的时候，可能要跳过或退出（也就是上面代码的some cases）。通常的看，当然是lmark &lt; rmark时应该交换，lmark==rmark和lmark &gt; rmark时都是不应该交换的。那么，假设走完内层2个while时可以存在lmark==rmark的情况，我们该干什么？</p>
+<p>如果while保护条件为lmark &lt; rmark，那很可能出现这个lmark==rmark。可能是lmark知道了前面的值&lt;= piv，所以++到了此处，由于保护条件，第2个while就也跳过了。又或者lmark确实到了此处，它&gt;piv，rmark又走过&gt;=piv的值，到了此处，被保护条件卡住。可能还有别的情况，但总的来讲，就是<strong>你无法明确lmark==rmark时，这个位置的值是个什么情况，它没有保证</strong>。为了这个情况，就得单独去判定大小，并看往哪儿放。不是说不可以这么写，就是挺麻烦。</p>
+<p>举例说明：</p>
+<p>[5,7,2,8]它以5为piv，会交换一次7和2，成为[5,2,7,8]，然后就会遇到lmark==rmark，也就是7所在的位置2。简单地想，pivot 5和双mark指向的7应该交换，但是这个例子不能，得先判断出7比piv大，不能动，然后往左看到2，发现它可以和piv交换。这里又会衍生，要不要保护，pivot是不是就是最小的，不用交换等等情况。特殊情况就很多，很烦，容易想漏想错。</p>
+<p>所以再换个思路。如果保护条件是lmark &lt;= rmark，就会发现，走过2个while后，不存在lmark==rmark的情况（可以assert看看）。因为一个数它跟piv比只有三种情况，而三种情况，两个游标都不可能同时停下，必然有人要跨过去，所以安全。那么，lmark&gt;rmark时我们退出外层while，这时候如何处理pivot？会不会比前面思路的处理逻辑简单？</p>
+<p>lmark &gt; rmark除了这个位置关系，数组当前会是什么情况，能保证一些什么关系？首先明确它们只可能是lmark=rmark+1，就是相邻的，不可能交错后继续拉开距离。</p>
+<ul>
+<li>lmark &gt; rmark可能是lmark先走，触发保护，然后rmark的while直接跳过。这个情况，lmark都能穿过rmark，自然lmark的左边（不包含自己）都是&lt;=piv的。此时rmark可能是走动过，也可能是完全没移动过，但都ok。走动过，那么它必然是停在了&lt; piv 的值上，也保证它的右边全是&gt;= piv的。这个大小关系下，很自然，pivot和rmark交换下就好了，把&lt; piv的值放到最左边，很合理。如果rmark没走动，那它就在最右边，lmark又保证了除pivot以外整个区间都&lt;=piv。这个情况把pivot扔到最右边也很合理。</li>
+<li>lmark停在了&gt;piv的值上，rmark一直往左，穿过了lmark。这里也保证了rmark的右边都是&gt;=piv的，rmark当前位置好像unknown，因为rmark只是因为保护停下。但考虑到lmark停在此处，当然是rmark停在了&lt;=piv的值上，而lmark在紧邻的右边。这个关系下，pivot和rmark交换，也很合理。那如果lmark压根儿没走动，rmark就走到了pivot这个最左边的点上，原地交换下也没错。</li>
+</ul>
+<p>可以看到，保护条件是lmark &lt;= rmark时，rmark指向的值有明显的大小保证，不需要再次确认什么。所以，用lmark &lt;= rmark这样的保护条件最好，对应的lmark &gt; rmark时退出外层while。<strong>重点记忆，“交错”(lmark&gt;rmark)就停止</strong>，自然，不交错的话游标还可以继续跑，所以内层2while的保护条件是lmark &lt;= rmark。（这个记忆法仅用于记忆，没办法去推理代码的完备性。）</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><strong>核心是“交错”，交错就停止，只要不交错，3 while都可以继续</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">while True:</span><br><span class="line">	while lmark&lt;=rmark and [lmark]&lt;=piv: lmark++</span><br><span class="line">	while lmark&lt;=rmark and [rmark]&gt;=piv: rmark--</span><br><span class="line">	if lmark &gt; rmark:</span><br><span class="line">		break</span><br><span class="line">	exchange</span><br><span class="line">exhange rmark and left</span><br></pre></td></tr></table></figure>
+
+<p>实际oj测试，还是双mark速度快点。</p>
+<p>另一种写法见<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/jian-zhi-offer-40-zui-xiao-de-k-ge-shu-j-9yze/">leetcode题解</a>，3 while用的i &lt; j，注意写法是右标先移动，否则有问题。这种大概率记不住，先左后右比较顺。</p>
+<h2 id="Binary-Tree-Traversal"><a href="#Binary-Tree-Traversal" class="headerlink" title="Binary Tree Traversal"></a>Binary Tree Traversal</h2><p>二叉树遍历</p>
+<p>二叉树的三种遍历递归写法都没难度，不过稍微加点东西就容易搞不定了。还是不够熟悉递归，不够熟悉将稍复杂的逻辑想清楚，所以转换为代码会卡住。</p>
+<p>另外，再注意一下，先序、中序、后序都是看的当前节点cur，所以先是cur-left-right，中是left-cur-right，后是left-right-cur。不要认为后序就是right要放前面了，有时候容易脑子短路。</p>
+<h3 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h3><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/binary-tree-inorder-traversal/">https://leetcode.cn/problems/binary-tree-inorder-traversal/</a></p>
+<p>中序递归遍历，一般就用result数组来存结果就行了，因为result在递归中也是一个一个append结果的。拼接的写法<code>inorder(root.left)+[root]+inorder(root.right)</code>大可不必，空间消耗有点过分了，也没简单多少。</p>
+<p>而中序迭代遍历，该怎么写？首先得加个辅助结构，或者改当前的数据结构，否则不够用。</p>
+<p>我们先说“加辅助结构”的算法。中序是左-中-右，递归不用额外结构因为它可以回到中，即使已经在左子树游了一圈了。那迭代就需要记住中，因二叉树单向的，往下走回不来，不缓存起来就回不去。不管是栈还是队列，一维数组肯定够了。当然一般“递归-&gt;迭代”都是栈，递归本质也是先进后出。</p>
+<p>再看怎么使用栈，其实就是模仿递归，递归往左下走到底后，可以逐步回来，所以迭代里就应该往左下走，并且记录每个“中”节点。到底后，就可以向result加结果了。拿最左的叶子节点举例，它左子节点None了，就类似递归回到了它，它作为中节点，被加入result，那么此时还应该考虑它的右子节点。而以这个右子节点作为起始，做的实际还是中序遍历，不过是子树的中序遍历，所以这里代码可以复用，只需要以右子节点作为起始节点。可以看出，中先进栈，左子再进，把左子和中都弹出栈后，右子才会进栈，不用担心右子节点遍历完了后就断了，因为中的上一层还在栈里面。</p>
+<p>伪代码写作：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cur = root</span><br><span class="line">stack = []</span><br><span class="line">while ?:</span><br><span class="line">	while cur:</span><br><span class="line">		cur -&gt; stack</span><br><span class="line">		cur = cur.left</span><br><span class="line">	# no more left child, cur == None now</span><br><span class="line">	top = stack.pop</span><br><span class="line">	top -&gt; result</span><br><span class="line">	cur = top.right # next loop will traversal the right child</span><br></pre></td></tr></table></figure>
+
+<p>最后看终止条件怎么写，stack为空，没法pop，肯定得保护，但是因为内层while也在填充stack，所以并不是stack为空就得终止，内层while可能会补充。不过如果cur和stack都为空，那就没必要了。</p>
+<p>所以终止条件为<code>while cur or stack</code>。</p>
+<h3 id="前序遍历-先序遍历"><a href="#前序遍历-先序遍历" class="headerlink" title="前序遍历/先序遍历"></a>前序遍历/先序遍历</h3><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/binary-tree-preorder-traversal/">https://leetcode.cn/problems/binary-tree-preorder-traversal/</a></p>
+<p>递归写法是“中-左子-右子”，因为中就是当前，左子就<code>.left</code>往左走就行了，所以只需存右子，且是先进后出。用简单例子演示一遍也可以知道，伪代码可以写作：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">stack, cur = [], root</span><br><span class="line">while ?:</span><br><span class="line">	if not cur:</span><br><span class="line">		cur = stack.pop</span><br><span class="line">	cur -&gt; result</span><br><span class="line">	if cur.right: -&gt; stack</span><br><span class="line">	cur = cur.left # be the new traversal root</span><br></pre></td></tr></table></figure>
+
+<p>最后看终止条件，stack为空，如果有cur，也可以走下去（比如root节点）；如果cur为空，stack还有，也能走（比如走到树的最底层，但树右边还有节点没遍历到）。所以终止条件还是<code>while cur or stack</code>。</p>
+<h3 id="后序遍历"><a href="#后序遍历" class="headerlink" title="后序遍历"></a>后序遍历</h3><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/binary-tree-postorder-traversal/">https://leetcode.cn/problems/binary-tree-postorder-traversal/</a></p>
+<p>依然要记牢，迭代就是模拟递归，所以这里依旧需要用栈来模拟递归时天然拥有的栈信息。递归是“左子-右子-中”，所以还是先把最左边的路走通，存下每个左子。每个左子从栈中取出时，我们假设某个节点名为node1，都应该先把node1右子当作新的root，把右子树走完，才回到这个node1。只拿到node1，是可以找到其右子的，但是node1此时不出栈，我们会再次拿到它，如何区别它的两个状态（该让右子进栈，还是就该它出栈，它完成遍历）？</p>
+<p>这里比较常规的想法是要不栈就存&lt; node, flag &gt;，通过flag来，进栈的flag都为false，如果我们将它右子放进栈，就把flag改为true。下次pop出flag为true的node，就跳过压右子，直接让它进入result，视为它和它的子树都完成了遍历。</p>
+<p>但其实还可以更简单，需要察觉到一个关系问题。比如，栈目前是[1,2]，然后2是叶子，2出栈。然后我们看到1，1有右子3，那么此时就是[1,3]，注意一定有node1.right==node3这个关系。3的子树怎么操作，不用关心，假设它已经完成了，此时应该3出栈了，栈又变成了[1]，而如果我们记住了3，当我们看到栈里的1，有node1.right==node3时，就知道了，node1的右子node3已经访问过了，node1可以出栈了。这个关系完全是即时的，它只需要记住出栈的节点，所以只需要一个变量就可以，通常记为pre。pre可行的原因就是遍历的连续性，右子节点出了，马上就是中这个节点出，中间不会夹杂别的。记住右子，就能判断出中是第二个状态了，不需要再管右子节点。</p>
+<h2 id="skiplist"><a href="#skiplist" class="headerlink" title="skiplist"></a>skiplist</h2><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/czkZcQL8mEqG2xeX8huqsA">https://mp.weixin.qq.com/s/czkZcQL8mEqG2xeX8huqsA</a></p>
+<h2 id="Heap"><a href="#Heap" class="headerlink" title="Heap"></a>Heap</h2><p>堆，一般指二叉堆。</p>
+<p>我们希望有一个数据结构，它可以迅速pop出最小的，push一个新的数也希望是对数时间里完成，这样的时间复杂度才有价值，不然简单的有序数组pop/push都是O(n)就足够了，还简单。</p>
+<p>这个理想的数据结构，应该考虑树形，毕竟对数时间。</p>
+<p>再说什么树，因为没有什么限定条件，二叉树就是最简单的。然后再想，n个数去构建二叉树，如果n不是2^k-1，那这个二叉树就不满，不满也不能乱搞，因为对数时间，你当然希望这个树足够矮小，不然最坏情况又是线性了。所以平衡二叉树是理想形态。</p>
+<p>而平衡二叉树并不必须用链表作为节点，<strong>它可以用连续数组表示</strong>。这也是让代码更简单的一个优点。</p>
+<p>再来说说堆的基本操作逻辑。</p>
+<p>一个是pop，pop出堆顶后，树的根节点就空了，这个“树”就不是有效的树了，那得想个办法修好，办法就是把最尾部的元素移动到堆顶，这个时候不满足堆有序，那么就去让它有序，画画图也可以发现，只有堆顶也就是根节点不符合堆有序，那么调整根节点和它的两个子节点，比如它和左子节点交换，它们三个就堆有序了。但因为左子节点变了，它和它的两个子节点可能又乱了，就继续调整。一层一层往下，也叫做“下沉”。只会沿着某一条路径下沉到叶子，所以复杂度是logn，不会影响别的路径。</p>
+<p>二是push，新增一个元素到已形成的堆，将新元素塞入树中间显然不合理，放在最后一个位置，就像是多给某个节点加了个子节点。然后，这个节点和它的一个或两个子节点，可能不满足堆有序，就需要调整。调整后，它作为子节点，可能又不能有序，于是就一直“上浮”，上浮到根节点就结束了。同样的，只会影响一条路径，也是O(k)（k层的树，n个节点树高也就是k=logn）。（如果当前堆已经满了呢？新加的节点，在逻辑上看，就是树多加了一层，这一层只有一个节点。说得通。）</p>
+<h3 id="Python-heapq"><a href="#Python-heapq" class="headerlink" title="Python heapq"></a>Python heapq</h3><p>再提一嘴python的heapq，优先队列一般底层结构就是二叉堆，具体二叉堆怎么实现都行，python这里也是使用数组，但是它的内部方法实现不是前面提到的算法，它更高效，可以仔细看下heapq的实现和注释，实名diss了前面的常规算法???。但这个不影响时间复杂度，不可能比logn更小，只是时间优化。（heapq算法里的siftup,siftdown和上浮下沉就对不上了。有空可以学习下。）</p>
+<p>heapq原理在代码里也不过，就观察下整个源码实现吧。</p>
+<ul>
+<li><p>heappush，就是新加一个elem到heap，源码实现为，append到数组末尾，然后siftdown(0,last),第二个参数last指从这个节点开始，往上走到第一个参数0，也就是根节点。其实就是一次上浮（对应Algorithm 4th的swim），但不知道为什么叫down？</p>
+<blockquote>
+<p> Pasanen, Tomi (November 1996). Elementary Average Case Analysis of Floyd’s Algorithm to Construct Heaps (Technical report). Turku Centre for Computer Science. CiteSeerX 10.1.1.15.9526. ISBN 951-650-888-X. TUCS Technical Report No. 64. Note that this paper uses Floyd’s original terminology “siftup” for what is now called sifting down.<br><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Binary_heap#cite_ref-13">https://en.wikipedia.org/wiki/Binary_heap#cite_ref-13</a></p>
+</blockquote>
+<p>  Floyd大概是<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/pdf/10.1145/355588.365103">这一篇</a>，里面siftup确实是j=2*i，往下走的，可能python heapq按照这个逻辑来的吧。</p>
+</li>
+<li><p>heappop，和抽象的算法没有区别，把堆顶拿走，把最后一个数放到堆顶，然后下沉（sink），只是heapq里叫siftup。siftup有个神奇的点是它在最后call了一次siftdown。注意整个siftup的实现，简化一下是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> siftup(pos):</span><br><span class="line">newitem = heap[pos]</span><br><span class="line">while childpos &lt; endpos:</span><br><span class="line">	childpos = max(left, right)</span><br><span class="line">	heap[pos] = heap[childpos]</span><br><span class="line">	pos = childpos</span><br><span class="line">heap[pos] = newitem</span><br><span class="line">siftdown(pos)</span><br></pre></td></tr></table></figure>
+<p>  它并不是在while里，用当前pos跟它的两个子节点比大小，选择跟哪个子节点交换，而是无条件交换。也就是说while不是一次完整下沉，所以是while+siftdown组成一次完整下沉。<br>  看下它的<a target="_blank" rel="noopener" href="https://github.com/python/cpython/blob/e47b13934b2eb50914e4dbae91f1dc59f8325e30/Lib/heapq.py#L221">注释</a>。</p>
+</li>
+</ul>
+<p>在这个函数之前的评论区中，作者已经解释了他们为什么做出这样的选择，这初看起来效率较低，但在实践中却发现会导致更少的比较。</p>
+<p>We could break out of the loop as soon as we find a pos where newitem &lt;= both its children, but turns out that’s not a good idea, and despite that many books write the algorithm that way. During a heap pop, the last array element is sifted in, and that tends to be large, so that comparing it against values starting from the root usually doesn’t pay (= usually doesn’t get us out of the loop early). See Knuth, Volume 3, where this is explained and quantified in an exercise.</p>
+<p>heapq提供<a target="_blank" rel="noopener" href="https://github.com/python/cpython/blob/e47b13934b2eb50914e4dbae91f1dc59f8325e30/Lib/heapq.py#L147">heapreplace</a>，也就是把堆的pop和push两步放在一步完成，因为size恒定。你如果pop[0]，就把新的元素放在[0]就行，让它下沉。</p>
+<p>注意heapq.heapreplace是一定replace的，它不会管你想push的元素会不会比heap top更小。它一定输出heap的top，再把push值塞进heap里。不过我们这个题目，是可以保证push的大于等于heap top的，不会有问题。</p>
+<p>如果没有这一点保证，你想做的事情就应该抽象为“push后pop”（当然内部应该优化，不是愚蠢地真的push后又pop），因为你想从heap和想push的新值一起看的集合中最小的值，可以使用headpq.heappushpop。不过，这个自己写也行，逻辑不复杂，就是先peek一下堆顶，如果push的新值更小，就直接返回，如果不是，就把堆顶值取出，把新值放在堆顶，然后堆化。</p>
+<h2 id="Ugly-Number"><a href="#Ugly-Number" class="headerlink" title="Ugly Number"></a>Ugly Number</h2><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/ugly-number-ii/">https://leetcode.cn/problems/ugly-number-ii/</a></p>
+<p>丑数，听到题目很自信，dp[i]表示i这个数字是不是丑数。然后直接超时GG。一个重要现实，<strong>大部分的数不是丑数</strong>，所以会很膨胀，比如n=476时，第476个丑数已经达到737280，73w了，太多数字不是丑数了。所以不应该用动态规划的i表示i这个数，而是表示第i个丑数。</p>
+<p>去判断1个数字是否为丑数，这种一次性的判定，不去利用缓存是可以理解的，但找第i个丑数，当然不可能每个每个数字去判定，应该去找与前面的丑数的规律。所以，如果没想出动态规划怎么做，收集所有丑数，直到第n个，也是个办法。由于一个数<em>2，</em>3，*5都是丑数，但下一个丑数 *2不一定比前面的丑数 *3大，所以得排序。于是有了直接把数字插入堆里排序，这种方法，保证每次拿出最小的丑数来。第一次将1放入，1取出，2，3，5都放进去，反正1是最小的，可以安心输出。再从堆里取最小，2，2的2，3，5倍都是丑数又放进堆里。但注意得到2的3倍6进去了，3的2倍6又会进入堆一次，所以堆中拿出的丑数有重复，堆中拿出的丑数需要确认无重复，可以用map/set的key来去重，等map/set收集到第n个丑数时，停止收集。</p>
+<p>再仔细理解一下人的解题思路。我们知道最小丑数是1，此时只能衍生出3个丑数2、3、5都是丑数，就三个选择，取最小的2，作为下一个丑数，而这个丑数又可以衍生出2<em>2,2</em>3,2*5三个，加上前面还没用上的的3和5，可以看到，这么想的话很膨胀，备选数会越来越多。但当前最后的丑数2，它的3倍5倍都很大，没必要此时就参与比较，只有2 * 2较小，可以和1的3倍和5倍比一比，谁是下一个丑数。但它们也不能被丢掉，后面的比较里它们也要成为备选。所以，换个角度，不要从“每个数的2、3、5倍都是丑数”这样发散，而是从“每个丑数都要被2、3、5乘”来考虑。也就是说，2、3、5它们三个要跟我们已生成的丑数序列的每个数都乘一次，且只需要一次，用完就扔，跳到下一个丑数去。</p>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/ugly-number-ii/solutions/714340/gong-shui-san-xie-yi-ti-shuang-jie-you-x-3nvs/">这个题解</a>的说明更加清晰，推荐阅读。</p>
+<p>这个思路可行后，还需要注意2 * 3和3 * 2这个重复问题，以2为例，看到当前的a[i] * 2 == a[-1]，那么应该取下一个a[i+1] * 2作为竞争者，跳过a[i]。所以我的代码是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">class Solution:</span><br><span class="line">    def nthUglyNumber(self, n: int) -&gt; int:</span><br><span class="line">        a = [1]</span><br><span class="line">        L = [0,0,0,0,0,0]</span><br><span class="line">        # L[i] = pi, candidate is a[L[i]]*i, i = 2,3,5</span><br><span class="line">        while len(a) &lt; n:</span><br><span class="line">            if a[L[2]]*2 == a[-1]: L[2]+=1</span><br><span class="line">            if a[L[3]]*3 == a[-1]: L[3]+=1</span><br><span class="line">            if a[L[5]]*5 == a[-1]: L[5]+=1</span><br><span class="line"></span><br><span class="line">            # 3 candidates</span><br><span class="line">            m = 2</span><br><span class="line">            min_n = a[L[2]]*2</span><br><span class="line">            if min_n &gt;= a[L[3]]*3:</span><br><span class="line">                m,min_n = 3, a[L[3]]*3</span><br><span class="line">            if min_n &gt;= a[L[5]]*5:</span><br><span class="line">                m,min_n = 5, a[L[5]]*5</span><br><span class="line">            L[m] += 1</span><br><span class="line">            a.append(min_n)</span><br><span class="line">        # print(a)</span><br><span class="line">        return a[-1]</span><br></pre></td></tr></table></figure>
+<p>就是在侯选前，去跳越重复值。<br>但更简单的写法是，在后面跳跃，比如[1,2,3,4,5]后的下一个丑数备选是3 * 2，2 * 3，2 * 5这三个，它们取出的最小值是6，但没必要取看它是丑数 *2还是 *3的结果，因为这两个指针都应该++。所以，更简洁的代码是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">while :</span><br><span class="line">	min_n = min(a[p2]*2, a[p3]*3, a[p5]*5)</span><br><span class="line">	if min_n == a[p2]*2:</span><br><span class="line">		p2 += 1</span><br><span class="line">	if min_n == a[p3]*3:</span><br><span class="line">		p3 += 1</span><br><span class="line">	if min_n == a[p5]*5:</span><br><span class="line">		p5 += 1</span><br><span class="line">	a.append(min_n)</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Algo/" rel="tag"># Algo</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/09/23/big-data/" rel="prev" title="BigData">
+      <i class="fa fa-chevron-left"></i> BigData
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/01/08/parallel-computing/" rel="next" title="ParallelComputing">
+      ParallelComputing <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Sort"><span class="nav-number">1.</span> <span class="nav-text">Quick Sort</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%BE%AA%E7%8E%AF%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.</span> <span class="nav-text">单循环思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-while%E6%80%9D%E8%B7%AF"><span class="nav-number">1.2.</span> <span class="nav-text">3 while思路</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binary-Tree-Traversal"><span class="nav-number">2.</span> <span class="nav-text">Binary Tree Traversal</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86"><span class="nav-number">2.1.</span> <span class="nav-text">中序遍历</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E5%BA%8F%E9%81%8D%E5%8E%86-%E5%85%88%E5%BA%8F%E9%81%8D%E5%8E%86"><span class="nav-number">2.2.</span> <span class="nav-text">前序遍历&#x2F;先序遍历</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86"><span class="nav-number">2.3.</span> <span class="nav-text">后序遍历</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#skiplist"><span class="nav-number">3.</span> <span class="nav-text">skiplist</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Heap"><span class="nav-number">4.</span> <span class="nav-text">Heap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Python-heapq"><span class="nav-number">4.1.</span> <span class="nav-text">Python heapq</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ugly-Number"><span class="nav-number">5.</span> <span class="nav-text">Ugly Number</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Huang Wei</p>
+  <div class="site-description" itemprop="description">Hey</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huang Wei</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

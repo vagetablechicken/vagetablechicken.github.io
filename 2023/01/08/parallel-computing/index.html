@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"vagetablechicken.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Why Use Parallel Computing?blabla.但真正让我感受到计算能力的有限，是在一次物理大作业中。具体的内容记不清了，但反正需要matlab写出三重for循环，来找出极值。然后CPU就开始疯狂转了，等了老半天才出结果。虽然这个作业能不能并行化，我也记不清了，但是，它让我体会了电脑算力不如我想象的高（我还用的是笔记本电脑，性能比较差）。以前我真的认为要很大的数据规模，才会需要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ParallelComputing">
+<meta property="og:url" content="http://vagetablechicken.github.io/2023/01/08/parallel-computing/index.html">
+<meta property="og:site_name" content="Wei">
+<meta property="og:description" content="Why Use Parallel Computing?blabla.但真正让我感受到计算能力的有限，是在一次物理大作业中。具体的内容记不清了，但反正需要matlab写出三重for循环，来找出极值。然后CPU就开始疯狂转了，等了老半天才出结果。虽然这个作业能不能并行化，我也记不清了，但是，它让我体会了电脑算力不如我想象的高（我还用的是笔记本电脑，性能比较差）。以前我真的认为要很大的数据规模，才会需要">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-01-08T10:34:22.000Z">
+<meta property="article:modified_time" content="2023-07-31T10:56:53.712Z">
+<meta property="article:author" content="Huang Wei">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://vagetablechicken.github.io/2023/01/08/parallel-computing/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ParallelComputing | Wei</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Wei" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Wei</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2023/01/08/parallel-computing/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ParallelComputing
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-01-08 18:34:22" itemprop="dateCreated datePublished" datetime="2023-01-08T18:34:22+08:00">2023-01-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Why-Use-Parallel-Computing"><a href="#Why-Use-Parallel-Computing" class="headerlink" title="Why Use Parallel Computing?"></a>Why Use Parallel Computing?</h1><p>blabla.<br>但真正让我感受到计算能力的有限，是在一次物理大作业中。具体的内容记不清了，但反正需要matlab写出三重for循环，来找出极值。然后CPU就开始疯狂转了，等了老半天才出结果。<br>虽然这个作业能不能并行化，我也记不清了，但是，它让我体会了电脑算力不如我想象的高（我还用的是笔记本电脑，性能比较差）。以前我真的认为要很大的数据规模，才会需要服务器，超算。</p>
+<p>直到后来更加系统学习了算法的一些知识，每次估算算法时长时，才发现，CPU的几GHz其实也挺小的。算出某个算法要几个小时才能跑完时，就会想，CPU如果再快个几倍该多好。</p>
+<p>semaphores <a target="_blank" rel="noopener" href="https://greenteapress.com/wp/semaphores/">https://greenteapress.com/wp/semaphores/</a><br>java <a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/tutorial/essential/concurrency/procthread.html">https://docs.oracle.com/javase/tutorial/essential/concurrency/procthread.html</a> book … in practice</p>
+<p>books, need to read?<br><a target="_blank" rel="noopener" href="https://www.amazon.co.uk/Introduction-Parallel-Computing-Ananth-Grama/dp/0201648652/ref=sr_1_2?ie=UTF8&amp;s=books&amp;qid=1279904224&amp;sr=8-2">https://www.amazon.co.uk/Introduction-Parallel-Computing-Ananth-Grama/dp/0201648652/ref=sr_1_2?ie=UTF8&amp;s=books&amp;qid=1279904224&amp;sr=8-2</a><br><a target="_blank" rel="noopener" href="https://www.amazon.co.uk/Parallel-Scientific-Computing-MPI-Implementation/dp/0521520800/ref=sr_1_3?ie=UTF8&amp;s=books&amp;qid=1279904267&amp;sr=1-3">https://www.amazon.co.uk/Parallel-Scientific-Computing-MPI-Implementation/dp/0521520800/ref=sr_1_3?ie=UTF8&amp;s=books&amp;qid=1279904267&amp;sr=1-3</a></p>
+<h1 id="一些演变过程"><a href="#一些演变过程" class="headerlink" title="一些演变过程"></a>一些演变过程</h1><p>参考《Java Concurrency in Practice》第1章。</p>
+<p>最初，只存在单进程。后来，操作系统引入多进程，多进程可以简化代码编写的难度，因为你可以只对一种任务写一个程序。各个程序间可以交互，而调度交由操作系统。<br>-&gt; 比在单进程中塞各种任务更容易。（此时串行的基本单位是进程，所以这里说“单进程”）</p>
+<p>后来出现多核，多处理器，单个程序也可以不串行，也就是多线程。不仅是提高资源利用率，而且把一个程序拆成多个子任务，每个任务的逻辑单独编写，必要时再交互，也可以简化程序逻辑。<br>-&gt; 比在单线程中塞不同子任务更容易。（因为此时有多线程了，串行的基本单位是线程，所以这里说“单线程”。实际要表达的是一样的。）</p>
+<p>但由于操作系统也是慢慢进化的，早期的操作系统通常会将进程中可创建的线程数量限制在一个<strong>较低的阈值</strong>内，大约在数百个（甚至更少）左右。因此，操作系统提供了一些高效的方法来实现多路I/O，例如 Unix 的 select 和poll 等系统调用，要调用这些方法，Java 类库需要获得一组实现非阻塞 IO 的包 (java.nio）。然而，在<strong>现代操作系统</strong>中，线程数量已得到极大的提升，这使得在某些平台 上，即使有更多的客户端，为每个客户端分配一个线程也是可行的。</p>
+<p>也就是说，理论上肯定是多线程+阻塞I/O更好（指线程中使用BIO），可以降低开发难度，线程调度不需要我们操心。但现实是，过于多的线程就可能带来问题。线程使用的内存，线程上下文切换的CPU开销，在“过于多的线程”这个场景下，可能就是内存占的很多，处理速度也不快。可能使用NIO效果会更好，当然，是在某些场景下，无法绝对论。所以，NIO还不会被淘汰（虽然它真的有点复杂，不好理解，又是考点😂）。</p>
+<h1 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h1><p>Java中线程封闭里有个特别点是ThreadLocal，它就是简化一下写法，并不是什么黑魔法。</p>
+<p>首先，理解下ThreadLocal的原理，你使用ThreadLocal::get/set时，内部是去取该线程的ThreadLocalMap，注意Map是存在Thread里的，set就是set值到这个Map，kv是&lt;this（指ThreadLocal对象）, value&gt;，那么也说，一个ThreadLocal对象是同一个没错，但实际get出来的是从某个Thread对象的ThreadLocalMap里拿出来的value。（而不是一个ThreadLocal里存thread到value的映射）</p>
+<p>需要注意，每个Thread里对ThreadLocal对象做set，是线程隔离了，各个线程之间不共享。但要是你set同一个value，那本质上还是多线程共享同一个对象。</p>
+<p>那么，什么时候用的上ThreadLocal呢？为什么要用它，而不是每个线程都维护一个自己的对象？</p>
+<p>网上大部分的ThreadLocal举例都是什么UniqueId、DateFormat，它们完全体现不出ThreadLocal的优点，反而像画蛇添足，原子变量都可以的为什么非要ThreadLocal写UniqueId，每个线程就可以有自己的成员变量直接new DateFormat不就行了，为什么要ThreadLocal来创建DateFormat。</p>
+<p>我们先抽象一下场景，假设Thread内会创建某个对象，不管合不合适，我们将它存在Thread类的成员变量里，那么，多线程是new 多个Runnable或者多Thread，才能做到线程之间互不干扰。</p>
+<p>如果是create一个Runnable，多线程都由这一个Runnable初始化，那这里就有限制了，多Thread实际用的一个Runnable对象，那多线程肯定就互相干扰了，这时候把Runnable里的成员变量直接改为ThreadLocal的，就可以立马获得线程安全的程序。这是一种ThreadLocal的好处，它可以简单地将单线程程序改成多线程程序。</p>
+<p>再考虑这样一个场景，我们有多个函数，它们不是Thread/Runnable的函数，是别的类的，它们的输入都是context，每个线程单独一个context，那使用方式就是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">context = new Context</span><br><span class="line">A.func1(context)</span><br><span class="line">B.func2(context)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>那如果你不想这么频繁传递，比如，<code>A.func1()</code>这些函数内部可以写为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">context = ContextTL.get()</span><br></pre></td></tr></table></figure>
+<p>它们就自然获得该线程的context，那么这个ContextTL自然用ThreadLocal来做，就可以达到目的。使用方式就变成了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">context = new Context</span><br><span class="line">ContextTL.set(context)</span><br><span class="line">A.func1()</span><br><span class="line">B.func2()</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>单实例变量或全局变量共享，就是这么个意思。没有ThreadLocal的话，set 类static变量当然是线程不安全的，有了ThreadLocal就可以。在线程的角度看来，就像是单线程的情况下，去set一个跟别的对象共享的变量。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/07/abs-algo/" rel="prev" title="抽象算法">
+      <i class="fa fa-chevron-left"></i> 抽象算法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/31/pwm/" rel="next" title="pwm">
+      pwm <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Why-Use-Parallel-Computing"><span class="nav-number">1.</span> <span class="nav-text">Why Use Parallel Computing?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E6%BC%94%E5%8F%98%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">一些演变过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ThreadLocal"><span class="nav-number">3.</span> <span class="nav-text">ThreadLocal</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Huang Wei</p>
+  <div class="site-description" itemprop="description">Hey</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huang Wei</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

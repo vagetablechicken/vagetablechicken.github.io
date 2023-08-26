@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"vagetablechicken.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Grokking the Coding Interview: Patterns for Coding QuestionsSee Grokking Pattern 1. 4. Pattern: Merge IntervalsMerge Intervals (medium)挺简单的题，尤其是我对这种merge interval的题有一个印象，就是“反着比正着简单”。所以很容易就想到了，这题应该反向来看">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grokking Pattern 4">
+<meta property="og:url" content="http://vagetablechicken.github.io/2021/05/06/grokking-4/index.html">
+<meta property="og:site_name" content="Wei">
+<meta property="og:description" content="Grokking the Coding Interview: Patterns for Coding QuestionsSee Grokking Pattern 1. 4. Pattern: Merge IntervalsMerge Intervals (medium)挺简单的题，尤其是我对这种merge interval的题有一个印象，就是“反着比正着简单”。所以很容易就想到了，这题应该反向来看">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-05-06T02:58:13.000Z">
+<meta property="article:modified_time" content="2023-07-31T10:56:53.712Z">
+<meta property="article:author" content="Huang Wei">
+<meta property="article:tag" content="Algo">
+<meta property="article:tag" content="LeetCode">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://vagetablechicken.github.io/2021/05/06/grokking-4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Grokking Pattern 4 | Wei</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Wei" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Wei</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2021/05/06/grokking-4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Grokking Pattern 4
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-05-06 10:58:13" itemprop="dateCreated datePublished" datetime="2021-05-06T10:58:13+08:00">2021-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algo/" itemprop="url" rel="index"><span itemprop="name">Algo</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p>See <a href="/2021/05/06/grokking-1/" title="Grokking Pattern 1">Grokking Pattern 1</a>.</p>
+<h2 id="4-Pattern-Merge-Intervals"><a href="#4-Pattern-Merge-Intervals" class="headerlink" title="4. Pattern: Merge Intervals"></a>4. Pattern: Merge Intervals</h2><h3 id="Merge-Intervals-medium"><a href="#Merge-Intervals-medium" class="headerlink" title="Merge Intervals (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/merge-intervals/">Merge Intervals (medium)</a></h3><p>挺简单的题，尤其是我对这种merge interval的题有一个印象，就是“反着比正着简单”。所以很容易就想到了，这题应该反向来看intervals，所以遍历顺序是end大的到end小的，合并interval或者即时push interval到result里，都很简单，不用多注意什么。</p>
+<h3 id="Insert-Interval-medium"><a href="#Insert-Interval-medium" class="headerlink" title="Insert Interval (medium) *"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/insert-interval/">Insert Interval (medium) *</a></h3><p>这个题目纯粹是恶心人，没啥别的作用了。由于每个interval都有两个数表示，又得两个interval之间比较，绕的很晕。</p>
+<p>大概逻辑很好想，由于加入new interval（后面简称new），可能new和intervals内的多个interval（后面简称i）有重叠，所以可能会消除多个i，为了代码简洁，肯定是新建一个list，符合条件的才插入，这个逻辑比较好。</p>
+<p>又回到new和多个i的合并上，重叠就需要合并，合并后的new’可能还是不应该插入，毕竟可能多个i都需要跟new合并，所以需要一个tmp interval。很容易发现，直接用new来做这个tmp interval正好。</p>
+<p>本来思路到这儿还是很清晰的，但是由于对“重叠”的定义没先弄清楚，所以写出了漏洞百出的算法。这一点需要吸取教训。算法如果一开始用数学很难表示，就应该先用形容，能把算法定义清晰了，再翻译为数学。不要总想一步到位。</p>
+<p>而“重叠”定义，最简单的办法就是画图，画两个interval的相对位置关系，可以看到，分四种情况，a的右边跟b重叠，a的左边跟b重叠，a完全在b内，a完全包容b。当然数学上，由于与或非关系，可以把前三个写为一个判断式，但第四个无法合并，很容易忘记这一种情况，要细心。</p>
+<p>当然，可以反向来看，那就是“不重叠”的非集就是“重叠”。而“不重叠”的判定更简单（我一开始是这么想的，但当时对“重叠”情况的处理很混乱，所以换了思路）。如果再次做此题，正向反向都容易想到，没有特别的坑。</p>
+<p>当扩展后的new和当前i不再重合时，需要把new和i都加入result里。这里需要一个布尔量表示new有没有已经被加入，这个步骤没办法写的更优雅。</p>
+<p>coding时，还可以注意，我在妄想一步到位时，写满了[0]，[1]。。。把自己都给绕进去了。python是可以<code>for left, right in intervals</code>这么写的，所以别折磨自己，python is beautiful!</p>
+<h3 id="Intervals-Intersection-medium"><a href="#Intervals-Intersection-medium" class="headerlink" title="Intervals Intersection (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/interval-list-intersections/">Intervals Intersection (medium)</a></h3><p>拟定一下算法流程，照着流程过一遍example，就没什么坑了。没什么巧思，一个一个if-else保证正确就行了。</p>
+<h3 id="Conflicting-Appointments-medium"><a href="#Conflicting-Appointments-medium" class="headerlink" title="Conflicting Appointments (medium)"></a>Conflicting Appointments (medium)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Problem Statement</span><br><span class="line">Given an array of intervals representing ‘N’ appointments, find out if a person can attend all the appointments.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Appointments: [[1,4], [2,5], [7,9]]</span><br><span class="line">Output: false</span><br><span class="line">Explanation: Since [1,4] and [2,5] overlap, a person cannot attend both of these appointments.</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Appointments: [[6,7], [2,4], [8,12]]</span><br><span class="line">Output: true</span><br><span class="line">Explanation: None of the appointments overlap, therefore a person can attend all of them.</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Appointments: [[4,5], [2,3], [3,6]]</span><br><span class="line">Output: false</span><br><span class="line">Explanation: Since [4,5] and [3,6] overlap, a person cannot attend both of these appointments.</span><br></pre></td></tr></table></figure>
+
+<p>最简单的区间问题，排序完了，遍历就行了。排序是正着还是反着都行。反正拍完序，只需要看相邻两个区间有没有相交。</p>
+<h3 id="Problem-Challenge-1-Minimum-Meeting-Rooms-hard"><a href="#Problem-Challenge-1-Minimum-Meeting-Rooms-hard" class="headerlink" title="Problem Challenge 1 - Minimum Meeting Rooms (hard)"></a>Problem Challenge 1 - Minimum Meeting Rooms (hard)</h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/meeting-rooms-ii/">https://leetcode-cn.com/problems/meeting-rooms-ii/</a> plus</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Given a list of intervals representing the start and end time of ‘N’ meetings,</span><br><span class="line">find the minimum number of rooms required to hold all the meetings.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Meetings: [[1,4], [2,5], [7,9]]</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Since [1,4] and [2,5] overlap, we need two rooms to hold these two meetings. [7,9] can</span><br><span class="line">occur in any of the two rooms later.</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Meetings: [[6,7], [2,4], [8,12]]</span><br><span class="line">Output: 1</span><br><span class="line">Explanation: None of the meetings overlap, therefore we only need one room to hold all meetings.</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Meetings: [[1,4], [2,3], [3,6]]</span><br><span class="line">Output:2</span><br><span class="line">Explanation: Since [1,4] overlaps with the other two meetings [2,3] and [3,6], we need two rooms to</span><br><span class="line">hold all the meetings.</span><br><span class="line"></span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Meetings: [[4,5], [2,3], [2,4], [3,5]]</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: We will need one room for [2,3] and [3,5], and another room for [2,4] and [4,5].</span><br></pre></td></tr></table></figure>
+
+<p>因为所有intervals都得被满足，所以贪心策略可能可以得到最优解？</p>
+<p>简单设想一下，已经排序好的intervals，一个一个尽量排，重叠了就新增一个room。</p>
+<p>假设，此时已经用贪心策略得到了2个room，r1和r2，假设r1.end &lt;= r2.end，这时又想加入一个interval，它的start如果比两个end都小，那必然得出第三个room，这个不可能缩减。而如果start比一个小比一个大，那肯定是放入，但放1还是2？我们先比较，肯定是选r1（end最小的room）来比，如果end最小都放不下新的itv，就新增room。如果r1能放下新的itv，为了代码简洁，也应该直接放下了。（假设r2也放得下新itv，那么下一个itv也能放到r2，不会新建room；假设r2放不下新的itv，那就更不可能放r2了，至于下一个itv，就看更新后的r1r2能否满足了。）</p>
+<p>——这一部分用数学推理下。</p>
+<p>但显然，room不可能只限2个，所以可以考虑一个排序的容器，保存room的end。容器需要支持重复key，因为多个room的end可能数字一样。容器只需要取的出最小的end，之后end可能更新变大再插回容器，其他位置不用管。所以用优先队列最符合要求，而且python没有multiset，想不用优先队列都不行。</p>
+<p>代码写起来还是很简单，rooms只会“堆顶被pop再更新push”和“pop新的room”两种情况。不过题解里有一个很骚的操作，就是会把rooms里end&lt;=itv.start的元素都pop掉。怎么理解这个东西？</p>
+<p>首先按我原本的设计，rooms的len只会不变和变大，不仅如此，当前itv的end是必然会进优先队列的，区别只在于堆顶会不会pop（也可以理解为itv是会进入优先队列的，因为这里需要考虑itv.start了）。原本设计里优先队列“时刻对应”rooms的已有排列。但前面的思考里，也体现出了，rooms内可能多个room的end都&lt;=itv.start，这部分rooms不会对当前itv和之后的itv产生影响。无法产生影响，就可以直接当做“不存在”。“不存在”，所以可以从heapq里剔除掉，当前itv必然加入heapq（itv会不会影响，要看下一个itv的比较），当然，这时的heapq可能比“当前实际rooms len”小，所以用max来追踪heapq的len最长的时候。</p>
+<p>（题解思路还不够清晰，有空再思考下）</p>
+<h3 id="Problem-Challenge-2-Maximum-CPU-Load-hard"><a href="#Problem-Challenge-2-Maximum-CPU-Load-hard" class="headerlink" title="Problem Challenge 2 - Maximum CPU Load (hard)"></a>Problem Challenge 2 - Maximum CPU Load (hard)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">We are given a list of Jobs. Each job has a Start time, an End time, and a CPU load when it is running.</span><br><span class="line">Our goal is to find the maximum CPU load at any time if all the jobs are running on the same machine.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Jobs: [[1,4,3], [2,5,4], [7,9,6]]</span><br><span class="line">Output: 7</span><br><span class="line">Explanation: Since [1,4,3] and [2,5,4] overlap, their maximum CPU load (3+4=7) will be when both the</span><br><span class="line">jobs are running at the same time i.e., during the time interval (2,4).</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Jobs: [[6,7,10], [2,4,11], [8,12,15]]</span><br><span class="line">Output: 15</span><br><span class="line">Explanation: None of the jobs overlap, therefore we will take the maximum load of any job which is 15.</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Jobs: [[1,4,2], [2,4,1], [3,6,5]]</span><br><span class="line">Output: 8</span><br><span class="line">Explanation: Maximum CPU load will be 8 as all jobs overlap during the time interval [3,4].</span><br></pre></td></tr></table></figure>
+
+<p>很容易发现这个题和上一题安排会议，抽象下来是一样的。最容易想到的push/poppush的方法，但由于题目是求max load，所以要尝试改造，然后发现不行。因为这种方法没办法跟踪当前load sum。举例说明，假设itv已经排好序，start小的排前面，start相等时end小的排前面，如果itv1和itv2重合一部分，itv3和itv2重合，但是它并不与itv1重合，在看itv2和3重合的那一段时，load应该是2和3的load之和；而如果itv3和itv1也重合了，这时就应该是三个itv的load之和。但push/poppush是区分不了的，因为它只和heap top比较了一下，摸不到别的itv。</p>
+<p>再想到while pop这个方法，虽然在上一题里它很不容易理解，但这道题反而该使用这个方法。核心在于while pop出和当前itv无关的itv，并相应减掉它们的load，就能够实时追踪到某一个时刻的load之和了。</p>
+<ul>
+<li><input disabled="" type="checkbox"> 再理解下上一题和while pop方法。</li>
+</ul>
+<h3 id="Problem-Challenge-3-Employee-Free-Time-hard"><a href="#Problem-Challenge-3-Employee-Free-Time-hard" class="headerlink" title="Problem Challenge 3 - Employee Free Time (hard)"></a>Problem Challenge 3 - Employee Free Time (hard)</h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/employee-free-time/">https://leetcode-cn.com/problems/employee-free-time/</a> plus</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">For ‘K’ employees, we are given a list of intervals representing the working hours of each employee.</span><br><span class="line">Our goal is to find out if there is a free interval that is common to all employees.</span><br><span class="line">You can assume that each list of employee working hours is sorted on the start time.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: Employee Working Hours=[[[1,3], [5,6]], [[2,3], [6,8]]]</span><br><span class="line">Output: [3,5]</span><br><span class="line">Explanation: Both the employess are free between [3,5].</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: Employee Working Hours=[[[1,3], [9,12]], [[2,4]], [[6,8]]]</span><br><span class="line">Output: [4,6], [8,9]</span><br><span class="line">Explanation: All employess are free between [4,6] and [8,9].</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: Employee Working Hours=[[[1,3]], [[2,4]], [[3,5], [7,9]]]</span><br><span class="line">Output: [5,7]</span><br><span class="line">Explanation: All employess are free between [5,7].</span><br></pre></td></tr></table></figure>
+
+<p>这题本质是一种反向，题目提过工作时间，让你求非工作的某种时间，所以可以用交集并集差集来理解这个题，方便快速的分辨多个解法的复杂度。当然，最佳算法可能比这种逻辑运算的计算量更小，但不熟悉这类题目的情况下，越抽象的思考越容易做。</p>
+<p>可以看到k个list，每个list都多个interval，所有的interval的并集，就是所有员工的工作时间，这个集合的反，就是所有的空闲区间（空闲区间显然也可以是多个）。</p>
+<p>题目说明了，k个list，list内的区间都是有序的。这很像k路归并排序。按理可以比所有inteval混在一起排序更高效。那我们先mark这个归并思路，放在一边。（有序基本就是在提醒我们存在“利用有序”的优化算法）</p>
+<h4 id="简单思路"><a href="#简单思路" class="headerlink" title="简单思路"></a>简单思路</h4><p>假设经过某种算法，已经计算出了所有working hours的并集，这个并集当然可能是多个区间，不一定是一个连续区间。求反只需要遍历这一堆区间就行了。</p>
+<p>再来考虑，这个“某种算法”求并集，怎么做。最简单的肯定是全排序。每个区间先比较start，小的排在前面，end随意。这里很可能会出现连续几个区间是有重合部分的，所以，求并集，还得遍历一边，重组一下区间，得到并集（不重合的区间组成的数组）。然后还得再遍历求反。</p>
+<p>简单一想，也知道，最后一次遍历多余了。</p>
+<p>所以，可以立马优化为，遍历已排序的区间时就求空闲区间。</p>
+<p>可以再思考一下，我先每个list先求反，得到每个员工的空闲时间，所有的空闲时间的交集也是最终答案。但空闲时间区间个数不见得比工作区间个数少多少（应该是，对每个list，空闲区间=工作区间-1）。并没有把复杂降低。而且求交集比求并集复杂，因为空闲区间没办法全部一起求交集。想象一下，假设5个员工，有1个在[0,t]之间都不空闲，但是另外4个却可以在[0,t]这个时间内存在交集，但是这个交集是不能要的，因为那一个人不空闲。区间全混在一起时，根本无法判断。所以还是求并集吧。</p>
+<h4 id="归并思路"><a href="#归并思路" class="headerlink" title="归并思路"></a>归并思路</h4><p>每个list“有序“，自然是提醒我们要充分利用这个特性。全排序肯定不够用。而list内interval有序，很显然可以做类似归并排序的操作。</p>
+<p>归并思路，k个list也就是k路，每次都从k个list的头上选出最小的。这k个区间比还呆在list里的区间的start都要小，在k个中选出来的start最小的区间，也就是全局start最小的区间。所以，当我们将k个中选start最小看作一个模块时，我们从这个模块中拿出“剩余区间”中start最小那个区间。一个一个拿，就是总能按顺序拿出区间了。</p>
+<p>核心是这个模块如何实现，即考虑“k个中选最小的”怎么高效，归并算法如果只有两路，当然if-else都能行，但k路肯定是不可能一个一个比的，很明显可以利用最小堆，每次的top就是最小的，top取出来后，top所在的list就应该补充一个区间进入最小堆。python中也就是使用heapq，可以极快的写完代码。</p>
+<p>堆算法解释见<a href="/2022/10/07/abs-algo/" title="Heap">Heap</a>。</p>
+<p>具体到这个题目，首先要思考这个堆该如何运行，放多少数据，pop出来后又push多少进去，初步设计应该尽量分割步骤，目标是迅速写出正确的算法，后面再做优化。</p>
+<p>所以初步设想是，k路数组，每个数组自己内部有序，但k个数组的头，我们是不知道谁最小的，所以把k个数组的头放进堆，我们就可以立马拿到最小的数，此时堆里剩k-1个数，这时候应该将pop出去的那一路的新头补充进堆，因为我们知道数组内的都比堆里的大，只有堆里的有资格比拼一下，所以堆大小在运行期间应该保持为k，不需要多放，多了增加复杂度，少了就比不出全局最小了。</p>
+<p>Grokking标准答案也是使用python heapq来做，这个确实写得最快。</p>
+<h5 id="败者树"><a href="#败者树" class="headerlink" title="败者树"></a>败者树</h5><p>堆解法不是终点， 如果提到有没有别的思路，就肯定要说到败者树算法了。本质都是树，不会有数量级提升。但总有些区别。</p>
+<h6 id="外排序todo"><a href="#外排序todo" class="headerlink" title="外排序todo"></a>外排序todo</h6><p>winner/loser tree很像B+树，非叶子节点是不存值的，所以，和B+树类似，它们可以用在“外排序external sorting”上。</p>
+<p><a target="_blank" rel="noopener" href="https://www.cise.ufl.edu/~sahni/cop5536/">https://www.cise.ufl.edu/~sahni/cop5536/</a> 这个网站有很详细的exteral sorting的ppt，需要好好看看。（但是很难懂。。可以当作提纲）</p>
+<p>针对winner/loser tree（统一可以叫做Tournament Tree）来讲，你需要知道，Tournament Tree可以利用于improve run generation, 也可以improve run merging。</p>
+<p>解释下run generation。外排序不可能把所有的扔进内存里，所以只能先切分成小部分排序，然后做merge，这两步叫做，run generation和run merging。A run is a sorted squence of records。</p>
+<p>improve run generation最简单的就是reduce the number of runs(也就是increase average run length)。但这也是有极限的，而且由于外排序在IO上很耗时，所以overlap IO也是一个优化方法。都在课件里，之后再慢慢看。</p>
+<h6 id="返回tournament-tree"><a href="#返回tournament-tree" class="headerlink" title="返回tournament tree"></a>返回tournament tree</h6><p>败者树和胜者树是可以一起看的类似结构。胜/败者树都是类似B+树，只有叶子节点是真实值，非叶子节点是胜者/败者的标号，而且它是完全二叉树，不会有歧义。但胜者树和败者树<strong>不是</strong>单纯的一个非叶子节点记录胜者，一个非叶子节点记录败者，否则这两种就应该是一种树，只要compare函数求个反就行了。</p>
+<p>胜者树</p>
+<p>胜者树更简单，我们先看胜者树，比如小的是胜者，那么每个非叶节点都是它的子节点中更小的那一个。原理很简单，实现上要捋一捋。</p>
+<p>可以把整个建树过程理解为打比赛，那比赛，肯定是从下往上打。最下层的非叶子结点先被填上值。按最简单的想法，胜者树用数组表示，每个元素是值（比较大小的值，不是索引）。这样子会有什么问题？当我们把胜者根节点拿出去，我们都不知道应该补上哪个list的元素。所以这个胜者树的节点，应该有索引，标记第i个list，这样就可以补充list[i].top进来。节点可以又保存值，又保存list标号，不过被拿来建树用的k个区间，本来也会放在一个地方，可以叫做ext数组，这样，胜者树节点只需要保存list标号就行了。ext[i]可以取值，list[i].top可以拿到补充用的区间。</p>
+<p>而且注意，胜者树是所有参赛者都作为叶子节点的，比如，有3个叶子节点时怎么建树？有6个叶结点时，上一层3个节点，那它的上一层又怎么办？</p>
+<p>注意，胜者树定义为complete binary tree，完全二叉树，它只有最底层可能少尾部一些节点，其他节点都是满的。所以，不会存在6个叶节点，上一层只有3个节点的情况，这棵树必须是最底层6个节点（理论上是8个），上一层4个节点（即使这一层最右的这个节点是没意义的，可以用max值，这样不影响比赛结果）。</p>
+<p>解决胜者树的节点结构和树形，这两个问题，就可以写算法了。Ref </p>
+<p><a target="_blank" rel="noopener" href="https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f">https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f</a></p>
+<p>败者树</p>
+<p>而败者树呢，非叶节点是记录败者，但是往上送的参赛者是“胜者”（关键点）。</p>
+<p>为什么这么做呢？假设胜者树的重新比赛，一个叶子节点被换了，那么它要和它的兄弟节点比。而败者树里，更新的节点只需要找它的parent，就能决定parent是否要更新，不用去访问兄弟节点。</p>
+<p>这里粗略一想，觉得很莫名，也没有节约多少东西？</p>
+<p>假设两个兄弟节点n1、n2，n1之前不是胜者，但现在比较一下发现n1是胜者，n1的parent就要被我更新为n1？而在败者树里面，我虽然只需要访问n1和n1的parent，不用访问n2，但这能节约多少？</p>
+<p>这个问题，如果只看算法题目这种规模当然节约不了什么。但败者树通常用于外排序，外排序的数据规模就很可观了。就访问而言，以前要访问两个，现在要访问一个，访问总次数一多，耗时差距就很大了。（应该不用觉得兄弟节点会需要单独一次I/O从磁盘里读出来，毕竟外部排序的归并部分也是应该保证在内存里进行的，归并部分都要存硬盘了，这个归并k选的也不太对了。）</p>
+<p>逻辑上走通了，再来说说code的问题。两个叶子节点比较，得到败者作为父节点，这里还很常规，但是还得往上送胜者，这里就微妙了。难道代表败者树的数组，每个元素都得存两个东西，胜者和败者？还是说，得用node指针来构建树？</p>
+<p>complete binary tree不用数组怪浪费的。而且node指针构建树，一开始只有k个单节点的败者树，还要把它们merge起来。merge得先两两merge，注意，要一直保持每棵树的complete binary tree性质。所以，还总是需要构建无意义的节点，为了保持complete binary tree。有点离谱。</p>
+<p>还是尝试用数组来表示败者树。其实败者树从构建成功起，就不会再变更树结构，所以建树期间的胜者可以用单独变量来保存，建好树之后，它们就没有意义了，只有全局的那个胜者有意义。</p>
+<p>还是在 <a target="_blank" rel="noopener" href="https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f">https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f</a></p>
+<p>注意，胜者树可以随便更新参赛者，并且需要从叶子一路更新到根节点，不然可能存在问题。因为，新参赛者即使曾经是某一层的winner，现在值变了还是winner，但它的值变了，往上走它可能就不是了。只有它之前是loser，现在跟之前的winner比还是loser时，才可以停下来。这个优化可以，但没必要，容易写错。建议先写出简单不易错的算法，再谈要不要优化。</p>
+<p>败者树则是必须更新winner所在的值，因为败者树要保证只更改胜者走的那条路径。有了这个保证，才能肯定parent存的败者一定是兄弟节点，才可以避免访问兄弟节点。败者树也得一路到根节点，不能因为以前是胜者，现在还是，就不往上比较了，值变了！！！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Algo/" rel="tag"># Algo</a>
+              <a href="/tags/LeetCode/" rel="tag"># LeetCode</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/06/grokking-5/" rel="prev" title="Grokking Pattern 5">
+      <i class="fa fa-chevron-left"></i> Grokking Pattern 5
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/06/grokking-1/" rel="next" title="Grokking Pattern 1">
+      Grokking Pattern 1 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><span class="nav-number">1.</span> <span class="nav-text">Grokking the Coding Interview: Patterns for Coding Questions</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Pattern-Merge-Intervals"><span class="nav-number">1.1.</span> <span class="nav-text">4. Pattern: Merge Intervals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Merge-Intervals-medium"><span class="nav-number">1.1.1.</span> <span class="nav-text">Merge Intervals (medium)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert-Interval-medium"><span class="nav-number">1.1.2.</span> <span class="nav-text">Insert Interval (medium) *</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Intervals-Intersection-medium"><span class="nav-number">1.1.3.</span> <span class="nav-text">Intervals Intersection (medium)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conflicting-Appointments-medium"><span class="nav-number">1.1.4.</span> <span class="nav-text">Conflicting Appointments (medium)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Challenge-1-Minimum-Meeting-Rooms-hard"><span class="nav-number">1.1.5.</span> <span class="nav-text">Problem Challenge 1 - Minimum Meeting Rooms (hard)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Challenge-2-Maximum-CPU-Load-hard"><span class="nav-number">1.1.6.</span> <span class="nav-text">Problem Challenge 2 - Maximum CPU Load (hard)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Challenge-3-Employee-Free-Time-hard"><span class="nav-number">1.1.7.</span> <span class="nav-text">Problem Challenge 3 - Employee Free Time (hard)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.7.1.</span> <span class="nav-text">简单思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BD%92%E5%B9%B6%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.7.2.</span> <span class="nav-text">归并思路</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%B4%A5%E8%80%85%E6%A0%91"><span class="nav-number">1.1.7.2.1.</span> <span class="nav-text">败者树</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%A4%96%E6%8E%92%E5%BA%8Ftodo"><span class="nav-number">1.1.7.2.1.1.</span> <span class="nav-text">外排序todo</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E8%BF%94%E5%9B%9Etournament-tree"><span class="nav-number">1.1.7.2.1.2.</span> <span class="nav-text">返回tournament tree</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Huang Wei</p>
+  <div class="site-description" itemprop="description">Hey</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huang Wei</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

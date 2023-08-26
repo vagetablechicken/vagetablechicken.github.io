@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"vagetablechicken.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="环境noteAbout OSmacOShomebrew默认源太卡，容易install失败。换tuna的源，设置方法见 homebrew，homebrew-bottles。（注意，这两个都要配置） gdb&#x2F;lldbmac中使用lldb，不需要指定bin。lldb -c &#x2F;cores&#x2F;xxx即可。 linuxdebian源debian | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="环境note">
+<meta property="og:url" content="http://vagetablechicken.github.io/2022/05/07/env-note/index.html">
+<meta property="og:site_name" content="Wei">
+<meta property="og:description" content="环境noteAbout OSmacOShomebrew默认源太卡，容易install失败。换tuna的源，设置方法见 homebrew，homebrew-bottles。（注意，这两个都要配置） gdb&#x2F;lldbmac中使用lldb，不需要指定bin。lldb -c &#x2F;cores&#x2F;xxx即可。 linuxdebian源debian | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghu">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-05-06T16:23:43.000Z">
+<meta property="article:modified_time" content="2023-08-26T04:17:54.447Z">
+<meta property="article:author" content="Huang Wei">
+<meta property="article:tag" content="env">
+<meta property="article:tag" content="os">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://vagetablechicken.github.io/2022/05/07/env-note/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>环境note | Wei</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Wei" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Wei</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2022/05/07/env-note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          环境note
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-05-07 00:23:43" itemprop="dateCreated datePublished" datetime="2022-05-07T00:23:43+08:00">2022-05-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-08-26 12:17:54" itemprop="dateModified" datetime="2023-08-26T12:17:54+08:00">2023-08-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="环境note"><a href="#环境note" class="headerlink" title="环境note"></a>环境note</h1><h2 id="About-OS"><a href="#About-OS" class="headerlink" title="About OS"></a>About OS</h2><h3 id="macOS"><a href="#macOS" class="headerlink" title="macOS"></a>macOS</h3><h4 id="homebrew"><a href="#homebrew" class="headerlink" title="homebrew"></a>homebrew</h4><p>默认源太卡，容易install失败。换tuna的源，设置方法见</p>
+<p><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/">homebrew</a>，<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/homebrew-bottles/">homebrew-bottles</a>。（注意，这两个都要配置）</p>
+<h4 id="gdb-lldb"><a href="#gdb-lldb" class="headerlink" title="gdb/lldb"></a>gdb/lldb</h4><p>mac中使用lldb，不需要指定bin。<code>lldb -c /cores/xxx</code>即可。</p>
+<h3 id="linux"><a href="#linux" class="headerlink" title="linux"></a>linux</h3><h3 id="debian源"><a href="#debian源" class="headerlink" title="debian源"></a>debian源</h3><p><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/debian/">debian | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror</a></p>
+<p>apt update</p>
+<p>apt install maven</p>
+<h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>Windows下的终端Terminal，如何加入snippet，参考<a target="_blank" rel="noopener" href="https://github.com/microsoft/terminal/issues/6412#issuecomment-964343941%E3%80%82%E6%88%91%E4%B8%AA%E4%BA%BA%E5%B8%B8%E4%B8%BAOpenMLDB%E5%8A%A0%E7%9A%84snippet%EF%BC%9A">https://github.com/microsoft/terminal/issues/6412#issuecomment-964343941。我个人常为OpenMLDB加的snippet：</a></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sendInput&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="string">&quot;set @@execute_mode=&#x27;online&#x27;;\r&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;on&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sendInput&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="string">&quot;set @@execute_mode=&#x27;offline&#x27;;\r&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;off&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sendInput&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="string">&quot;set @@sync_job=true;\r&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sync&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sendInput&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="string">&quot;:set mouse-=a\r&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;mouse&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>不需要快捷键，<code>Ctrl+Shift+P</code>可以根据name快速选择，快捷键还懒得记。</p>
+<h2 id="vim"><a href="#vim" class="headerlink" title="vim"></a>vim</h2><p>vim时用鼠标选择一段文本，可能进入VISUAL模式。VISUAL模式下的复制/粘贴/剪切得用<code>y</code>,<code>p</code>,<code>d</code>。注意，VISUAL模式下复制的文本，不会记录在剪贴板，只能在vim中使用，拷贝不出去。</p>
+<p>更习惯不进入VISUAL模式的话，<code>set mouse-=a</code>。更改默认配置，把这个设置放在<code>~/.vimrc</code>里。</p>
+<h2 id="python"><a href="#python" class="headerlink" title="python"></a>python</h2><p>python源也可以用tuna的，可以直接</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -i https://pypi.tuna.tsinghua.edu.cn/simple &lt;pkg&gt;</span><br></pre></td></tr></table></figure>
+
+<p>全局配置方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python -m pip install --upgrade pip</span><br><span class="line">pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple</span><br></pre></td></tr></table></figure>
+
+<p>详情见<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/pypi/">pypi | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror</a>。</p>
+<h2 id="sh"><a href="#sh" class="headerlink" title="sh"></a>sh</h2><h3 id="git"><a href="#git" class="headerlink" title="git"></a>git</h3><p>move or remove them before you merge, use this to get related files</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git xxx 2&gt;&amp;1|grep -E &#x27;^\s&#x27;|cut -f2-|xargs -I &#123;&#125; echo &quot;&#123;&#125;&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ps-and-network"><a href="#ps-and-network" class="headerlink" title="ps and network"></a>ps and network</h3><p>no ps需要<code>apt install procps</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps axu | grep xx | awk &#x27;&#123;print $2&#125;&#x27; | xargs kill -9</span><br><span class="line">netstat -ltnup</span><br></pre></td></tr></table></figure>
+
+<h3 id="run-bins"><a href="#run-bins" class="headerlink" title="run bins"></a>run bins</h3><p>运行当前目录下所有文件，测试时常用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for f in *; do ./$f; done</span><br></pre></td></tr></table></figure>
+
+<h3 id="top-record"><a href="#top-record" class="headerlink" title="top record"></a>top record</h3><p>记录一段时间进程cpu mem等资源的变化，适合抓出程序最大占用内存的时间点。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="literal">true</span>; <span class="keyword">do</span> <span class="built_in">sleep</span> 10 &amp;&amp; top -b -p 25440 -n1 | <span class="built_in">tail</span> -1 ; <span class="keyword">done</span> &gt;&gt; process.top</span><br><span class="line"><span class="comment"># add time</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">true</span>; <span class="keyword">do</span> <span class="built_in">sleep</span> 10 &amp;&amp; <span class="built_in">date</span> &amp;&amp; top -b -p 25440 -n1 | <span class="built_in">tail</span> -1 ; <span class="keyword">done</span> &gt;&gt; process.top</span><br></pre></td></tr></table></figure>
+
+<h2 id="npm"><a href="#npm" class="headerlink" title="npm"></a>npm</h2><p>如果目的是pnpm，不用单独下载npm，直接下载pnpm就行。 <a target="_blank" rel="noopener" href="https://pnpm.io/zh/installation">https://pnpm.io/zh/installation</a></p>
+<p>如果是npm，下载nvm更合适管理node版本。</p>
+<h2 id="keyboard"><a href="#keyboard" class="headerlink" title="keyboard"></a>keyboard</h2><p>rk61键盘配合mac使用，支持很差，还是需要改键。使用karabiner-element做改键。</p>
+<p>可以直接修改<code>~/.config/karabiner/karabiner.json</code>，注意里面的device是有vendor id和product id的，得填对，可以用karabiner直接查到。</p>
+<p>windows下改键，使用PowerToys的键盘管理器。</p>
+<h2 id="docker源"><a href="#docker源" class="headerlink" title="docker源"></a>docker源</h2><p>就是<code>registry-mirrors</code>这个配置项。linux直接在 <code>/etc/docker/daemon.json</code>里改，mac可以在docker desktop设置里找到配置文件，也是一样的修改。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;registry-mirrors&quot;: [</span><br><span class="line">        &quot;http://hub-mirror.c.163.com&quot;,</span><br><span class="line">        &quot;https://docker.mirrors.ustc.edu.cn&quot;,</span><br><span class="line">        &quot;https://registry.docker-cn.com&quot;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重启后<code>docker info</code>可以查看。</p>
+<h2 id="tmux"><a href="#tmux" class="headerlink" title="tmux"></a>tmux</h2><p>tmux如果另一个没退，就又attach，可能分辨率会用另一个的，就会右边下边出现很多点点。可以ctrl-b/a，再shift-b（大写B），选择分辨率，选小的就能撑满屏幕。</p>
+<h2 id="debug"><a href="#debug" class="headerlink" title="debug"></a>debug</h2><h3 id="oom"><a href="#oom" class="headerlink" title="oom"></a>oom</h3><p>怀疑进程被oom kill了，需要查日志，dmesg -T没有权限要求，但它的时间<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/619173424?utm_id=0">不准确</a>，甚至可能是未来时间。最好查/var/log/messages，但它可能需要root权限。<br>Docker内的进程也是被物理机管理的，如果占满内存，也是会被kill，而且在物理机上会有日志。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/env/" rel="tag"># env</a>
+              <a href="/tags/os/" rel="tag"># os</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/06/grokking-3/" rel="prev" title="Grokking Pattern 3">
+      <i class="fa fa-chevron-left"></i> Grokking Pattern 3
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/09/23/big-data/" rel="next" title="BigData">
+      BigData <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83note"><span class="nav-number">1.</span> <span class="nav-text">环境note</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#About-OS"><span class="nav-number">1.1.</span> <span class="nav-text">About OS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#macOS"><span class="nav-number">1.1.1.</span> <span class="nav-text">macOS</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#homebrew"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">homebrew</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gdb-lldb"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">gdb&#x2F;lldb</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#linux"><span class="nav-number">1.1.2.</span> <span class="nav-text">linux</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#debian%E6%BA%90"><span class="nav-number">1.1.3.</span> <span class="nav-text">debian源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows"><span class="nav-number">1.1.4.</span> <span class="nav-text">Windows</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vim"><span class="nav-number">1.2.</span> <span class="nav-text">vim</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#python"><span class="nav-number">1.3.</span> <span class="nav-text">python</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sh"><span class="nav-number">1.4.</span> <span class="nav-text">sh</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#git"><span class="nav-number">1.4.1.</span> <span class="nav-text">git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ps-and-network"><span class="nav-number">1.4.2.</span> <span class="nav-text">ps and network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#run-bins"><span class="nav-number">1.4.3.</span> <span class="nav-text">run bins</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#top-record"><span class="nav-number">1.4.4.</span> <span class="nav-text">top record</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#npm"><span class="nav-number">1.5.</span> <span class="nav-text">npm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keyboard"><span class="nav-number">1.6.</span> <span class="nav-text">keyboard</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#docker%E6%BA%90"><span class="nav-number">1.7.</span> <span class="nav-text">docker源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tmux"><span class="nav-number">1.8.</span> <span class="nav-text">tmux</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#debug"><span class="nav-number">1.9.</span> <span class="nav-text">debug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#oom"><span class="nav-number">1.9.1.</span> <span class="nav-text">oom</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Huang Wei</p>
+  <div class="site-description" itemprop="description">Hey</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huang Wei</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

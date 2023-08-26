@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"vagetablechicken.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="推荐站点： https:&#x2F;&#x2F;qoogle.top&#x2F;xiaoxu-explaination-leetcode&#x2F; https:&#x2F;&#x2F;codetop.cc&#x2F;  https:&#x2F;&#x2F;codetop.cc&#x2F; 微软227. 基本计算器 II 2012&#x2F;03&#x2F;22-23这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。括号，U">
+<meta property="og:type" content="article">
+<meta property="og:title" content="leetcode-roadmap">
+<meta property="og:url" content="http://vagetablechicken.github.io/2021/03/22/leetcode-roadmap/index.html">
+<meta property="og:site_name" content="Wei">
+<meta property="og:description" content="推荐站点： https:&#x2F;&#x2F;qoogle.top&#x2F;xiaoxu-explaination-leetcode&#x2F; https:&#x2F;&#x2F;codetop.cc&#x2F;  https:&#x2F;&#x2F;codetop.cc&#x2F; 微软227. 基本计算器 II 2012&#x2F;03&#x2F;22-23这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。括号，U">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ruslanspivak.com/lsbasi-part5/lsbasi_part5_grammar.png">
+<meta property="og:image" content="https://ruslanspivak.com/lsbasi-part6/lsbasi_part6_grammar.png">
+<meta property="og:image" content="https://ruslanspivak.com/lsbasi-part8/lsbasi_part8_grammar.png">
+<meta property="article:published_time" content="2021-03-22T12:15:54.000Z">
+<meta property="article:modified_time" content="2023-07-31T10:56:53.712Z">
+<meta property="article:author" content="Huang Wei">
+<meta property="article:tag" content="Algo">
+<meta property="article:tag" content="LeetCode">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruslanspivak.com/lsbasi-part5/lsbasi_part5_grammar.png">
+
+<link rel="canonical" href="http://vagetablechicken.github.io/2021/03/22/leetcode-roadmap/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>leetcode-roadmap | Wei</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Wei" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Wei</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2021/03/22/leetcode-roadmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          leetcode-roadmap
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-22 20:15:54" itemprop="dateCreated datePublished" datetime="2021-03-22T20:15:54+08:00">2021-03-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algo/" itemprop="url" rel="index"><span itemprop="name">Algo</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>推荐站点：</p>
+<p><a target="_blank" rel="noopener" href="https://qoogle.top/xiaoxu-explaination-leetcode/">https://qoogle.top/xiaoxu-explaination-leetcode/</a></p>
+<p><a target="_blank" rel="noopener" href="https://codetop.cc/">https://codetop.cc/</a> </p>
+<h1 id="https-codetop-cc-微软"><a href="#https-codetop-cc-微软" class="headerlink" title="https://codetop.cc/ 微软"></a><a target="_blank" rel="noopener" href="https://codetop.cc/">https://codetop.cc/</a> 微软</h1><h2 id="227-基本计算器-II-2012-03-22-23"><a href="#227-基本计算器-II-2012-03-22-23" class="headerlink" title="227. 基本计算器 II 2012/03/22-23"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-ii/">227. 基本计算器 II</a> 2012/03/22-23</h2><p>这道题，用栈是最快速的，可以现场推理思路，完成80%应该不是问题。<br>但这种表达式，很可能会被考变种，比如加了括号，加了UnaryOp，甚至更难。<br>括号，UnaryOp或是自定义函数，这几类还是可以通过少量修改代码支持。但要能做到像高级计算器一样的，抵抗各种灵活拷问，我目前知道的万能方法就是，编译器的基本思路，也就是词法-解析-翻译，这种流程。毕竟我们使用的编译器就是这个思路，没有比这个更完善的了。</p>
+<p>当然，编译器思路不好写。总结来说，基本思路需要Lexer，Interpreter。如果Token过于复杂，最好加个Parser，Parser解析出AST，Interpreter再遍历AST树，计算结果。</p>
+<p>面试时使用这个思路，写代码会慢一点，但是比栈思路，更深更硬核。</p>
+<h3 id="双栈思路"><a href="#双栈思路" class="headerlink" title="双栈思路"></a>双栈思路</h3><p>一个栈存操作符Op，一个栈存数字Int。双栈思路的核心就是“先算乘除”，所以扫描处理完整个表达式后，Op栈里应该只有加减号，没有乘除号。</p>
+<p>但还有一个点要考虑，就是Op里已有+号，此时你扫描到了新的+号，要怎么做？</p>
+<p>如果将栈中的+号及时处理了（也就是同优先级优先计算前面的符号），那么整个表达式算完，就只有一个加号或减号，没什么问题。</p>
+<p>如果选择了加减号不先算，直接放栈里，就需要注意，之后的计算顺序。举例说明，一个复杂的表达式化简成只剩加减号时，可能是1-2-3，这时候Op栈是“-，-”，Int栈是“1，2，3”，不能再使用栈的pop，那样就变成了1-(2-3)，得用list/vector的顺序计算。<br>（我临时推理时用了这个思路，大概率以后还会这么干😅。我习惯思维是只push进栈，不爱随时pop，最后会统一pop出来计算。大概是觉得这种流程，代码会比较好看。）</p>
+<p>还是推荐大家尽量改善自己的思路，选择第一种方式，以免现场推理出来的逻辑不够完备。</p>
+<h4 id="单栈"><a href="#单栈" class="headerlink" title="单栈"></a>单栈</h4><p>Leetcode官方题解其实是单栈，但如果你亲手写了双栈，你一定会感受到，如果及时计算同优先级的运算符，Op栈最多只会有一个运算符（+/-号），所以不需要栈，一个变量就能保存了。这就是单栈思路，没什么特别。</p>
+<h4 id="边界"><a href="#边界" class="headerlink" title="边界"></a>边界</h4><p>栈的大体思路都是如此，如果加入括号或是其他二元运算符，都还能work。加入括号的话，请一定要用第一种方式😂，处理起来方便很多，不然思路容易卡住。</p>
+<p>如果加入UnaryOp正负号，尤其是负号，也就是说leetcode 227题的表达式中的整数不保证是非负整数，又需要一次变化。巧妙的思路是给“-”打头的表达式开头添“0”，变成“0-正整数”。将所有”(-“替换为”(0-“，用字符串replace，还可以不用改变算法主体代码，很简单。<br>而如果还加正号，比如“3++4”合理，这种情况就比有负数的情况还要麻烦了。这要求你的算法能，判断第二个+号是和整数结合的正号（Unary Plus）。再扩展下，“3–++2”等等。代码上就得增加一段逻辑，来处理好UnaryOp。这样当然可以work，但是这也暴露了栈思路的一个问题，就是它没有符合逻辑的解析能力。它似乎只是我们在努力的修补规则，“3–++2”是读取了“3-”后发现还是符号，才会开始解释为一元符号，从左到右计算到底是正号还是负号。但按照逻辑，我们应该是将表达式看作3-(-(+(+(2))))，也就是，真的计算的时刻，2是和前面的正负号结合，然后作为整体又跟前面的正负号结合。也就是解析是顺序，计算是倒序，有种递归下降，然后逐层返回结果的感觉。</p>
+<p>其实没什么差别，但是我个人觉得，栈的思路是有些勉强的。因此，当学了一点点编译原理后，我就想用编译的思路来解决这道题了。</p>
+<h4 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h4><p>所有计算器题目，都总结下。</p>
+<ol start="224">
+<li><p>双栈，加减括号，注意允许(+4)这种写法出现，但不用考虑1++2。</p>
+</li>
+<li><p>双栈，加减乘除，无括号，不用考虑(+4)或一元运算符的情况。</p>
+</li>
+<li><p>基本计算器 IV，只可能使用编译器思路来解决了，而且还要能处理变量。</p>
+</li>
+</ol>
+<h3 id="编译器思路"><a href="#编译器思路" class="headerlink" title="编译器思路"></a>编译器思路</h3><p>编译器思路，自然是难的，写起来也不够快。但是学习编译器基本原理，我觉得是有意义的，因为底层到程序编译，稍高层的SQL解析，都是这套思路。Parser，Token，blabla。</p>
+<ul>
+<li><input disabled="" type="checkbox"> 细节，新开一页讲，也可看<a target="_blank" rel="noopener" href="https://ruslanspivak.com/lsbasi-part1/">https://ruslanspivak.com/lsbasi-part1/</a> 一步一步跟着做</li>
+</ul>
+<p>简单来说，就是用代码实现几行范式。加入新的符号，就修改范式。</p>
+<p>比如，只有加减乘除：</p>
+<p><img src="https://ruslanspivak.com/lsbasi-part5/lsbasi_part5_grammar.png"></p>
+<p>加入括号(LPAREN,RPAREN)：<br><img src="https://ruslanspivak.com/lsbasi-part6/lsbasi_part6_grammar.png"></p>
+<p>再加入一元运算符（正负号）：<br><img src="https://ruslanspivak.com/lsbasi-part8/lsbasi_part8_grammar.png"></p>
+<p>Parser/Interpreter实现这几条规则就可以了。</p>
+<h2 id="91-解码方法-2021-03-24-25"><a href="#91-解码方法-2021-03-24-25" class="headerlink" title="91. 解码方法 2021/03/24-25"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/decode-ways/">91. 解码方法</a> 2021/03/24-25</h2><p>需要注意dp访问越界的问题。<br>通常dp[i]负责看第i个元素（索引其实是i-1），就可以保护住需要访问dp[i-1]的dp公式，因为计算dp数组是i从1开始，dp[0]不会越界。<br>如果dp公式有dp[i-2]，不要慌，dp[1]特殊处理后，dp[2]开始又可以通用处理了。</p>
+<h2 id="124-二叉树中的最大路径和-2021-03-26"><a href="#124-二叉树中的最大路径和-2021-03-26" class="headerlink" title="124. 二叉树中的最大路径和 2021/03/26"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/">124. 二叉树中的最大路径和</a> 2021/03/26</h2><ul>
+<li><input disabled="" type="checkbox"> wait zx</li>
+</ul>
+<h2 id="224-Basic-Calculator-2021-03-31-04-03"><a href="#224-Basic-Calculator-2021-03-31-04-03" class="headerlink" title="224. Basic Calculator 2021/03/31-04/03"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator/">224. Basic Calculator</a> 2021/03/31-04/03</h2><p>s consists of digits, ‘+’, ‘-‘, ‘(‘, ‘)’, and ‘ ‘.</p>
+<p>227类型的题。这个版本由于没有乘除，用Lexer+Interpreter的版本，范式也不难写。</p>
+<ul>
+<li><input disabled="" type="checkbox"> TODO 写一下范式</li>
+</ul>
+<p>当然更简单的，还是可以使用双栈。</p>
+<p>而且建议只记忆双栈，<strong>不用去记一些扩展性不够高的思路</strong>。</p>
+<p>注意，test case有”1-(+1+1)”这种。虽然不用考虑1+-1这种写法，但’(‘号后跟’+/-‘号是要被考虑的。<br>因此是基本的双栈思路，加过滤空格，再加处理’(+/-‘。</p>
+<p>具体说下双栈思路。</p>
+<p>首先，框架是逐个字符扫描，但考虑到数字可能是多位，所以最方便的做法应该是<code>while i &lt; len(s):</code>，解析数字时i可能会多加点，其他符号只需+1。</p>
+<p>再是每个字符c可能是些什么，各自需要如何处理。如果没什么印象，建议逐个分析，有需要的再合并，想不清楚，直接逐个if-else都行，总比写错了强。<br>所以，逐个看待，伪代码写作：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">if c is space:</span><br><span class="line">    pass</span><br><span class="line">elif c is digit:</span><br><span class="line">    # func parse_int TODO</span><br><span class="line">    num = parse_int()</span><br><span class="line">    # TODO calc or push to nums?</span><br><span class="line">elif c is &#x27;(&#x27;:</span><br><span class="line">    # TODO handle &#x27;(+/-&#x27;</span><br><span class="line">    push to ops queue</span><br><span class="line">elif c is &#x27;)&#x27;:</span><br><span class="line">    # ops top is &#x27;(&#x27;</span><br><span class="line">    ops pop</span><br><span class="line">    num = nums.pop()</span><br><span class="line">    # TODO calc or push to nums?</span><br><span class="line">elif c is &#x27;+&#x27; or &#x27;-&#x27;:</span><br><span class="line">    push to nums queue</span><br></pre></td></tr></table></figure>
+
+<p>上面就是最详细的分支情况，由于没有乘除，所以分支数量也没什么可以优化的点。注意我写的TODO，基本都应该封装为一个函数，以免主逻辑太难读，给自己增加难度。</p>
+<p>特别的，<code>calc or push to nums</code>是最需要注意的一个地方，明显的，两个分支都用到这一逻辑，封成函数是最好的，我命名为<code>calc_with()</code>。</p>
+<p>而这个数什么时候用来计算，什么时候直接push进栈呢？</p>
+<p>举例分析，我想把nums栈顶top和现有的num拿来计算，那么ops栈顶当然得是+/-号，如果栈顶是’(‘，那自然不该算。只需要考虑这一个条件。</p>
+<p>如果不计算，直接push。如果pop栈顶计算了一次，之后的结果，该如何处理？</p>
+<p>很容易想到，这个结果，还是应该push进栈。但还是应该多思考一下，有没有什么坑？</p>
+<p>这一点可能有点不直观，但你可以手写推理或者debug代码测试，就会知道，<code>calc_with()</code>总是在尽力地合并，只有遇到’(‘才会无法合并，导致nums和ops栈多增一个元素。</p>
+<p>简单起见，假设只有+号没有-号，某个时刻的栈只能是<code>+(+((+</code>，不会有<code>++(++(++</code>。</p>
+<p>假设此时ops栈为<code>+(+((+</code>,现有num，ops栈pop出+号，再nums栈里pop一个数num1，计算出结果res，这个res push回nums栈是合理的。无论后面跟什么符号，都能正确处理。</p>
+<h2 id="770-基本计算器-IV"><a href="#770-基本计算器-IV" class="headerlink" title="770. 基本计算器 IV"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/basic-calculator-iv/">770. 基本计算器 IV</a></h2><p>这个题太长了，看的人头皮发麻。但是抽象一下，就能发现，它实际上难点在于括号展开。因为我们已有的知识已经能把一个有括号的表达式解析出来了，可以转成AST树，也可以在解析parse时及时计算。但是，没有包含过“括号展开”的逻辑。</p>
+<p>简单的想一下，AST树完全不知道该怎么去实现括号的展开，所以pass。</p>
+<p>所以就考虑下parse时及时计算的时候能不能加上“括号展开”。</p>
+<p>parse时，可以知道pre_calc * new term的，具体2 * (a-b)，new term为(a-b)，之前的计算结果为2（简单起见，用数字举例）。</p>
+<p>接下来，该怎么做？</p>
+<p>应该做到拆出2 * a-2 * b。这一步即括号展开，是此题的核心。题目也暗示了可以理解为2 * a与-2 * b两项，那么也就是2要跟（1 * a)和(-1 * b)都分别乘一下。代码上其实就是for循环。当然(a-b)这个factor得拆成一个数组（2个元素，a和-b）。还需要拆成系数和word，那系数和word怎么对上号呢？</p>
+<p>考虑到2 * a + 1 * a能合并为3 * a，主要功劳是在word上，所以以word为key，系数为value是很合适的。</p>
+<p>所以可以用dict，{a: 1, b: -1}这样来表示。</p>
+<p>再进一步完善，如果是(c * d - 2 * f) * (a - b)，那pre_calc，即(c * d - 2 * f)，也得用dict来表示。其实pre_calc没有什么特别，就是一个factor，无论是一个数，还是圆括号扩起来的长表达式。所以用一样的规则，{c*d: 1, f: -2}，很通用，也合理。</p>
+<h3 id="整理思路"><a href="#整理思路" class="headerlink" title="整理思路"></a>整理思路</h3><ul>
+<li><input disabled="" type="checkbox"> TODO 写出范式</li>
+</ul>
+<p>也就是说，每个factor（不可再拆分的元素）都可以用一组kv来表示，也就是一个dict。一个term是多个dict合并，最终可以得到1个dict（遍历所有dict，体现加法，因为负号作为系数去了，所以可以当作只有加法）。</p>
+<p>term和term之间的乘法，也就是dict和dict组合出一个新的dict（二维for循环，体现乘法）。从左到右一个一个组合，最后得到一个dict，即为最后结果。</p>
+<h2 id="剑指-Offer-40-最小的k个数"><a href="#剑指-Offer-40-最小的k个数" class="headerlink" title="剑指 Offer 40. 最小的k个数"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/">剑指 Offer 40. 最小的k个数</a></h2><p>TopK，面试时也遇到过，我认为heap K最稳定，但面试官更希望我用快排思想，虽然快排思想有一定几率会很慢–最坏O(n^2)。除了复杂度，实际运行，由于现代计算机架构，inner loop可以很快，见<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F">wiki</a>。具体的复杂度算法也可以看wiki。不要仅考虑理论复杂度。</p>
+<p>不过有个点，我也不知道是不是记错了，面试官当时可能说c++ stl的paritial_sort是快排思想，但实际paritial_sort就是先构建k大小的堆，然后把剩下的都和堆顶比。nth_element才是快排的思路。</p>
+<p>核心快排思路见 <a href="/2022/10/07/abs-algo/" title="Quick Sort">Quick Sort</a>。</p>
+<p>最小k个、最大k个，第k大，第k小问题底层都是一样的，快排，变换一下都可以变为“左边&lt;=，pivot，右边&gt;=”这样的格式。类似golang或stl里，pred作为参数传入。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Algo/" rel="tag"># Algo</a>
+              <a href="/tags/LeetCode/" rel="tag"># LeetCode</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/08/bookmark/" rel="prev" title="Bookmarks">
+      <i class="fa fa-chevron-left"></i> Bookmarks
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/06/grokking-5/" rel="next" title="Grokking Pattern 5">
+      Grokking Pattern 5 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#https-codetop-cc-%E5%BE%AE%E8%BD%AF"><span class="nav-number">1.</span> <span class="nav-text">https:&#x2F;&#x2F;codetop.cc&#x2F; 微软</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#227-%E5%9F%BA%E6%9C%AC%E8%AE%A1%E7%AE%97%E5%99%A8-II-2012-03-22-23"><span class="nav-number">1.1.</span> <span class="nav-text">227. 基本计算器 II 2012&#x2F;03&#x2F;22-23</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E6%A0%88%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">双栈思路</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E6%A0%88"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">单栈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">边界</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TODO"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">TODO</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%99%A8%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.2.</span> <span class="nav-text">编译器思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#91-%E8%A7%A3%E7%A0%81%E6%96%B9%E6%B3%95-2021-03-24-25"><span class="nav-number">1.2.</span> <span class="nav-text">91. 解码方法 2021&#x2F;03&#x2F;24-25</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#124-%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD%E7%9A%84%E6%9C%80%E5%A4%A7%E8%B7%AF%E5%BE%84%E5%92%8C-2021-03-26"><span class="nav-number">1.3.</span> <span class="nav-text">124. 二叉树中的最大路径和 2021&#x2F;03&#x2F;26</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#224-Basic-Calculator-2021-03-31-04-03"><span class="nav-number">1.4.</span> <span class="nav-text">224. Basic Calculator 2021&#x2F;03&#x2F;31-04&#x2F;03</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#770-%E5%9F%BA%E6%9C%AC%E8%AE%A1%E7%AE%97%E5%99%A8-IV"><span class="nav-number">1.5.</span> <span class="nav-text">770. 基本计算器 IV</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E7%90%86%E6%80%9D%E8%B7%AF"><span class="nav-number">1.5.1.</span> <span class="nav-text">整理思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%91%E6%8C%87-Offer-40-%E6%9C%80%E5%B0%8F%E7%9A%84k%E4%B8%AA%E6%95%B0"><span class="nav-number">1.6.</span> <span class="nav-text">剑指 Offer 40. 最小的k个数</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Huang Wei</p>
+  <div class="site-description" itemprop="description">Hey</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huang Wei</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

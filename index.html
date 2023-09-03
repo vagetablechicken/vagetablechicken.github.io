@@ -148,6 +148,144 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2023/09/02/bigdata-algo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/02/bigdata-algo/" class="post-title-link" itemprop="url">BigData Algo</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-02 16:40:22" itemprop="dateCreated datePublished" datetime="2023-09-02T16:40:22+08:00">2023-09-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-09-03 15:24:28" itemprop="dateModified" datetime="2023-09-03T15:24:28+08:00">2023-09-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/BigData/" itemprop="url" rel="index"><span itemprop="name">BigData</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一些通用的大数据、分布式等方面的算法总结。单独出一篇文章，因为这类算法都是通用的，但具体到各个系统，实现方式可能不同，本篇只总结算法思想，可能伪代码实现最基础的算法，必要时会给出现实系统的参考链接。</p>
+<h2 id="一致性哈希"><a href="#一致性哈希" class="headerlink" title="一致性哈希"></a>一致性哈希</h2><p>哈希可以说是出现在大数据的方方面面了。一到切分，基本都是它。一致性哈希，先说哈希，也就是虚拟哈希空间，有2^32个片，叫哈希环。</p>
+<p>然后哪个服务器负责处理哪些哈希片，是靠映射。具体方法没有规定，比如，可以用服务器ip来hash，还是2^32取模，得到的数字，它就处理哈希环上对应的片。数据来了先hash取模，得到的值然后顺时针找可以服务的服务器，就发给它。</p>
+<p><img src="/./bigdata-algo/consistent-hashing.jpg" alt="chash"></p>
+<p>如果中间某个服务器down了，反正算法是往后找到第一个服务器，它还是会被处理。当然这个就要求“数据可以被任何server处理”，不能是特别的。比如，相关数据只在某个节点，其他节点获取不到，处理条件都不满足。当然这是理想条件，现实很多也不满足，但它们涉及到的数据也可以是多节点都存有备份，但又不至于所有节点都需要。这个也等于缩容，受影响的数据是“会落到这一下线节点的数据”，我们称为nodeB，将前一个节点nodeA的末尾片记为end1，当前节点末尾片为end2，也就是<code>(end1, end2]</code>区间的数据原本应该找这个节点B，但它下线了，就会变成去找下一个节点nodeC。其他片上的数据不会受到影响。虚拟哈希环不会改变大小，永远的2^32片。如下图左边所示。</p>
+<p>而扩容就在hash环上加一个node，原本<code>[start, end]</code>会找nodeD，你在nodeD前面塞了个nodeE，那么<code>[start, nodeE_end]</code>这部分数据就是受影响的数据，原来要找nodeD，现在变成nodeE。如下图右边所示。</p>
+<p><img src="/./bigdata-algo/upscale-downscale.jpg" alt="scale"></p>
+<p>优点不难猜测，节点上下线只会影响局部数据，这已经是很大的优点了。不能傻到还在N个节点，就hash(req)%N吧，增加节点你还需要把N改成N+1。而且它会改变很多请求的路由，缓存都不无法利用。（当然，要是系统就是这样的简单，啥也不要求，那也不用考虑改变了，简单就是最好的。）</p>
+<p>但这还有优化空间，因为在前面所说的算法中，nodeX总是要分到连续的多片，现实中是很难保证每片都差不多热度，也就更不能要求每个node的请求都是均匀的。而且节点数量改变时，在现实条件下，上下节点是要改变很多东西的，可能你要将一些数据复制到节点中才能正常服务，也叫做Node rebuilding。它是一个很重的操作。</p>
+<p>为了解决，又引入“虚拟节点机制”，就是hash环上不是物理server node，而是每个物理server都膨胀出，node0-0、node0-1等等的虚拟节点，这样虚拟节点打散分布在hash环上，倾斜可能性就小些。不再是一个node去处理连续的一大片区域。如下图所示。</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*OAiDSxqJBpVkT55fK7n0oA.jpeg" alt="vnodes"></p>
+<p>向图中展示的一样，一个server node处理离散的几个片，那么每个server的负载均衡就很好操作了，比如，我可以让1个server服务3个高热度的，其他server负载10个低热度的。不用费心去在环上取一个很好的位置，才能把连续的几片服务好，有变化时更是运维难度大。而迁移片也是只对这么一个小区域，粒度更细，rebuild压力也就越小。</p>
+<p>也有人说Vnodes负载均衡的情况还可能是让性能好的机器服务更多、更热的片，小机器就混一混。机器规格不一致的时候，确实是个好处。不过我实际在工作中挺难看到不一样的机型在同一个集群。可能现在机器越来越便宜了吧，以前还是很看重成本的，甚至看到机器闲置会进行降级。</p>
+<p>整个算法知识都可以看文章 <a target="_blank" rel="noopener" href="https://interviewnoodle.com/how-to-use-consistent-hashing-in-a-system-design-interview-b738be3a1ae3">https://interviewnoodle.com/how-to-use-consistent-hashing-in-a-system-design-interview-b738be3a1ae3</a><br>，讲的很细，图都是引用的它的。</p>
+<p>现在来讲讲如何代码实现一致性哈希。</p>
+<h3 id="简版"><a href="#简版" class="headerlink" title="简版"></a>简版</h3><p>简单版本，我们只做哈希环，然后node负责连续分片。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">def hash(key):</span><br><span class="line">    return hash(key) % 2^32</span><br><span class="line"></span><br><span class="line">map&lt;hash_value, node&gt; ring</span><br><span class="line"># map key可以不是范围，而是end分片，这样可以用lower bound来找到第一个大于等于req_key的node</span><br><span class="line"># 但原生Python不支持，得新建class</span><br><span class="line"># Java ceilingEntry和C++ std都可以直接用</span><br><span class="line"></span><br><span class="line">def get_node(key):</span><br><span class="line">    hash_value = hash(key)</span><br><span class="line">    return ring[lower_bound(hash_value)]</span><br><span class="line"></span><br><span class="line"># main</span><br><span class="line">req_key = hash(req)</span><br><span class="line">node = get_node(req_key)</span><br><span class="line">node.handle(req)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果存在一群相同元素，那么 lower_bound 和 upper_bound 就可以找到这群元素的上下界限，前者指向下界限，用 lower 表示，后者指向上界限的后一个位置，用 upper 来表示。也就是说，lb是大于等于key的第一个元素，ub是大于key的第一个元素。</span><br></pre></td></tr></table></figure>
+
+<h3 id="开源实现"><a href="#开源实现" class="headerlink" title="开源实现"></a>开源实现</h3><h4 id="Guava-consistentHash"><a href="#Guava-consistentHash" class="headerlink" title="Guava consistentHash"></a>Guava consistentHash</h4><p>Guava库中的<a target="_blank" rel="noopener" href="https://github.com/google/guava/blob/f491b8922f9dc8003ffdf0cbde110b76bcec4b6e/guava/src/com/google/common/hash/Hashing.java#L660">com.google.common.hash.Hashing.consistentHash</a>就实现一致性哈希算法。一般使用方法是，你有一个key，用Hashing中提供的某种hash算法来hash这个key（比自行提供hashCode会好，提供了murmur之类的算法），得到的HashCode去调用consistentHash方法，再加上一个bucket数据限定，就可以得到一个bucket的index，也就是说，你的key会被分到这个bucket里。</p>
+<p>但仔细看它的consistentHash函数，它压根儿没做一致性哈希理论的那些事，完全没有哈希虚拟空间的事儿。</p>
+<p>它的理论是源于此文章 <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/258533.258660">https://dl.acm.org/doi/10.1145/258533.258660</a> ，一致性哈希的根本定义是“对所有的 Buckets 和 Items 应用相同的哈希函数 H，按照哈希值的顺序把它们排列到一条线上，然后将距离 Bucket 最近的 Items 都放入该 Bucket 中”，哈希环是一种实现方式，但不是唯一的实现方式。</p>
+<p>Guava一致性哈希算法实现者的文章，<a target="_blank" rel="noopener" href="https://arxiv.org/ftp/arxiv/papers/1406/1406.2294.pdf">https://arxiv.org/ftp/arxiv/papers/1406/1406.2294.pdf</a> ，批斗了一波原版，提出了新的“jump consistent hash”，不用存server/bucket服务哪些哈希片，速度还快。但它是有条件限制的，buckets必须是连续，否则这个index刚好是下线了的node id，那肯定不行。如果要用这一套，必然是得把bucket抽象化，也就是Vnodes那一套。</p>
+<p>先只看JumpConsistentHash。首先，先抛弃一致性哈希的经典哈希空间，抛弃空间与真实bucket的对应关系，我们只去想这个算法要干什么，就是想将input放进bucket里，想均匀地放，当然也不能乱放。不乱放是指，key=k1，那么k1在bucket数目恒定时，就应该永远被放入同一个bucket，不然就是随意乱放了，random放，更甚者循环放就行了。</p>
+<p>规律总结就是，记<code>ch(key, bucket_size)</code>为一致性哈希函数，那么得有：</p>
+<ul>
+<li>ch(k, 1)=0，即所有key都放bucket0，毕竟总数只有1个bucket</li>
+<li>In order for the consistent hash function to balanced, ch(k, 2) will have to stay at 0 for half the keys, k, while it will have to jump to 1 for the other half. In general, ch(k, n+1) has to stay the same as ch(k, n) for n/(n+1) of the keys, and jump to n for the other 1/(n+1) of the keys.<br>ch(k,2)，就是分一半流量给新增的bucket1。进一步的，ch(k, n+1)对比ch(k, n)则是，n/(n+1)的key完全不变化，1/(n+1)的key，它们的bucket变更成n。（必须n/(n+1)部分是完全不变化，bucket值都不可改变，不然就算不得一致性哈希了，就是随便乱来算法。）而既然是最后还是要key平均进入bucket，当然是得每个bucket里抽出一部分来，放进新bucket。</li>
+</ul>
+<p>这样，就可以用ch(k,n)来描述ch(k,n+1)了。也就是说，ch(k,n+1)计算时，都是先用ch(k,n)计算出来，但有一部分key应该考虑分给新bucketn。从一个key的角度来看，它就是在不断jump，它在ch(k,1)时，就是0，然后在ch(k,2)时，就是0或1，满足条件，它就应该到1那儿去，然后在ch(k,3)时，它又该考虑是留在bucket1还是跳到bucket2，以此类推。还真是名副其实的jump。</p>
+<p><img src="/./bigdata-algo/jump-chash.jpg" alt="jump"></p>
+<p>图中，从左下框架上来看，只有?函数安排合理，就能得到一个非常简单的一致性哈希算法实现。那么，关键又变成了什么样的函数才能做到。假设k2是输入key，返回值是恒定的0.1，那么2个桶，它就会被判定去桶1，3个桶就去桶2。但这么就搞得只有小key才会挪动，不够随机。所以这里的函数一般是随机函数，但由于我们必须保证原则“bucket数量不变时，k应该对应唯一一个bucket index”，所以这个随机不是真的随机。所以实现上，会拿key本身作为seed，它对应不变的一组数字序列，是可预期的。所以对一个key来说，在bucket总数不变时，结果是一样的。</p>
+<p>文中还做了进一步优化，大概是能跳过一些没必要的j loop，毕竟j越大，能跳的值就越少了，有些都不太需要处理这一遭。没有仔细看，有空再啃一下原文，可以参考 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/625123381">https://zhuanlan.zhihu.com/p/625123381</a> 看一看。</p>
+<h4 id="Ketama"><a href="#Ketama" class="headerlink" title="Ketama"></a>Ketama</h4><p>前面那个属于邪教了，课外读物，当然很厉害。真的去实现理论算法的，较为有名的一种实现叫Ketama算法，该算法最初是由Last.fm的程序员实现的并得到了广泛的应用</p>
+<p>标准ketama好像是 <a target="_blank" rel="noopener" href="https://github.com/RJ/ketama">https://github.com/RJ/ketama</a> ，只有c实现，其他语言都是调用c库。本质没什么特别的好像，可能就是较早的广泛的算法实现。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ultrabug/uhashring">https://github.com/ultrabug/uhashring</a> 是纯Python实现，其中也包含ketama。特点是，中途可以加减node，还有weight，weight就是大的vnode多一点，这样key会较多的到weight高的node上。这一版实现值得多看看。</p>
+<h4 id="redis（其实并没有）"><a href="#redis（其实并没有）" class="headerlink" title="redis（其实并没有）"></a>redis（其实并没有）</h4><p>redis常有人说用到了一致性哈希，具体是说redis cluster的data sharding。但作者明确指出它的slot sharding不是一致性哈希，<a target="_blank" rel="noopener" href="https://redis.io/docs/management/scaling/%E3%80%82%E6%88%91%E4%BB%AC%E6%9D%A5%E5%88%86%E6%9E%90%E4%B8%8B%E3%80%82">https://redis.io/docs/management/scaling/。我们来分析下。</a></p>
+<p>首先redis cluster data sharding的Hash槽就少一点，当然这不是拒绝被称为一致性哈希的理由。再就是一个redis node也是负责一堆slot，也可迁移slot，类似Vnodes，但不是Vnodes就一定是一致性哈希。因为redis cluster是让一个node服务一个slot，并没有当前node下线，就可以自动找下一个node的机制。因为node有存储，不是缓存，不天然满足一致性哈希的理论要求。但它倒确实是满足了“增删节点只影响一部分数据”这一条准则，让人觉得这就是一致性哈希才能做的事情。但还是要抓重点，<strong>redis cluster并没有为了做到能让下一个node服务，让nodeB多hold一份nodeA的存储数据</strong>。从这个角度看，它只是hash，很多分布式存储都哈希分数据，但它们也没谁说是用了一致性哈希。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HASH_SLOT = CRC16(key) mod 16384</span><br></pre></td></tr></table></figure>
+
+<p>redis的client jedis倒是用了一致性哈希，client/proxy端做请求分流，还是很简单的。</p>
+<h4 id="Dynamo"><a href="#Dynamo" class="headerlink" title="Dynamo"></a>Dynamo</h4><p>更标准的在存储端使用一致性哈希的例子，应该是Dynamo, 原文是《Dynamo: Amazon’s Highly Available Key-value Store》。再对比下Redis cluster和Dynamo，它们在哈希存储时，都面临存储node下线后就无法服务的问题，必然得想解决方案。最常规的办法是，为每个slot做一个多副本备份，slot副本之间用某种一致性协议保证数据同步。redis cluster也是如此，所以是master/slave机制，选主由外部服务sentinel负责。所以redis cluster架构其实就是普通分布式，当然它还有个特点是，用gossip协议组成集群，而不是中心化管理集群，实际工程上用起来贼难用。不管怎样，redis cluster是非常常见的hash shard+replica的分布式存储架构，只是具体选型有序别而已。</p>
+<p>而Dynamo不一样，它硬是一条路走到底了。原文 <a target="_blank" rel="noopener" href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf">https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf</a> 。解读可以看 <a target="_blank" rel="noopener" href="https://medium.com/@adityashete009/consistent-hashing-amazon-dynamodb-part-1-f5719aff7681">https://medium.com/@adityashete009/consistent-hashing-amazon-dynamodb-part-1-f5719aff7681</a> 的系列文章，Vector Clocks，Sloppy Quorum等很多细节还没看。</p>
+<p><img src="/./bigdata-algo/dynamo-replica.png" alt="dynamo"></p>
+<p>可以看到，它真的贯彻了一致性哈希的思想，为了能在B节点挂了的时候，能继续服务，让B之后的数个节点都放数据备份。或者看下面这张更细致的图：</p>
+<p><img src="https://res.cloudinary.com/practicaldev/image/fetch/s--ptWksqUZ--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_800/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/mwpqwzenp3bb164vwz4m.jpg" alt="chash-storage-detail"></p>
+<p>Dynamo也用到了Vnodes，但还是那句话，Vnodes是一个单独的机制，不是一致性哈希的核心，不影响上图的核心思想，所以Dynamo可以说是使用了一致性哈希的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; when a node is removed, the next node (moving clockwise on the ring) becomes responsible for all of the keys stored on the outgoing node.</span><br><span class="line"></span><br><span class="line">ref https://www.educative.io/answers/how-data-is-partitioned-in-dynamo</span><br><span class="line"></span><br><span class="line">是一致性哈希的最核心思想，也是最重要的特点。</span><br></pre></td></tr></table></figure>
+
+<h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>TODO 怎么实现的，能不能作为分布式锁？</p>
+<p>消息队列的逻辑，就是做和内存队列一样的事。但它的使用场景，是分布式的，内存队列是不可能做到的。通常也不会是单一角色的，所以还涉及多角色。于是，基本都会抽象为，producer发消息给它，它又发给consumers。为了保证可靠和堆积，消息会被MQ持久化。而consumers动态删减，又需要发布-订阅模式。</p>
+<p>一个较简单的mq工程可以参考 <a target="_blank" rel="noopener" href="https://github.com/zeromicro/go-queue">https://github.com/zeromicro/go-queue</a> 。注意它是封装者，核心不在它这里，比如它底层接Kafka。</p>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><h4 id="RSMQ"><a href="#RSMQ" class="headerlink" title="RSMQ"></a>RSMQ</h4><p>真的MQ算法实现，RSMQ是一种经典方案，简单，具体实现有不少项目。可以看看这个 <a target="_blank" rel="noopener" href="https://github.com/mlasevich/PyRSMQ">https://github.com/mlasevich/PyRSMQ</a> 。</p>
+<blockquote>
+<p>One simple implementation of a message queue is using Redis. There is a Python implementation of Redis Simple Message Queue (RSMQ) called PyRSMQ . RSMQ emulates Amazon’s SQS-like functionality, where there is a named queue that is backed by Redis. Once the queue is created, producers can place messages in the queue and consumers can retrieve them .</p>
+</blockquote>
+<p>Here’s an example of how you can use PyRSMQ to implement a simple message queue:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> rsmq <span class="keyword">import</span> RedisSMQ</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a new instance of RedisSMQ</span></span><br><span class="line">queue = RedisSMQ(host=<span class="string">&quot;localhost&quot;</span>, port=<span class="number">6379</span>, qname=<span class="string">&quot;myqueue&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a new message in the queue</span></span><br><span class="line">queue.sendMessage().message(<span class="string">&quot;Hello World&quot;</span>).execute()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Receive the next message from the queue</span></span><br><span class="line">msg = queue.receiveMessage().execute()</span><br><span class="line"><span class="built_in">print</span>(msg[<span class="string">&#x27;message&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># Delete the message from the queue</span></span><br><span class="line">queue.deleteMessage(<span class="built_in">id</span>=msg[<span class="string">&#x27;id&#x27;</span>]).execute()</span><br></pre></td></tr></table></figure>
+
+<p>这个项目是将redis作为远程存储，同时利用redis的一些功能，去实现一个MQ，不是简单的使用者。</p>
+<h4 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h4><p>这是最经典的工程实现了吧，值得多研究研究。</p>
+<p>一个队列的基本定义里就应该是有序，不过Kafka并非专注于MQ，它本质是一个分布式事件流平台，并不是RocketMQ，RabbitMQ这些。这一点要注意，Kafka只是可以用来搭建消息队列。</p>
+<p><a target="_blank" rel="noopener" href="https://kafka.apache.org/intro">https://kafka.apache.org/intro</a> 官方文档介绍中有提到相关概念。划重点就是，事件驱动。</p>
+<p>而消息队列也是消息驱动的，消息来了，订阅者/消费者就要知道。所以Kafka会被拿来作为MQ的底座。</p>
+<p>消息队列kafka可以只partition有序，那它能不能保住全局有序？</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2023/07/31/pwm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -171,10 +309,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-07-31 19:08:40 / Modified: 19:29:59" itemprop="dateCreated datePublished" datetime="2023-07-31T19:08:40+08:00">2023-07-31</time>
+              <time title="Created: 2023-07-31 19:08:40" itemprop="dateCreated datePublished" datetime="2023-07-31T19:08:40+08:00">2023-07-31</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-09-02 12:21:57" itemprop="dateModified" datetime="2023-09-02T12:21:57+08:00">2023-09-02</time>
+              </span>
 
           
 
@@ -191,10 +335,15 @@
 <p>突然想到了大学实验课上的呼吸灯实验，联想起来自己还是不太理解当时为什么要那么写代码，所以这次来深度了解一下。当时只是知道代码写法，并不理解原理，现在才查到是PWM。</p>
 <p>首先，PWM并不唯一，它可以用在很多地方，它本身的实现也很多，呼吸灯就是个简单实验而已。</p>
 <p>模拟电路的缺点不多说了，总之是希望用数字电路来顶替模拟电路，但是数字电路的输出是高电平或低电平，而模拟电路的输出是连续的，可以是高低电平范围内的任何一个值，PWM就是来解决这个取值问题的。</p>
-<p>硬件，比如LED灯，本来就是可以接收一个范围的电压，并给与相应的亮度，当然，此处还是理想地说，电压是稳定的一个值，LED就在那里亮着。如果LED接受的电压不是稳定的，是脉冲呢？假设脉冲很慢，1s高，1s低，我们就能看到LED在闪烁，但是如果脉冲很快，比如10ms高，10ms低，我们就看到LED是亮的，但是亮度不是100%，而是50%（10ms仅仅是个假设，我不知道具体什么频率才能让人眼看到，频率过快应该跟常亮没有区别）。这就是PWM呼吸灯的基础，PWM调光，PWM Dimming。有了Dimming，我们可以在LED上实现各种亮度，比如50%，75%等等，只要每一小段时间变换亮度，就能实现呼吸灯。</p>
+<p>硬件，比如LED灯，本来就是可以接收一个范围的电压，并给与相应的亮度，当然，此处还是理想地说，电压是稳定的一个值，LED就在那里亮着。如果LED接受的电压不是稳定的，是脉冲呢？假设脉冲很慢，1s高，1s低，我们就能看到LED在闪烁，但是如果脉冲很快，比如10ms高，10ms低，我们就看到LED是亮的，但是亮度不是100%，而是50%（10ms仅仅是个假设，我不知道具体什么频率才能让人眼看到，频率过快应该跟常亮没有区别）。100Hz应该就看不到闪烁了。这就是PWM呼吸灯的基础，PWM调光，PWM Dimming。</p>
+<p>有了Dimming，我们可以在LED上实现各种亮度，比如50%，75%等等，只要每一小段时间变换亮度，就能实现呼吸灯。</p>
 <p>那么，PWM Dimming具体什么样子？</p>
-<p>可以想象，如果当前给一条高电平直线，我们看到的是常亮；如果直线中每个1s只出现1ms的低电平，那个时候LED肯定是熄灭的，但持续低电平时间太短了，人眼根本无法察觉，而且LED还可能有余晖，不会瞬间黑了，就更加容易掩盖熄灭的时间。</p>
-<p>但为何50%空占比的LED是偏暗的灯，我们捕捉不到高电平的亮度呢？</p>
+<p>可以想象，如果当前给一条高电平直线，我们看到的是常亮；如果直线中每个1s只出现1ms的低电平，那个时候LED肯定是熄灭的，但持续低电平时间太短了，人眼根本无法察觉，而且LED还可能有余晖，不会瞬间黑了，就更加容易掩盖熄灭的时间，也就是视觉残留。</p>
+<p>但为何视觉残留，就能完美模拟出0-100%的亮度呢？我们为什么<strong>不能</strong>从50%空占比（Duty Cycle）中捕捉到那么一瞬的高于50%的亮度？这个从经验上有人总结过，就是说，人眼看到的是一种平均值，而不是瞬间的值，所以，如果LED的空占比是50%，那么人眼看到的就是50%的亮度，而不是瞬间的100%亮度。这个叫做<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Talbot-Plateau_law">Talbot-Plateau Law</a>，中文名不统一，可能叫塔尔博特-普拉托定律。它是由实验支撑的，就是那个黑白盘，又称扇形实验。</p>
+<p><img src="https://en.wikipedia.org/wiki/File:Talbot-Plateau_disk.png" alt="圆盘"></p>
+<p><img src="https://pic3.zhimg.com/v2-214e5dfea486d22f905b465587e8cd0a_b.jpg" alt="PWM调光"></p>
+<p>圆盘的一个环和PWM调光的某个亮度是类似的，转起来后，我们人眼就是看到了一个平均值，而不是瞬间的值。背后的生物理论还不了解，但这个实验还是能让人理解，我们人眼确实是被这么骗了。</p>
+<p>顺带一提，PWM虽然骗过人眼感受，但实际还是让我们的眼部细胞被迫处理瞬时的变化。所以有些PWM频率过低，会让人眼睛类，甚至头疼。</p>
 
       
     </div>
@@ -671,126 +820,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2021/05/06/grokking-3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Huang Wei">
-      <meta itemprop="description" content="Hey">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Wei">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/05/06/grokking-3/" class="post-title-link" itemprop="url">Grokking Pattern 3</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-05-06 10:58:13" itemprop="dateCreated datePublished" datetime="2021-05-06T10:58:13+08:00">2021-05-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Algo/" itemprop="url" rel="index"><span itemprop="name">Algo</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p>See <a href="/2021/05/06/grokking-1/" title="Grokking Pattern 1">Grokking Pattern 1</a>.</p>
-<h2 id="3-Pattern-Fast-amp-Slow-pointers"><a href="#3-Pattern-Fast-amp-Slow-pointers" class="headerlink" title="3. Pattern: Fast &amp; Slow pointers"></a>3. Pattern: Fast &amp; Slow pointers</h2><h3 id="LinkedList-Cycle-easy"><a href="#LinkedList-Cycle-easy" class="headerlink" title="LinkedList Cycle (easy)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/linked-list-cycle/">LinkedList Cycle (easy)</a></h3><p>题目描述很反人类，但其实就是给你一个链表（只有head指针），让你判断是否有环。进阶是只使用O(1)的空间，也就是常量空间。</p>
-<p>有环的链表肯定会访问到重复的节点，环内有1个或以上的节点。搞一个空间存已经访问过的节点，查到之前访问过就能判断了，但空间最坏能到O(n)。常量空间，自然要用快慢指针。</p>
-<p>推理一下，快慢指针什么时候能证明链表有环？</p>
-<p>猜想肯定是快慢指针指向同一个节点时，但怀疑是否存在“有环链表下快慢指针也不会同时指向同一个节点”。画画图，列一下方程式，假设链表入环前有s个节点，环上有c个节点，可以知道，当走整数倍c（2倍起，同时还得&gt;s）的时候快慢指针是能遇到的，这个值不会不存在，还会多次相遇。所以不用担心快慢节点会永远遇不到。</p>
-<p>编码上很简单了，记住init时fast，slow都指向head，然后while内先走再check。</p>
-<h3 id="Middle-of-the-LinkedList-easy"><a href="#Middle-of-the-LinkedList-easy" class="headerlink" title="Middle of the LinkedList (easy)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/middle-of-the-linked-list/">Middle of the LinkedList (easy)</a></h3><p>很简单的题，把两个case都手动推理一遍，就知道了。hint：fast先走，提前退出，slow就不用走了。</p>
-<h3 id="Start-of-LinkedList-Cycle-medium"><a href="#Start-of-LinkedList-Cycle-medium" class="headerlink" title="Start of LinkedList Cycle (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/linked-list-cycle-ii/">Start of LinkedList Cycle (medium)</a></h3><p>这个题猜得到是需要快慢指针相遇后再加点什么操作的，但是推理容易卡壳。主要还是对快慢指针相遇的情况理解的不够。</p>
-<p>快慢指针相遇很好写，node地址相等就是了。但相遇时，快慢指针并不是可能走了无数圈。这里有一个点必须记住，就是“慢指针入环后，和快指针相遇时，慢指针在环上是不会走超过一圈的”。也就是慢指针入环后继续走，一圈以内必定碰到快指针。</p>
-<p>这个知识点，我以前应该用方程式推过，也不记得推理有没有漏洞了，这次做题还没推出来。所以这里最直观也正确的解法是数学归纳法。我们讲slow入环后和fast相遇，那么最快相的情况，当然是slow和fast直接在入环点直接相遇，0步。再麻烦点，就是fast在slow的前面（此刻的位置是fast.next==slow），这样两个相邻的节点，只需1步就能相遇。假设fast更远一点，即fast.next.next==slow，就需要2步，以此类推，入环时刻，fast和slow的距离（fast的n个next==slow）假设为n，就需要n步相遇。但fast和slow之间最大距离就是fast在slow的前一个，假设环里有k个节点，fast和slow的最大距离就是k-1，所以最多k-1步，fast和slow必定相遇。所以slow不可能在相遇前走几圈。</p>
-<p>知道slow在一圈内就会和fast相遇，其中几个关键长度如下图所示。那么相遇时slow的公式应该写为，slow=a+b，fast=a+b+n(b+c)。</p>
-<p><img src="https://assets.leetcode-cn.com/solution-static/142/142_fig1.png" alt="示意图"></p>
-<p>(leetcode图源，可能会挂，自行戳网址)</p>
-<p>再回到题目本身，当两指针在紫色点上相遇时，代入化简一下已有式子，得a+b=n(b+c)，即a=c+(n-1)(b+c)，为什么化简成这样？不是因为这样a可以通过等式右边得到，右边这式子也没法继续求。而是因为，右边写成这样，b+c是一整圈，也就是说，如果一个指针从链表头开始走起，另一个指针从紫色点走了c长度又走了几个完整圈，它们会在入环口相遇，另一个指针走几圈完全不用在意。</p>
-<p>但注意，这个式子可能有坑，思考下有没有可能a很小，c很大？</p>
-<p>n必然&gt;=1，因为fast肯定走的多点，不然fast=a+b+n(b+c)就不对了。那么，a最小就等于c，不可能比c小。这个事情挺有趣的。没有想到一个很通俗易懂的表达，但数学证明了也就证明了吧。</p>
-<h3 id="Happy-Number-medium"><a href="#Happy-Number-medium" class="headerlink" title="Happy Number (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/happy-number/">Happy Number (medium)</a></h3><p>这题现在是简单😂</p>
-<p>题目没有读仔细，所以第一时间没能察觉到和快慢指针有什么联系。题目表述为“也可能是 <strong>无限循环</strong> 但始终变不到 1”，我简单地想到了不能一直计算，但忘记了无限循环不是每一次结果都不一样，它只是每次结果都是不是1，不是说每次结果都是从未出现的数字。</p>
-<p>接着，就排除了用定义一直计算这种思路，变成了想利用数学之类的其他方法来解决。虽然也推理出了平方和计算中，不能爆出非常大的值，最大32bit的数，十进制也就是13位，就算13位都是9，一次平方和计算下来，也不过1053。而1053的平方和也挺小的，1053以内能算出较大平方和的也就是999。而999再算一步也就是243。</p>
-<p>可以明显感觉到，不可能出现一个小的数字经过多次计算膨胀的很大，只可能很大的初始数一下子变得很小。当然像case1中19经过计算会变大，但这都是一定范围，最大不可能超过1053。</p>
-<p>然而，从这里开始，我就期待用动态规划一类的方式，类似斐波那契数列，提前算好所有快乐数。所以我认为，可以从1，10，100，1000反推平方和等于它们的数，但是反推的链路有点长，说不定反推也会不能停止，毕竟这个思路不太对劲，可能有不少漏洞。</p>
-<p>总结还是应该利用平方和结果范围有限这一点，也就是抽象成链表的有环判定。当然，因为平方和都是即时算的，不像链表问题提前准备好链表。简单的方案就是直接保存之前计算出的结果，也就是不用快慢指针，而是用是否已存在来判断。而如果还是想用快慢指针，可以def一个next函数，考虑到节约空间，next函数只管计算不用缓存。快指针两次next，慢指针一次next就好了。</p>
-<p>纯数学的角度其实也可以继续推下去。但需要更仔细的范围研究。所以，回顾之前的推理，最大的数字13个9，也会瞬间收缩到1053，再归纳总结，12个9收缩到。。。4个9收缩到324，这里特别的来了，999到243。为什么说999到243特别，因为这里位数不降了，之前的那些大数都会收缩位数，变得更小，999虽然会经过一次计算变小，但位数不会收。所以一旦计算结果收缩到3位数，接下来的所有平方和结果都是三位数以内，不可能膨胀，且跌入三位数后（三位数后再计算一次），必然困在243以下。而为什么就243了，有没有可能实际数字更小？简单举例99就知道，它能变大到162，也就是涨到三位数，但不可能从三位数继续变大。所以，计算进入243以内后，可能会振荡，比如2位数蹦到3位数，但不可能比243更大，也就是出不去了。</p>
-<p>那么，假设计算结果小于等于243时，我们能直接给出结论，是不是快乐数。就不用进入无限的循环了。所以问题变成243以内的数字，哪些是快乐数？</p>
-<p>而这样的问题缩减，有什么好处呢？好处在于，243个数字，最大值也就是243，大可以暴力算加是否已存在判定，最大空间复杂度也就到243，比起给一个数就缓存，空间占用要小一些。（其实应该也小不了多少，毕竟收缩很快）但把&lt;=243的数字直接打成表，对于频繁查快乐数的情况，就会节约时间的多。oj时间上节省的会比较明显。如果只是一次快乐数判定，当然打表反而还浪费时间。</p>
-<h3 id="Problem-Challenge-1-Palindrome-LinkedList-medium"><a href="#Problem-Challenge-1-Palindrome-LinkedList-medium" class="headerlink" title="Problem Challenge 1 - Palindrome LinkedList (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/palindrome-linked-list/">Problem Challenge 1 - Palindrome LinkedList (medium)</a></h3><p>难度简单。</p>
-<p>很明显快慢指针能够找到链表的中部。而中部开始向左向右比对，就能判定是否回文。右半边很顺畅，不用改动，关键在于左半部分。但左半部分再快慢指针途中是被遍历访问过的。这其实也就提示了，如果修改链表，就能降低空间复杂度。题目进阶就是希望用O(1)空间，那大概率就是原地修改链表的左半部分。</p>
-<p>很直接的就能想到是反向指。写写画画，不难得到简单的代码。得到了链表中部的指针后，当然是往两边走，逐个对比。但注意，奇数回文串和偶数回文串比较的起点是不一样的。我粗心的只想到了偶数回文，跑测试才发现奇数回文跑不过。</p>
-<p>P.S.</p>
-<p>这个题还有个递归解法，我不太擅长递归，经常起手就是迭代，所以这里值得再学习下。首先，递归能给我们什么？假设我们只是简单的print val，那么递归就能从尾到头，逆序读出每个节点的值。假设我们递归到底了，现在能读到尾部节点，这个时候我们应该拿头部节点和它进行比较，接着递归会读倒数第二个，而这时又应该拿顺数第二个节点比较。可以看到，从头部开始读也可以用一个指针来解决，但这个指针得是外部的变量，放在递归函数里面太困难了。再思考奇偶情况，奇数节点两指针地址会指向同一个节点，容易判断，偶数情况本来以为会麻烦点，但还好，因为两个指针指向的节点是相邻的，所以只要next判断一下就好了。leetcode官方解更飘逸，全遍历，不用提前返回，那对栈空间要求更高了。不大实用，但可以多熟悉下递归。论简单，还是递归这个写法代码少。</p>
-<h3 id="Problem-Challenge-2-Rearrange-a-LinkedList-medium"><a href="#Problem-Challenge-2-Rearrange-a-LinkedList-medium" class="headerlink" title="Problem Challenge 2 - Rearrange a LinkedList (medium)"></a>Problem Challenge 2 - Rearrange a LinkedList (medium)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Given the head of a Singly LinkedList, write a method to modify the LinkedList such that the nodes from the second half of the LinkedList are inserted alternately to the nodes from the first half in reverse order. So if the LinkedList has nodes 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; 6 -&gt; null, your method should return 1 -&gt; 6 -&gt; 2 -&gt; 5 -&gt; 3 -&gt; 4 -&gt; null.</span><br><span class="line"></span><br><span class="line">Your algorithm should not use any extra space and the input LinkedList should be modified in-place.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: 2 -&gt; 4 -&gt; 6 -&gt; 8 -&gt; 10 -&gt; 12 -&gt; null</span><br><span class="line">Output: 2 -&gt; 12 -&gt; 4 -&gt; 10 -&gt; 6 -&gt; 8 -&gt; null</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: 2 -&gt; 4 -&gt; 6 -&gt; 8 -&gt; 10 -&gt; null</span><br><span class="line">Output: 2 -&gt; 10 -&gt; 4 -&gt; 8 -&gt; 6 -&gt; null</span><br></pre></td></tr></table></figure>
-
-<p>跟challenge1类似，尝试了一下递归的写法，比较容易写，就是先把偶数链表搞定，再补一下奇数情况的判断就行了。但是注意，debug时别打印链表，修改中途的临时链表很可能是有环的，打印也打不出来。当然可以限制下打印的node个数，调试时还是可以有的。</p>
-<p>如果不用递归写法，这个题还是和challenge1一样，可以把后半部分链表原地反转。不多赘述。</p>
-<h3 id="Problem-Challenge-3-Cycle-in-a-Circular-Array-hard"><a href="#Problem-Challenge-3-Cycle-in-a-Circular-Array-hard" class="headerlink" title="Problem Challenge 3 - Cycle in a Circular Array (hard)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/circular-array-loop/">Problem Challenge 3 - Cycle in a Circular Array (hard)</a></h3><p>题目有点难读，但解析下来，题目的意思是，首先有个环有n个节点，节点里的值表示下一步会向前or向后跳几个节点，可以理解为<strong>在做链表的next链接</strong>。这样下来很可能会出现环状的链表，而且题目定义的链表更狭窄点，k=1（一个节点自环）的不算，不算一会儿前进一会儿后退的。</p>
-<p>根据“链表next”和“判断是否循环”，就知道可以用快慢指针。但快慢指针会测到自环，所以即使判断有环，还得再一次确认是否是k=1自环的情况。</p>
-<p>而“不算一会儿前进一会儿后退”这一点很重要，题目的说法是循环的下标序列不是全正就是全负。那么指针跑的时候去要看自己现在所处的位置i，这个位置指定的步数，也就是nums[i]如果和之前的nums[…]符号不同，就可以直接判断为False。</p>
-<p>那么，还剩两个问题。</p>
-<ol>
-<li>快慢指针没有null作为退出条件了，不知道能不能结束。这里可以考虑防御性编程，加个一定限制。但其实不需要，原因是，如果一个nums值全为正，选一个元素来看，它必然得指向某个元素，这个元素如果是它自己，就会发现一个自环；如果不是，它势必要指向一个新元素（我们还未访问的）。但访问得一直继续，如果每次都不是循环（快慢指针查不到的），不会停止，一直访问下去，那么元素迟早被访问完，那下一步会去哪儿呢？所以必然会有快慢指针能够查到的环，虽然自环不能算本题定义的“循环”。<ol>
-<li>总结一下，就是，除了不是全正or全负会提前退出，快慢指针是必然会相遇的。自信点，不用防御编程。</li>
-</ol>
-</li>
-<li>此题不是简单的从数组头开始。拿个示例画一下，也能发现，从某个下标开始跑快慢指针，结果都是不一样的。所以理论上，每个数组元素都是可能的循环的开始。</li>
-</ol>
-<p>总结到这里，突然想到一个问题，既然只有全正全负会陷入while loop不能提前退出，而全正全负又一定能有广义的环。那么完全不用快慢指针，只需要把每个点当作可能的入环口，也就是从这个点开始我能转回这个点，就找到了一个广义环。并不是非得快慢指针。只是这里有个坑，那就是这个点只是可能的入环口，它也有可能是类似有环链表的直线部分，走了几步才入环。所以得有个限制退出while步进，不然会死循环出不去。又由前面整理的结果，想要全正or全负没有环是不可能的，最大的环也就到整个数组的长度（当然，可能链表箭头走的很骚，不是说只能沿着数组+1/-1步这么走，但长度是不能再长了）。</p>
-<p>这个思路比快慢指针代码上简单点，时间复杂度上却不是变少，因为这个思路走满环，最坏时能达到数组长度，O(n)，快慢指针中fast指针和slow指针第一次相遇时slow也没有走满环，fast多一倍步数，也没差多少。所以这个思路也不会带来质变，聊胜于无。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2021/05/06/grokking-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -906,6 +935,126 @@
 <ul>
 <li><input disabled="" type="checkbox"> code</li>
 </ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2021/05/06/grokking-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Hey">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/05/06/grokking-3/" class="post-title-link" itemprop="url">Grokking Pattern 3</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-05-06 10:58:13" itemprop="dateCreated datePublished" datetime="2021-05-06T10:58:13+08:00">2021-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algo/" itemprop="url" rel="index"><span itemprop="name">Algo</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p>See <a href="/2021/05/06/grokking-1/" title="Grokking Pattern 1">Grokking Pattern 1</a>.</p>
+<h2 id="3-Pattern-Fast-amp-Slow-pointers"><a href="#3-Pattern-Fast-amp-Slow-pointers" class="headerlink" title="3. Pattern: Fast &amp; Slow pointers"></a>3. Pattern: Fast &amp; Slow pointers</h2><h3 id="LinkedList-Cycle-easy"><a href="#LinkedList-Cycle-easy" class="headerlink" title="LinkedList Cycle (easy)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/linked-list-cycle/">LinkedList Cycle (easy)</a></h3><p>题目描述很反人类，但其实就是给你一个链表（只有head指针），让你判断是否有环。进阶是只使用O(1)的空间，也就是常量空间。</p>
+<p>有环的链表肯定会访问到重复的节点，环内有1个或以上的节点。搞一个空间存已经访问过的节点，查到之前访问过就能判断了，但空间最坏能到O(n)。常量空间，自然要用快慢指针。</p>
+<p>推理一下，快慢指针什么时候能证明链表有环？</p>
+<p>猜想肯定是快慢指针指向同一个节点时，但怀疑是否存在“有环链表下快慢指针也不会同时指向同一个节点”。画画图，列一下方程式，假设链表入环前有s个节点，环上有c个节点，可以知道，当走整数倍c（2倍起，同时还得&gt;s）的时候快慢指针是能遇到的，这个值不会不存在，还会多次相遇。所以不用担心快慢节点会永远遇不到。</p>
+<p>编码上很简单了，记住init时fast，slow都指向head，然后while内先走再check。</p>
+<h3 id="Middle-of-the-LinkedList-easy"><a href="#Middle-of-the-LinkedList-easy" class="headerlink" title="Middle of the LinkedList (easy)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/middle-of-the-linked-list/">Middle of the LinkedList (easy)</a></h3><p>很简单的题，把两个case都手动推理一遍，就知道了。hint：fast先走，提前退出，slow就不用走了。</p>
+<h3 id="Start-of-LinkedList-Cycle-medium"><a href="#Start-of-LinkedList-Cycle-medium" class="headerlink" title="Start of LinkedList Cycle (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/linked-list-cycle-ii/">Start of LinkedList Cycle (medium)</a></h3><p>这个题猜得到是需要快慢指针相遇后再加点什么操作的，但是推理容易卡壳。主要还是对快慢指针相遇的情况理解的不够。</p>
+<p>快慢指针相遇很好写，node地址相等就是了。但相遇时，快慢指针并不是可能走了无数圈。这里有一个点必须记住，就是“慢指针入环后，和快指针相遇时，慢指针在环上是不会走超过一圈的”。也就是慢指针入环后继续走，一圈以内必定碰到快指针。</p>
+<p>这个知识点，我以前应该用方程式推过，也不记得推理有没有漏洞了，这次做题还没推出来。所以这里最直观也正确的解法是数学归纳法。我们讲slow入环后和fast相遇，那么最快相的情况，当然是slow和fast直接在入环点直接相遇，0步。再麻烦点，就是fast在slow的前面（此刻的位置是fast.next==slow），这样两个相邻的节点，只需1步就能相遇。假设fast更远一点，即fast.next.next==slow，就需要2步，以此类推，入环时刻，fast和slow的距离（fast的n个next==slow）假设为n，就需要n步相遇。但fast和slow之间最大距离就是fast在slow的前一个，假设环里有k个节点，fast和slow的最大距离就是k-1，所以最多k-1步，fast和slow必定相遇。所以slow不可能在相遇前走几圈。</p>
+<p>知道slow在一圈内就会和fast相遇，其中几个关键长度如下图所示。那么相遇时slow的公式应该写为，slow=a+b，fast=a+b+n(b+c)。</p>
+<p><img src="https://assets.leetcode-cn.com/solution-static/142/142_fig1.png" alt="示意图"></p>
+<p>(leetcode图源，可能会挂，自行戳网址)</p>
+<p>再回到题目本身，当两指针在紫色点上相遇时，代入化简一下已有式子，得a+b=n(b+c)，即a=c+(n-1)(b+c)，为什么化简成这样？不是因为这样a可以通过等式右边得到，右边这式子也没法继续求。而是因为，右边写成这样，b+c是一整圈，也就是说，如果一个指针从链表头开始走起，另一个指针从紫色点走了c长度又走了几个完整圈，它们会在入环口相遇，另一个指针走几圈完全不用在意。</p>
+<p>但注意，这个式子可能有坑，思考下有没有可能a很小，c很大？</p>
+<p>n必然&gt;=1，因为fast肯定走的多点，不然fast=a+b+n(b+c)就不对了。那么，a最小就等于c，不可能比c小。这个事情挺有趣的。没有想到一个很通俗易懂的表达，但数学证明了也就证明了吧。</p>
+<h3 id="Happy-Number-medium"><a href="#Happy-Number-medium" class="headerlink" title="Happy Number (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/happy-number/">Happy Number (medium)</a></h3><p>这题现在是简单😂</p>
+<p>题目没有读仔细，所以第一时间没能察觉到和快慢指针有什么联系。题目表述为“也可能是 <strong>无限循环</strong> 但始终变不到 1”，我简单地想到了不能一直计算，但忘记了无限循环不是每一次结果都不一样，它只是每次结果都是不是1，不是说每次结果都是从未出现的数字。</p>
+<p>接着，就排除了用定义一直计算这种思路，变成了想利用数学之类的其他方法来解决。虽然也推理出了平方和计算中，不能爆出非常大的值，最大32bit的数，十进制也就是13位，就算13位都是9，一次平方和计算下来，也不过1053。而1053的平方和也挺小的，1053以内能算出较大平方和的也就是999。而999再算一步也就是243。</p>
+<p>可以明显感觉到，不可能出现一个小的数字经过多次计算膨胀的很大，只可能很大的初始数一下子变得很小。当然像case1中19经过计算会变大，但这都是一定范围，最大不可能超过1053。</p>
+<p>然而，从这里开始，我就期待用动态规划一类的方式，类似斐波那契数列，提前算好所有快乐数。所以我认为，可以从1，10，100，1000反推平方和等于它们的数，但是反推的链路有点长，说不定反推也会不能停止，毕竟这个思路不太对劲，可能有不少漏洞。</p>
+<p>总结还是应该利用平方和结果范围有限这一点，也就是抽象成链表的有环判定。当然，因为平方和都是即时算的，不像链表问题提前准备好链表。简单的方案就是直接保存之前计算出的结果，也就是不用快慢指针，而是用是否已存在来判断。而如果还是想用快慢指针，可以def一个next函数，考虑到节约空间，next函数只管计算不用缓存。快指针两次next，慢指针一次next就好了。</p>
+<p>纯数学的角度其实也可以继续推下去。但需要更仔细的范围研究。所以，回顾之前的推理，最大的数字13个9，也会瞬间收缩到1053，再归纳总结，12个9收缩到。。。4个9收缩到324，这里特别的来了，999到243。为什么说999到243特别，因为这里位数不降了，之前的那些大数都会收缩位数，变得更小，999虽然会经过一次计算变小，但位数不会收。所以一旦计算结果收缩到3位数，接下来的所有平方和结果都是三位数以内，不可能膨胀，且跌入三位数后（三位数后再计算一次），必然困在243以下。而为什么就243了，有没有可能实际数字更小？简单举例99就知道，它能变大到162，也就是涨到三位数，但不可能从三位数继续变大。所以，计算进入243以内后，可能会振荡，比如2位数蹦到3位数，但不可能比243更大，也就是出不去了。</p>
+<p>那么，假设计算结果小于等于243时，我们能直接给出结论，是不是快乐数。就不用进入无限的循环了。所以问题变成243以内的数字，哪些是快乐数？</p>
+<p>而这样的问题缩减，有什么好处呢？好处在于，243个数字，最大值也就是243，大可以暴力算加是否已存在判定，最大空间复杂度也就到243，比起给一个数就缓存，空间占用要小一些。（其实应该也小不了多少，毕竟收缩很快）但把&lt;=243的数字直接打成表，对于频繁查快乐数的情况，就会节约时间的多。oj时间上节省的会比较明显。如果只是一次快乐数判定，当然打表反而还浪费时间。</p>
+<h3 id="Problem-Challenge-1-Palindrome-LinkedList-medium"><a href="#Problem-Challenge-1-Palindrome-LinkedList-medium" class="headerlink" title="Problem Challenge 1 - Palindrome LinkedList (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/palindrome-linked-list/">Problem Challenge 1 - Palindrome LinkedList (medium)</a></h3><p>难度简单。</p>
+<p>很明显快慢指针能够找到链表的中部。而中部开始向左向右比对，就能判定是否回文。右半边很顺畅，不用改动，关键在于左半部分。但左半部分再快慢指针途中是被遍历访问过的。这其实也就提示了，如果修改链表，就能降低空间复杂度。题目进阶就是希望用O(1)空间，那大概率就是原地修改链表的左半部分。</p>
+<p>很直接的就能想到是反向指。写写画画，不难得到简单的代码。得到了链表中部的指针后，当然是往两边走，逐个对比。但注意，奇数回文串和偶数回文串比较的起点是不一样的。我粗心的只想到了偶数回文，跑测试才发现奇数回文跑不过。</p>
+<p>P.S.</p>
+<p>这个题还有个递归解法，我不太擅长递归，经常起手就是迭代，所以这里值得再学习下。首先，递归能给我们什么？假设我们只是简单的print val，那么递归就能从尾到头，逆序读出每个节点的值。假设我们递归到底了，现在能读到尾部节点，这个时候我们应该拿头部节点和它进行比较，接着递归会读倒数第二个，而这时又应该拿顺数第二个节点比较。可以看到，从头部开始读也可以用一个指针来解决，但这个指针得是外部的变量，放在递归函数里面太困难了。再思考奇偶情况，奇数节点两指针地址会指向同一个节点，容易判断，偶数情况本来以为会麻烦点，但还好，因为两个指针指向的节点是相邻的，所以只要next判断一下就好了。leetcode官方解更飘逸，全遍历，不用提前返回，那对栈空间要求更高了。不大实用，但可以多熟悉下递归。论简单，还是递归这个写法代码少。</p>
+<h3 id="Problem-Challenge-2-Rearrange-a-LinkedList-medium"><a href="#Problem-Challenge-2-Rearrange-a-LinkedList-medium" class="headerlink" title="Problem Challenge 2 - Rearrange a LinkedList (medium)"></a>Problem Challenge 2 - Rearrange a LinkedList (medium)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Given the head of a Singly LinkedList, write a method to modify the LinkedList such that the nodes from the second half of the LinkedList are inserted alternately to the nodes from the first half in reverse order. So if the LinkedList has nodes 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; 6 -&gt; null, your method should return 1 -&gt; 6 -&gt; 2 -&gt; 5 -&gt; 3 -&gt; 4 -&gt; null.</span><br><span class="line"></span><br><span class="line">Your algorithm should not use any extra space and the input LinkedList should be modified in-place.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: 2 -&gt; 4 -&gt; 6 -&gt; 8 -&gt; 10 -&gt; 12 -&gt; null</span><br><span class="line">Output: 2 -&gt; 12 -&gt; 4 -&gt; 10 -&gt; 6 -&gt; 8 -&gt; null</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: 2 -&gt; 4 -&gt; 6 -&gt; 8 -&gt; 10 -&gt; null</span><br><span class="line">Output: 2 -&gt; 10 -&gt; 4 -&gt; 8 -&gt; 6 -&gt; null</span><br></pre></td></tr></table></figure>
+
+<p>跟challenge1类似，尝试了一下递归的写法，比较容易写，就是先把偶数链表搞定，再补一下奇数情况的判断就行了。但是注意，debug时别打印链表，修改中途的临时链表很可能是有环的，打印也打不出来。当然可以限制下打印的node个数，调试时还是可以有的。</p>
+<p>如果不用递归写法，这个题还是和challenge1一样，可以把后半部分链表原地反转。不多赘述。</p>
+<h3 id="Problem-Challenge-3-Cycle-in-a-Circular-Array-hard"><a href="#Problem-Challenge-3-Cycle-in-a-Circular-Array-hard" class="headerlink" title="Problem Challenge 3 - Cycle in a Circular Array (hard)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/circular-array-loop/">Problem Challenge 3 - Cycle in a Circular Array (hard)</a></h3><p>题目有点难读，但解析下来，题目的意思是，首先有个环有n个节点，节点里的值表示下一步会向前or向后跳几个节点，可以理解为<strong>在做链表的next链接</strong>。这样下来很可能会出现环状的链表，而且题目定义的链表更狭窄点，k=1（一个节点自环）的不算，不算一会儿前进一会儿后退的。</p>
+<p>根据“链表next”和“判断是否循环”，就知道可以用快慢指针。但快慢指针会测到自环，所以即使判断有环，还得再一次确认是否是k=1自环的情况。</p>
+<p>而“不算一会儿前进一会儿后退”这一点很重要，题目的说法是循环的下标序列不是全正就是全负。那么指针跑的时候去要看自己现在所处的位置i，这个位置指定的步数，也就是nums[i]如果和之前的nums[…]符号不同，就可以直接判断为False。</p>
+<p>那么，还剩两个问题。</p>
+<ol>
+<li>快慢指针没有null作为退出条件了，不知道能不能结束。这里可以考虑防御性编程，加个一定限制。但其实不需要，原因是，如果一个nums值全为正，选一个元素来看，它必然得指向某个元素，这个元素如果是它自己，就会发现一个自环；如果不是，它势必要指向一个新元素（我们还未访问的）。但访问得一直继续，如果每次都不是循环（快慢指针查不到的），不会停止，一直访问下去，那么元素迟早被访问完，那下一步会去哪儿呢？所以必然会有快慢指针能够查到的环，虽然自环不能算本题定义的“循环”。<ol>
+<li>总结一下，就是，除了不是全正or全负会提前退出，快慢指针是必然会相遇的。自信点，不用防御编程。</li>
+</ol>
+</li>
+<li>此题不是简单的从数组头开始。拿个示例画一下，也能发现，从某个下标开始跑快慢指针，结果都是不一样的。所以理论上，每个数组元素都是可能的循环的开始。</li>
+</ol>
+<p>总结到这里，突然想到一个问题，既然只有全正全负会陷入while loop不能提前退出，而全正全负又一定能有广义的环。那么完全不用快慢指针，只需要把每个点当作可能的入环口，也就是从这个点开始我能转回这个点，就找到了一个广义环。并不是非得快慢指针。只是这里有个坑，那就是这个点只是可能的入环口，它也有可能是类似有环链表的直线部分，走了几步才入环。所以得有个限制退出while步进，不然会死循环出不去。又由前面整理的结果，想要全正or全负没有环是不可能的，最大的环也就到整个数组的长度（当然，可能链表箭头走的很骚，不是说只能沿着数组+1/-1步这么走，但长度是不能再长了）。</p>
+<p>这个思路比快慢指针代码上简单点，时间复杂度上却不是变少，因为这个思路走满环，最坏时能达到数组长度，O(n)，快慢指针中fast指针和slow指针第一次相遇时slow也没有走满环，fast多一倍步数，也没差多少。所以这个思路也不会带来质变，聊胜于无。</p>
 
       
     </div>
@@ -1178,155 +1327,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2021/05/06/grokking-4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Huang Wei">
-      <meta itemprop="description" content="Hey">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Wei">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/05/06/grokking-4/" class="post-title-link" itemprop="url">Grokking Pattern 4</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-05-06 10:58:13" itemprop="dateCreated datePublished" datetime="2021-05-06T10:58:13+08:00">2021-05-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-07-31 18:56:53" itemprop="dateModified" datetime="2023-07-31T18:56:53+08:00">2023-07-31</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Algo/" itemprop="url" rel="index"><span itemprop="name">Algo</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p>See <a href="/2021/05/06/grokking-1/" title="Grokking Pattern 1">Grokking Pattern 1</a>.</p>
-<h2 id="4-Pattern-Merge-Intervals"><a href="#4-Pattern-Merge-Intervals" class="headerlink" title="4. Pattern: Merge Intervals"></a>4. Pattern: Merge Intervals</h2><h3 id="Merge-Intervals-medium"><a href="#Merge-Intervals-medium" class="headerlink" title="Merge Intervals (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/merge-intervals/">Merge Intervals (medium)</a></h3><p>挺简单的题，尤其是我对这种merge interval的题有一个印象，就是“反着比正着简单”。所以很容易就想到了，这题应该反向来看intervals，所以遍历顺序是end大的到end小的，合并interval或者即时push interval到result里，都很简单，不用多注意什么。</p>
-<h3 id="Insert-Interval-medium"><a href="#Insert-Interval-medium" class="headerlink" title="Insert Interval (medium) *"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/insert-interval/">Insert Interval (medium) *</a></h3><p>这个题目纯粹是恶心人，没啥别的作用了。由于每个interval都有两个数表示，又得两个interval之间比较，绕的很晕。</p>
-<p>大概逻辑很好想，由于加入new interval（后面简称new），可能new和intervals内的多个interval（后面简称i）有重叠，所以可能会消除多个i，为了代码简洁，肯定是新建一个list，符合条件的才插入，这个逻辑比较好。</p>
-<p>又回到new和多个i的合并上，重叠就需要合并，合并后的new’可能还是不应该插入，毕竟可能多个i都需要跟new合并，所以需要一个tmp interval。很容易发现，直接用new来做这个tmp interval正好。</p>
-<p>本来思路到这儿还是很清晰的，但是由于对“重叠”的定义没先弄清楚，所以写出了漏洞百出的算法。这一点需要吸取教训。算法如果一开始用数学很难表示，就应该先用形容，能把算法定义清晰了，再翻译为数学。不要总想一步到位。</p>
-<p>而“重叠”定义，最简单的办法就是画图，画两个interval的相对位置关系，可以看到，分四种情况，a的右边跟b重叠，a的左边跟b重叠，a完全在b内，a完全包容b。当然数学上，由于与或非关系，可以把前三个写为一个判断式，但第四个无法合并，很容易忘记这一种情况，要细心。</p>
-<p>当然，可以反向来看，那就是“不重叠”的非集就是“重叠”。而“不重叠”的判定更简单（我一开始是这么想的，但当时对“重叠”情况的处理很混乱，所以换了思路）。如果再次做此题，正向反向都容易想到，没有特别的坑。</p>
-<p>当扩展后的new和当前i不再重合时，需要把new和i都加入result里。这里需要一个布尔量表示new有没有已经被加入，这个步骤没办法写的更优雅。</p>
-<p>coding时，还可以注意，我在妄想一步到位时，写满了[0]，[1]。。。把自己都给绕进去了。python是可以<code>for left, right in intervals</code>这么写的，所以别折磨自己，python is beautiful!</p>
-<h3 id="Intervals-Intersection-medium"><a href="#Intervals-Intersection-medium" class="headerlink" title="Intervals Intersection (medium)"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/interval-list-intersections/">Intervals Intersection (medium)</a></h3><p>拟定一下算法流程，照着流程过一遍example，就没什么坑了。没什么巧思，一个一个if-else保证正确就行了。</p>
-<h3 id="Conflicting-Appointments-medium"><a href="#Conflicting-Appointments-medium" class="headerlink" title="Conflicting Appointments (medium)"></a>Conflicting Appointments (medium)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Problem Statement</span><br><span class="line">Given an array of intervals representing ‘N’ appointments, find out if a person can attend all the appointments.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Appointments: [[1,4], [2,5], [7,9]]</span><br><span class="line">Output: false</span><br><span class="line">Explanation: Since [1,4] and [2,5] overlap, a person cannot attend both of these appointments.</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Appointments: [[6,7], [2,4], [8,12]]</span><br><span class="line">Output: true</span><br><span class="line">Explanation: None of the appointments overlap, therefore a person can attend all of them.</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Appointments: [[4,5], [2,3], [3,6]]</span><br><span class="line">Output: false</span><br><span class="line">Explanation: Since [4,5] and [3,6] overlap, a person cannot attend both of these appointments.</span><br></pre></td></tr></table></figure>
-
-<p>最简单的区间问题，排序完了，遍历就行了。排序是正着还是反着都行。反正拍完序，只需要看相邻两个区间有没有相交。</p>
-<h3 id="Problem-Challenge-1-Minimum-Meeting-Rooms-hard"><a href="#Problem-Challenge-1-Minimum-Meeting-Rooms-hard" class="headerlink" title="Problem Challenge 1 - Minimum Meeting Rooms (hard)"></a>Problem Challenge 1 - Minimum Meeting Rooms (hard)</h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/meeting-rooms-ii/">https://leetcode-cn.com/problems/meeting-rooms-ii/</a> plus</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Given a list of intervals representing the start and end time of ‘N’ meetings,</span><br><span class="line">find the minimum number of rooms required to hold all the meetings.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Meetings: [[1,4], [2,5], [7,9]]</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Since [1,4] and [2,5] overlap, we need two rooms to hold these two meetings. [7,9] can</span><br><span class="line">occur in any of the two rooms later.</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Meetings: [[6,7], [2,4], [8,12]]</span><br><span class="line">Output: 1</span><br><span class="line">Explanation: None of the meetings overlap, therefore we only need one room to hold all meetings.</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Meetings: [[1,4], [2,3], [3,6]]</span><br><span class="line">Output:2</span><br><span class="line">Explanation: Since [1,4] overlaps with the other two meetings [2,3] and [3,6], we need two rooms to</span><br><span class="line">hold all the meetings.</span><br><span class="line"></span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Meetings: [[4,5], [2,3], [2,4], [3,5]]</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: We will need one room for [2,3] and [3,5], and another room for [2,4] and [4,5].</span><br></pre></td></tr></table></figure>
-
-<p>因为所有intervals都得被满足，所以贪心策略可能可以得到最优解？</p>
-<p>简单设想一下，已经排序好的intervals，一个一个尽量排，重叠了就新增一个room。</p>
-<p>假设，此时已经用贪心策略得到了2个room，r1和r2，假设r1.end &lt;= r2.end，这时又想加入一个interval，它的start如果比两个end都小，那必然得出第三个room，这个不可能缩减。而如果start比一个小比一个大，那肯定是放入，但放1还是2？我们先比较，肯定是选r1（end最小的room）来比，如果end最小都放不下新的itv，就新增room。如果r1能放下新的itv，为了代码简洁，也应该直接放下了。（假设r2也放得下新itv，那么下一个itv也能放到r2，不会新建room；假设r2放不下新的itv，那就更不可能放r2了，至于下一个itv，就看更新后的r1r2能否满足了。）</p>
-<p>——这一部分用数学推理下。</p>
-<p>但显然，room不可能只限2个，所以可以考虑一个排序的容器，保存room的end。容器需要支持重复key，因为多个room的end可能数字一样。容器只需要取的出最小的end，之后end可能更新变大再插回容器，其他位置不用管。所以用优先队列最符合要求，而且python没有multiset，想不用优先队列都不行。</p>
-<p>代码写起来还是很简单，rooms只会“堆顶被pop再更新push”和“pop新的room”两种情况。不过题解里有一个很骚的操作，就是会把rooms里end&lt;=itv.start的元素都pop掉。怎么理解这个东西？</p>
-<p>首先按我原本的设计，rooms的len只会不变和变大，不仅如此，当前itv的end是必然会进优先队列的，区别只在于堆顶会不会pop（也可以理解为itv是会进入优先队列的，因为这里需要考虑itv.start了）。原本设计里优先队列“时刻对应”rooms的已有排列。但前面的思考里，也体现出了，rooms内可能多个room的end都&lt;=itv.start，这部分rooms不会对当前itv和之后的itv产生影响。无法产生影响，就可以直接当做“不存在”。“不存在”，所以可以从heapq里剔除掉，当前itv必然加入heapq（itv会不会影响，要看下一个itv的比较），当然，这时的heapq可能比“当前实际rooms len”小，所以用max来追踪heapq的len最长的时候。</p>
-<p>（题解思路还不够清晰，有空再思考下）</p>
-<h3 id="Problem-Challenge-2-Maximum-CPU-Load-hard"><a href="#Problem-Challenge-2-Maximum-CPU-Load-hard" class="headerlink" title="Problem Challenge 2 - Maximum CPU Load (hard)"></a>Problem Challenge 2 - Maximum CPU Load (hard)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">We are given a list of Jobs. Each job has a Start time, an End time, and a CPU load when it is running.</span><br><span class="line">Our goal is to find the maximum CPU load at any time if all the jobs are running on the same machine.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Jobs: [[1,4,3], [2,5,4], [7,9,6]]</span><br><span class="line">Output: 7</span><br><span class="line">Explanation: Since [1,4,3] and [2,5,4] overlap, their maximum CPU load (3+4=7) will be when both the</span><br><span class="line">jobs are running at the same time i.e., during the time interval (2,4).</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Jobs: [[6,7,10], [2,4,11], [8,12,15]]</span><br><span class="line">Output: 15</span><br><span class="line">Explanation: None of the jobs overlap, therefore we will take the maximum load of any job which is 15.</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Jobs: [[1,4,2], [2,4,1], [3,6,5]]</span><br><span class="line">Output: 8</span><br><span class="line">Explanation: Maximum CPU load will be 8 as all jobs overlap during the time interval [3,4].</span><br></pre></td></tr></table></figure>
-
-<p>很容易发现这个题和上一题安排会议，抽象下来是一样的。最容易想到的push/poppush的方法，但由于题目是求max load，所以要尝试改造，然后发现不行。因为这种方法没办法跟踪当前load sum。举例说明，假设itv已经排好序，start小的排前面，start相等时end小的排前面，如果itv1和itv2重合一部分，itv3和itv2重合，但是它并不与itv1重合，在看itv2和3重合的那一段时，load应该是2和3的load之和；而如果itv3和itv1也重合了，这时就应该是三个itv的load之和。但push/poppush是区分不了的，因为它只和heap top比较了一下，摸不到别的itv。</p>
-<p>再想到while pop这个方法，虽然在上一题里它很不容易理解，但这道题反而该使用这个方法。核心在于while pop出和当前itv无关的itv，并相应减掉它们的load，就能够实时追踪到某一个时刻的load之和了。</p>
-<ul>
-<li><input disabled="" type="checkbox"> 再理解下上一题和while pop方法。</li>
-</ul>
-<h3 id="Problem-Challenge-3-Employee-Free-Time-hard"><a href="#Problem-Challenge-3-Employee-Free-Time-hard" class="headerlink" title="Problem Challenge 3 - Employee Free Time (hard)"></a>Problem Challenge 3 - Employee Free Time (hard)</h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/employee-free-time/">https://leetcode-cn.com/problems/employee-free-time/</a> plus</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">For ‘K’ employees, we are given a list of intervals representing the working hours of each employee.</span><br><span class="line">Our goal is to find out if there is a free interval that is common to all employees.</span><br><span class="line">You can assume that each list of employee working hours is sorted on the start time.</span><br><span class="line"></span><br><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: Employee Working Hours=[[[1,3], [5,6]], [[2,3], [6,8]]]</span><br><span class="line">Output: [3,5]</span><br><span class="line">Explanation: Both the employess are free between [3,5].</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: Employee Working Hours=[[[1,3], [9,12]], [[2,4]], [[6,8]]]</span><br><span class="line">Output: [4,6], [8,9]</span><br><span class="line">Explanation: All employess are free between [4,6] and [8,9].</span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: Employee Working Hours=[[[1,3]], [[2,4]], [[3,5], [7,9]]]</span><br><span class="line">Output: [5,7]</span><br><span class="line">Explanation: All employess are free between [5,7].</span><br></pre></td></tr></table></figure>
-
-<p>这题本质是一种反向，题目提过工作时间，让你求非工作的某种时间，所以可以用交集并集差集来理解这个题，方便快速的分辨多个解法的复杂度。当然，最佳算法可能比这种逻辑运算的计算量更小，但不熟悉这类题目的情况下，越抽象的思考越容易做。</p>
-<p>可以看到k个list，每个list都多个interval，所有的interval的并集，就是所有员工的工作时间，这个集合的反，就是所有的空闲区间（空闲区间显然也可以是多个）。</p>
-<p>题目说明了，k个list，list内的区间都是有序的。这很像k路归并排序。按理可以比所有inteval混在一起排序更高效。那我们先mark这个归并思路，放在一边。（有序基本就是在提醒我们存在“利用有序”的优化算法）</p>
-<h4 id="简单思路"><a href="#简单思路" class="headerlink" title="简单思路"></a>简单思路</h4><p>假设经过某种算法，已经计算出了所有working hours的并集，这个并集当然可能是多个区间，不一定是一个连续区间。求反只需要遍历这一堆区间就行了。</p>
-<p>再来考虑，这个“某种算法”求并集，怎么做。最简单的肯定是全排序。每个区间先比较start，小的排在前面，end随意。这里很可能会出现连续几个区间是有重合部分的，所以，求并集，还得遍历一边，重组一下区间，得到并集（不重合的区间组成的数组）。然后还得再遍历求反。</p>
-<p>简单一想，也知道，最后一次遍历多余了。</p>
-<p>所以，可以立马优化为，遍历已排序的区间时就求空闲区间。</p>
-<p>可以再思考一下，我先每个list先求反，得到每个员工的空闲时间，所有的空闲时间的交集也是最终答案。但空闲时间区间个数不见得比工作区间个数少多少（应该是，对每个list，空闲区间=工作区间-1）。并没有把复杂降低。而且求交集比求并集复杂，因为空闲区间没办法全部一起求交集。想象一下，假设5个员工，有1个在[0,t]之间都不空闲，但是另外4个却可以在[0,t]这个时间内存在交集，但是这个交集是不能要的，因为那一个人不空闲。区间全混在一起时，根本无法判断。所以还是求并集吧。</p>
-<h4 id="归并思路"><a href="#归并思路" class="headerlink" title="归并思路"></a>归并思路</h4><p>每个list“有序“，自然是提醒我们要充分利用这个特性。全排序肯定不够用。而list内interval有序，很显然可以做类似归并排序的操作。</p>
-<p>归并思路，k个list也就是k路，每次都从k个list的头上选出最小的。这k个区间比还呆在list里的区间的start都要小，在k个中选出来的start最小的区间，也就是全局start最小的区间。所以，当我们将k个中选start最小看作一个模块时，我们从这个模块中拿出“剩余区间”中start最小那个区间。一个一个拿，就是总能按顺序拿出区间了。</p>
-<p>核心是这个模块如何实现，即考虑“k个中选最小的”怎么高效，归并算法如果只有两路，当然if-else都能行，但k路肯定是不可能一个一个比的，很明显可以利用最小堆，每次的top就是最小的，top取出来后，top所在的list就应该补充一个区间进入最小堆。python中也就是使用heapq，可以极快的写完代码。</p>
-<p>堆算法解释见<a href="/2022/10/07/abs-algo/" title="Heap">Heap</a>。</p>
-<p>具体到这个题目，首先要思考这个堆该如何运行，放多少数据，pop出来后又push多少进去，初步设计应该尽量分割步骤，目标是迅速写出正确的算法，后面再做优化。</p>
-<p>所以初步设想是，k路数组，每个数组自己内部有序，但k个数组的头，我们是不知道谁最小的，所以把k个数组的头放进堆，我们就可以立马拿到最小的数，此时堆里剩k-1个数，这时候应该将pop出去的那一路的新头补充进堆，因为我们知道数组内的都比堆里的大，只有堆里的有资格比拼一下，所以堆大小在运行期间应该保持为k，不需要多放，多了增加复杂度，少了就比不出全局最小了。</p>
-<p>Grokking标准答案也是使用python heapq来做，这个确实写得最快。</p>
-<h5 id="败者树"><a href="#败者树" class="headerlink" title="败者树"></a>败者树</h5><p>堆解法不是终点， 如果提到有没有别的思路，就肯定要说到败者树算法了。本质都是树，不会有数量级提升。但总有些区别。</p>
-<h6 id="外排序todo"><a href="#外排序todo" class="headerlink" title="外排序todo"></a>外排序todo</h6><p>winner/loser tree很像B+树，非叶子节点是不存值的，所以，和B+树类似，它们可以用在“外排序external sorting”上。</p>
-<p><a target="_blank" rel="noopener" href="https://www.cise.ufl.edu/~sahni/cop5536/">https://www.cise.ufl.edu/~sahni/cop5536/</a> 这个网站有很详细的exteral sorting的ppt，需要好好看看。（但是很难懂。。可以当作提纲）</p>
-<p>针对winner/loser tree（统一可以叫做Tournament Tree）来讲，你需要知道，Tournament Tree可以利用于improve run generation, 也可以improve run merging。</p>
-<p>解释下run generation。外排序不可能把所有的扔进内存里，所以只能先切分成小部分排序，然后做merge，这两步叫做，run generation和run merging。A run is a sorted squence of records。</p>
-<p>improve run generation最简单的就是reduce the number of runs(也就是increase average run length)。但这也是有极限的，而且由于外排序在IO上很耗时，所以overlap IO也是一个优化方法。都在课件里，之后再慢慢看。</p>
-<h6 id="返回tournament-tree"><a href="#返回tournament-tree" class="headerlink" title="返回tournament tree"></a>返回tournament tree</h6><p>败者树和胜者树是可以一起看的类似结构。胜/败者树都是类似B+树，只有叶子节点是真实值，非叶子节点是胜者/败者的标号，而且它是完全二叉树，不会有歧义。但胜者树和败者树<strong>不是</strong>单纯的一个非叶子节点记录胜者，一个非叶子节点记录败者，否则这两种就应该是一种树，只要compare函数求个反就行了。</p>
-<p>胜者树</p>
-<p>胜者树更简单，我们先看胜者树，比如小的是胜者，那么每个非叶节点都是它的子节点中更小的那一个。原理很简单，实现上要捋一捋。</p>
-<p>可以把整个建树过程理解为打比赛，那比赛，肯定是从下往上打。最下层的非叶子结点先被填上值。按最简单的想法，胜者树用数组表示，每个元素是值（比较大小的值，不是索引）。这样子会有什么问题？当我们把胜者根节点拿出去，我们都不知道应该补上哪个list的元素。所以这个胜者树的节点，应该有索引，标记第i个list，这样就可以补充list[i].top进来。节点可以又保存值，又保存list标号，不过被拿来建树用的k个区间，本来也会放在一个地方，可以叫做ext数组，这样，胜者树节点只需要保存list标号就行了。ext[i]可以取值，list[i].top可以拿到补充用的区间。</p>
-<p>而且注意，胜者树是所有参赛者都作为叶子节点的，比如，有3个叶子节点时怎么建树？有6个叶结点时，上一层3个节点，那它的上一层又怎么办？</p>
-<p>注意，胜者树定义为complete binary tree，完全二叉树，它只有最底层可能少尾部一些节点，其他节点都是满的。所以，不会存在6个叶节点，上一层只有3个节点的情况，这棵树必须是最底层6个节点（理论上是8个），上一层4个节点（即使这一层最右的这个节点是没意义的，可以用max值，这样不影响比赛结果）。</p>
-<p>解决胜者树的节点结构和树形，这两个问题，就可以写算法了。Ref </p>
-<p><a target="_blank" rel="noopener" href="https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f">https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f</a></p>
-<p>败者树</p>
-<p>而败者树呢，非叶节点是记录败者，但是往上送的参赛者是“胜者”（关键点）。</p>
-<p>为什么这么做呢？假设胜者树的重新比赛，一个叶子节点被换了，那么它要和它的兄弟节点比。而败者树里，更新的节点只需要找它的parent，就能决定parent是否要更新，不用去访问兄弟节点。</p>
-<p>这里粗略一想，觉得很莫名，也没有节约多少东西？</p>
-<p>假设两个兄弟节点n1、n2，n1之前不是胜者，但现在比较一下发现n1是胜者，n1的parent就要被我更新为n1？而在败者树里面，我虽然只需要访问n1和n1的parent，不用访问n2，但这能节约多少？</p>
-<p>这个问题，如果只看算法题目这种规模当然节约不了什么。但败者树通常用于外排序，外排序的数据规模就很可观了。就访问而言，以前要访问两个，现在要访问一个，访问总次数一多，耗时差距就很大了。（应该不用觉得兄弟节点会需要单独一次I/O从磁盘里读出来，毕竟外部排序的归并部分也是应该保证在内存里进行的，归并部分都要存硬盘了，这个归并k选的也不太对了。）</p>
-<p>逻辑上走通了，再来说说code的问题。两个叶子节点比较，得到败者作为父节点，这里还很常规，但是还得往上送胜者，这里就微妙了。难道代表败者树的数组，每个元素都得存两个东西，胜者和败者？还是说，得用node指针来构建树？</p>
-<p>complete binary tree不用数组怪浪费的。而且node指针构建树，一开始只有k个单节点的败者树，还要把它们merge起来。merge得先两两merge，注意，要一直保持每棵树的complete binary tree性质。所以，还总是需要构建无意义的节点，为了保持complete binary tree。有点离谱。</p>
-<p>还是尝试用数组来表示败者树。其实败者树从构建成功起，就不会再变更树结构，所以建树期间的胜者可以用单独变量来保存，建好树之后，它们就没有意义了，只有全局的那个胜者有意义。</p>
-<p>还是在 <a target="_blank" rel="noopener" href="https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f">https://gist.github.com/vagetablechicken/8a2fc94da27f127921c0b6dd08d7863f</a></p>
-<p>注意，胜者树可以随便更新参赛者，并且需要从叶子一路更新到根节点，不然可能存在问题。因为，新参赛者即使曾经是某一层的winner，现在值变了还是winner，但它的值变了，往上走它可能就不是了。只有它之前是loser，现在跟之前的winner比还是loser时，才可以停下来。这个优化可以，但没必要，容易写错。建议先写出简单不易错的算法，再谈要不要优化。</p>
-<p>败者树则是必须更新winner所在的值，因为败者树要保证只更改胜者走的那条路径。有了这个保证，才能肯定parent存的败者一定是兄弟节点，才可以避免访问兄弟节点。败者树也得一路到根节点，不能因为以前是胜者，现在还是，就不往上比较了，值变了！！！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1396,13 +1396,13 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

@@ -179,7 +179,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-03 15:36:42" itemprop="dateModified" datetime="2023-09-03T15:36:42+08:00">2023-09-03</time>
+                <time title="Modified: 2023-09-03 15:45:17" itemprop="dateModified" datetime="2023-09-03T15:45:17+08:00">2023-09-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -205,12 +205,10 @@
           <p>一些通用的大数据、分布式等方面的算法总结。单独出一篇文章，因为这类算法都是通用的，但具体到各个系统，实现方式可能不同，本篇只总结算法思想，可能伪代码实现最基础的算法，必要时会给出现实系统的参考链接。</p>
 <h2 id="一致性哈希"><a href="#一致性哈希" class="headerlink" title="一致性哈希"></a>一致性哈希</h2><p>哈希可以说是出现在大数据的方方面面了。一到切分，基本都是它。一致性哈希，先说哈希，也就是虚拟哈希空间，有2^32个片，叫哈希环。</p>
 <p>然后哪个服务器负责处理哪些哈希片，是靠映射。具体方法没有规定，比如，可以用服务器ip来hash，还是2^32取模，得到的数字，它就处理哈希环上对应的片。数据来了先hash取模，得到的值然后顺时针找可以服务的服务器，就发给它。</p>
-<img class="consistent-hashing.jpg">
-
+<p><img src="/2023/09/02/bigdata-algo/consistent-hashing.jpg"></p>
 <p>如果中间某个服务器down了，反正算法是往后找到第一个服务器，它还是会被处理。当然这个就要求“数据可以被任何server处理”，不能是特别的。比如，相关数据只在某个节点，其他节点获取不到，处理条件都不满足。当然这是理想条件，现实很多也不满足，但它们涉及到的数据也可以是多节点都存有备份，但又不至于所有节点都需要。这个也等于缩容，受影响的数据是“会落到这一下线节点的数据”，我们称为nodeB，将前一个节点nodeA的末尾片记为end1，当前节点末尾片为end2，也就是<code>(end1, end2]</code>区间的数据原本应该找这个节点B，但它下线了，就会变成去找下一个节点nodeC。其他片上的数据不会受到影响。虚拟哈希环不会改变大小，永远的2^32片。如下图左边所示。</p>
 <p>而扩容就在hash环上加一个node，原本<code>[start, end]</code>会找nodeD，你在nodeD前面塞了个nodeE，那么<code>[start, nodeE_end]</code>这部分数据就是受影响的数据，原来要找nodeD，现在变成nodeE。如下图右边所示。</p>
-<img class="upscale-downscale.jpg">
-
+<p><img src="/2023/09/02/bigdata-algo/upscale-downscale.jpg"></p>
 <p>优点不难猜测，节点上下线只会影响局部数据，这已经是很大的优点了。不能傻到还在N个节点，就hash(req)%N吧，增加节点你还需要把N改成N+1。而且它会改变很多请求的路由，缓存都不无法利用。（当然，要是系统就是这样的简单，啥也不要求，那也不用考虑改变了，简单就是最好的。）</p>
 <p>但这还有优化空间，因为在前面所说的算法中，nodeX总是要分到连续的多片，现实中是很难保证每片都差不多热度，也就更不能要求每个node的请求都是均匀的。而且节点数量改变时，在现实条件下，上下节点是要改变很多东西的，可能你要将一些数据复制到节点中才能正常服务，也叫做Node rebuilding。它是一个很重的操作。</p>
 <p>为了解决，又引入“虚拟节点机制”，就是hash环上不是物理server node，而是每个物理server都膨胀出，node0-0、node0-1等等的虚拟节点，这样虚拟节点打散分布在hash环上，倾斜可能性就小些。不再是一个node去处理连续的一大片区域。如下图所示。</p>

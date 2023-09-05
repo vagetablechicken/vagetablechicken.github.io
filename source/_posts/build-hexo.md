@@ -61,6 +61,22 @@ Ref [Include Posts](https://hexo.io/docs/tag-plugins.html#Include-Posts).
 {% post_link 要跳转文章md文件名(不要后缀) %}
 ```
 
+### pics
+
+hexo默认的图片格式不是markdown的语法，想要写md时预览，可能需要vscode安装插件Hexo Utils。
+但有个方法可以继续用md的image格式（https://hexo.io/docs/asset-folders#Embedding-an-image-using-markdown）：
+```
+npm i --save hexo-renderer-marked
+npm i --save hexo-asset-link
+```
+然后确保_config.yml中有（一般都有）：
+```
+post_asset_folder: true
+marked:
+  prependRoot: true
+  postAsset: true
+```
+
 ## NPM install
 
 如果`apt install npm`遇到gcc update-alternatives slave问题，就先把update-alternatives清理了，再添加也方便，[清除参考写法](https://gist.github.com/ArseniyShestakov/a458b96a354014f80ab8d95676100c03)。

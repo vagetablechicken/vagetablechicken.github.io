@@ -1,5 +1,5 @@
 ---
-title: BigData
+title: BigData Interview Questions
 date: 2022-09-23 14:27:15
 tags:
 ---

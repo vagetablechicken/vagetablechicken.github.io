@@ -179,7 +179,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-03 15:50:40" itemprop="dateModified" datetime="2023-09-03T15:50:40+08:00">2023-09-03</time>
+                <time title="Modified: 2023-09-05 15:48:54" itemprop="dateModified" datetime="2023-09-05T15:48:54+08:00">2023-09-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,7 +252,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; when a node is removed, the next node (moving clockwise on the ring) becomes responsible for all of the keys stored on the outgoing node.</span><br><span class="line"></span><br><span class="line">ref https://www.educative.io/answers/how-data-is-partitioned-in-dynamo</span><br><span class="line"></span><br><span class="line">是一致性哈希的最核心思想，也是最重要的特点。</span><br></pre></td></tr></table></figure>
 
 <h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>TODO 怎么实现的，能不能作为分布式锁？</p>
-<p>消息队列的逻辑，就是做和内存队列一样的事。但它的使用场景，是分布式的，内存队列是不可能做到的。通常也不会是单一角色的，所以还涉及多角色。于是，基本都会抽象为，producer发消息给它，它又发给consumers。为了保证可靠和堆积，消息会被MQ持久化。而consumers动态删减，又需要发布-订阅模式。</p>
+<p>消息队列的逻辑，就是做和内存队列一样的事。但它的使用场景，是分布式的。也不会是单一角色的，都分布式了，所以涉及多角色（或者说多进程）。于是，基本都会抽象为，producer发消息给它，consumer去从它那里获取消息。为了保证可靠和堆积，消息会被MQ持久化。MQ的核心是Queue，也就是FIFO。至于producer有几个，consumer有几个，consumer是pull还是被push，都是具体设计的事情。队列消费，听起来，一个消息按理应该只被一个consumer拿到，消费成功后，就会被删除。但实际也会有变种，有MQ不断发展，加新功能的，不会特别死板。</p>
 <p>一个较简单的mq工程可以参考 <a target="_blank" rel="noopener" href="https://github.com/zeromicro/go-queue">https://github.com/zeromicro/go-queue</a> 。注意它是封装者，核心不在它这里，比如它底层接Kafka。</p>
 <h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><h4 id="RSMQ"><a href="#RSMQ" class="headerlink" title="RSMQ"></a>RSMQ</h4><p>真的MQ算法实现，RSMQ是一种经典方案，简单，具体实现有不少项目。可以看看这个 <a target="_blank" rel="noopener" href="https://github.com/mlasevich/PyRSMQ">https://github.com/mlasevich/PyRSMQ</a> 。</p>
 <blockquote>
@@ -263,10 +263,15 @@
 
 <p>这个项目是将redis作为远程存储，同时利用redis的一些功能，去实现一个MQ，不是简单的使用者。</p>
 <h4 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h4><p>这是最经典的工程实现了吧，值得多研究研究。</p>
-<p>一个队列的基本定义里就应该是有序，不过Kafka并非专注于MQ，它本质是一个分布式事件流平台，并不是RocketMQ，RabbitMQ这些。这一点要注意，Kafka只是可以用来搭建消息队列。</p>
-<p><a target="_blank" rel="noopener" href="https://kafka.apache.org/intro">https://kafka.apache.org/intro</a> 官方文档介绍中有提到相关概念。划重点就是，事件驱动。</p>
-<p>而消息队列也是消息驱动的，消息来了，订阅者/消费者就要知道。所以Kafka会被拿来作为MQ的底座。</p>
-<p>消息队列kafka可以只partition有序，那它能不能保住全局有序？</p>
+<p>一个队列的基本定义里就应该是有序，不过Kafka并非专注于MQ，它本质是一个分布式事件流平台。这一点要注意，Kafka只是可以用来搭建消息队列，但不是只能做这个。那么事件流和消息队列为什么是两个概念呢？比如，kafka里的一个topic其实也就是一个message queue了，为什么感觉名字差距很远？事件流为何不叫作扩展版的消息队列？</p>
+<p>这个问题，我的理解是一个中间件，上下游同样都是生产者和消费者。生产消费者数量可以是多个，这不是什么难点。所以没必要觉得MQ的consumer只能是一个，概念不至于这么僵硬。但它们对待输入的message的态度是不一样的。</p>
+<p>消息队列注重的是传递消息，满足Message Queueing Pattern，通常保证exactly once。它从描述上就更像是P2P的东西，你一份消息传给多个消费者，感觉就像是消息被复制了一样。消息本身也是用完就扔了，即使有一定backup，也不太可能设计为永久存储，存也不是MQ<strong>必须</strong>去做的事情，不然它叫什么队列呢，叫数据库好了。当然，要做到让MQ同时给多个消费者发同一份消息，也不是难做的事情，不必认为MQ就不可以干更多的事。</p>
+<p>Message Queueing Pattern更多的是和Pub-Sub Pattern对立，Pub-Sub的不一样就在于，所有订阅者都应该拿到所有消息。它描述的就是MQ所不包含的一种模式。</p>
+<p>而流streaming就是满足Pub-Sub Pattern的，这里最好不要把流当成“流水”那个意思，感觉好像也是水流过就走了，没留下什么。streaming是会将消息记录下来的，它像是log，它要记录下所有event。当你在某个时刻才加入一个消费者时，它可以获得全部的event。我们谈到streaming，它就应该做得到。如果是MQ的设计，要存下所有message，就不是很像queue了，你不能去要求所有MQ系统都给你这样的功能。如果你就想MQ补充这一功能，那也OK。</p>
+<p>streaming通常被说带有实时的意思，我感觉并不是，real-time streaming才是。参考 <a target="_blank" rel="noopener" href="https://sqlstream.com/real-time-vs-streaming-a-short-explanation/%EF%BC%8Cstreaming%E6%9B%B4%E5%A4%9A%E6%98%AF%E5%9C%A8%E8%AF%B4%E5%AE%83%E6%98%AF%E6%BA%90%E6%BA%90%E4%B8%8D%E6%96%AD%E7%9A%84%EF%BC%8C%E6%8C%81%E7%BB%AD%E7%94%9F%E6%88%90%EF%BC%8C%E7%9C%8B%E4%B8%8D%E5%88%B0%E5%B0%BD%E5%A4%B4%E3%80%82%E5%8C%BA%E5%88%AB%E4%BA%8Ebatch%EF%BC%8C%E6%98%AF%E4%B8%80%E4%B8%AA%E6%89%B9%E6%AC%A1%E8%A2%AB%E5%A4%84%E7%90%86%E3%80%82%E4%BA%8B%E4%BB%B6%E6%98%AF%E6%BA%90%E6%BA%90%E4%B8%8D%E6%96%AD%E5%9C%B0%E4%BA%A7%E7%94%9F%EF%BC%8C%E8%BF%99%E5%B0%B1%E5%8F%AB%E5%81%9Aevent">https://sqlstream.com/real-time-vs-streaming-a-short-explanation/，streaming更多是在说它是源源不断的，持续生成，看不到尽头。区别于batch，是一个批次被处理。事件是源源不断地产生，这就叫做event</a> streaming。</p>
+<p>所以，这两个概念可以说是没啥关系，不是非要取分出个所以然。听到某个系统是MQ，你就知道它会给你MQ基本的功能，但它可能还有更多的扩展，它可能做到更多的事情，能当流用，也可能因为它的具体设计，它其他啥也做不到了，但它就是很好用、很适合你的MQ。</p>
+<p><a target="_blank" rel="noopener" href="https://kafka.apache.org/intro">https://kafka.apache.org/intro</a> 官方文档也介绍了Kafka一般的使用场景，反正满足要求你就可以用。Kafka的topic可以pub/sub，所以，就可以拿Kafka作为MQ的底座。</p>
+<p>TODO<br>消息队列kafka可以只partition有序，那它如何保住全局有序？</p>
 
       
     </div>

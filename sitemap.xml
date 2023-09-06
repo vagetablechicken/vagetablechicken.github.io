@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://vagetablechicken.github.io/search/index.html</loc>
+    
+    <lastmod>2023-09-06</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://vagetablechicken.github.io/2023/09/02/bigdata-algo/</loc>
     
     <lastmod>2023-09-05</lastmod>
@@ -166,7 +175,7 @@
 
   <url>
     <loc>http://vagetablechicken.github.io/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -174,49 +183,49 @@
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/bookmark/</loc>
-    <lastmod>2023-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://vagetablechicken.github.io/tags/hexo/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/env/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/os/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://vagetablechicken.github.io/tags/hexo/</loc>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/Algo/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/LeetCode/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/tags/JAVA/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -225,35 +234,35 @@
   
   <url>
     <loc>http://vagetablechicken.github.io/categories/tool/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/categories/build/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/categories/Algo/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/categories/programming/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://vagetablechicken.github.io/categories/BigData/</loc>
-    <lastmod>2023-09-05</lastmod>
+    <lastmod>2023-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

@@ -7,7 +7,7 @@ categories: build
 
 # Hexo
 
-Hexo的创建使用不多赘述。
+Hexo的创建使用不多赘述。注意，先搞清楚hexo是否满足书写要求，可能你需要的是sphinx。
 
 ## With github
 
@@ -115,3 +115,15 @@ sudo apt -y install nodejs
 `hexo version`可以查到相关version。
 
 然后又可能遇到`npm rebuild node-sass`很慢的问题，卡在github上下载node-sass了。可以换下源试试，`npm i node-sass --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/`。socks5代理会hang up，不知道是不是暂时的不稳定。
+
+node版本再升高，https://github.com/nodesource/distributions#debian-and-ubuntu-based-distributions 。
+
+hexo-renderer-sass有点旧，node版本高了不行，升高sass版本就没有问题了。
+
+我想要个block admonition，但没有插件能做到解析'```{note}```'这种。只能改用现有语法，缺陷是vscode没法preview，只能deploy/server后看效果。最终还是决定使用hexo next主题自带的。preview的问题不大，用的频率不会太多。
+切换sphinx有点麻烦，hexo配reStructuredText插件，例如hexo-renderer-pandoc，没成功，据说这个插件也比较大，deploy会慢。
+
+## Next Dark
+
+@media (prefers-color-scheme: dark) {}删了，只保留内层。否则，会考察OS或浏览器的主题，可能不能dark，强制弄黑，保护眼睛。
+

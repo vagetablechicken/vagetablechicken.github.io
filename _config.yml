@@ -5,7 +5,7 @@
 # Site
 title: Wei
 subtitle: ''
-description: 'Hey'
+description: 'Coding, Struggling, and Living.'
 keywords:
 author: Huang Wei
 language: en
@@ -106,18 +106,19 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: next
 
+theme_config:
+  colorscheme: dark
+search:
+  path: search.xml
+  field: post
+  content: true
+  format: html
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
   repo: git@github.com:vagetablechicken/vagetablechicken.github.io.git
   branch: main
-
-# hexo-generator-searchdb
-search:
-  path: search.xml
-  field: post
-  format: html
 
 feed:
   type: atom

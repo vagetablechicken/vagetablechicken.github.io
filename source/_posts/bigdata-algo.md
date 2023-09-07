@@ -41,7 +41,7 @@ categories: BigData
 ### 简版
 
 简单版本，我们只做哈希环，然后node负责连续分片。
-```
+```python
 def hash(key):
     return hash(key) % 2^32
 
@@ -59,9 +59,9 @@ req_key = hash(req)
 node = get_node(req_key)
 node.handle(req)
 ```
-```{note}
+{% note %}
 如果存在一群相同元素，那么 lower_bound 和 upper_bound 就可以找到这群元素的上下界限，前者指向下界限，用 lower 表示，后者指向上界限的后一个位置，用 upper 来表示。也就是说，lb是大于等于key的第一个元素，ub是大于key的第一个元素。
-```
+{% endnote %}
 
 ### 开源实现
 
@@ -188,5 +188,8 @@ streaming通常被说带有实时的意思，我感觉并不是，real-time stre
 
 https://kafka.apache.org/intro 官方文档也介绍了Kafka一般的使用场景，反正满足要求你就可以用。Kafka的topic可以pub/sub，所以，就可以拿Kafka作为MQ的底座。
 
-TODO
-消息队列kafka可以只partition有序，那它如何保住全局有序？
+##### 架构与有序
+
+Kafka架构上就是可以给topic分区，每个partition也可以有多replica，几乎等于分布式db的架构。也正因此，各个partition之间是无法有序的，就像分布式db的table一样，不能天然支持range scan。单partition当然可以做到有序，不过，能放开限制自然是放开更好，能利用上分布式的优势，并发、容灾等。
+
+

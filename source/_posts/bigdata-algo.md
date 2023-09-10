@@ -193,3 +193,45 @@ https://kafka.apache.org/intro 官方文档也介绍了Kafka一般的使用场�
 Kafka架构上就是可以给topic分区，每个partition也可以有多replica，几乎等于分布式db的架构。也正因此，各个partition之间是无法有序的，就像分布式db的table一样，不能天然支持range scan。单partition当然可以做到有序，不过，能放开限制自然是放开更好，能利用上分布式的优势，并发、容灾等。
 
 
+## Log
+
+万物基于log
+https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying
+作者提倡把log作为一种抽象的概念，就像我们谈到hash，不会去具体讨论它是murmur hash还是别的。我们就把log作为一个已知的概念，不去讨论它是什么，而是去讨论它能做什么。
+> So a log, rather than a simple single-value register, is the more natural abstraction.
+Log可以表示`a sequence of requests`，也可以说是changes，它是一种很符合现实的抽象概念。程序基本都是在跟持续的请求打交道，而不是单一的请求。单一的，比较简单的例子就是数学计算，与别的无关，没有状态，只要给我同样的输入，我就会给同样的输出。但现实中，基本不是这么简单的情况。
+
+拿Table和Log的关系来分析，Table是当前瞬间的状态。而Log是一个序列，包含了所有的变化，也可以说，它保存了所有的历史版本。历史版本，就让人很容易联想到source code version control，每个commit并不是记录当前的所有code，而是记录change。
+
+介绍三个方向，分别如何使用log来做：
+Data Integration—Making all of an organization's data easily available in all its storage and processing systems.
+Real-time data processing—Computing derived data streams.
+Distributed system design—How practical systems can by simplified with a log-centric design.
+
+- Data Integration
+  类比马斯洛的金字塔需求模型，data就是最底层的需求。（开始玄学，但确实也没说错。）许多现实系统中，其实data就没准备好，Data Integration做的差，就在此基础上搭分析、建模等模块，和搭房子一样地基不稳。
+  Data Integration为什么难，作者认为是两个趋势导致的，一是event data井喷，二是data system变得非常专用。第二个好理解，很多现实场景遇到的挑战，已经不是某个data system可以解决的了，所以出现了很多细分的领域和功能各有优劣的system，例如，olap，oltp，online，batch，streaming，graph等等。第一个event data的话，我理解不深，目前的理解是event data区别于entity data，它描述的是事件、行为，而不是某个东西的最终样子，例如某时刻的点击，某时刻的登录，而entity data例如用户名、id、地区，更静态。如此区分data，主要还是没有万能的银弹，区分后会更适合去处理它们。而单独划出来的event data，传统的DB很难撑住，也就诞生了更多品种。如今的data system确实是相当多，无法将它们视为一个整体，经常要去处理它们谁流到谁那儿去的问题。
+
+  而不同data system如何同步数据？都可以抽象为log-structured data flow。Data Source将数据变化写入log，其他data system作为subscriber，读log并自己追上数据变化。无论subscriber是哪种system，这个模型都是行得通的。就算subscriber是个cache，它实际并不存log，但它也可以通过log来同步数据。而且，log自带版本概念，可以很清楚的知道自己从这些subscriber中读取的是不是最新数据。还有一点是，log可以当作是buffer，不同subscriber消化数据的速度是不同的，也可能在某个时刻，subscriber down了，那么log还在，重启后也能追得上。从图上也可以看到，log是一个用来解耦的概念，subscriber只需要懂log，它不需要知道Data Source长什么样，这也是一个优点。
+  
+  ![](https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/log_subscription.png)
+
+  在作者公司linkedin中，实际的场景就是
+  ![](https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_complex.png)
+  通过Log，架构变为
+  ![](https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_simple.png)
+  非常简洁的架构，也可以看出Log抽象的价值。（其实这也就是kafka的简要架构图了。）
+
+  在这样的架构基础上，实际还有一些点需要考虑，就是ETL，数据并不一定是都有意义的，结构可能不是统一的，很多场景里ETL（cleanup or transformation）后的数据才值得使用或存储（存入数仓）。ETL后的数据还是一样要考虑到subscriber可能是batch的数仓，也可能是实时的什么系统。前面的架构图看不出具体的角色，所以我们应该用下面这样的详细一点的图：
+  ![](https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/pipeline_ownership.png)
+
+  图中有三种角色，publisher，log system，consumer，ETL放在三个角色的哪个中，都是有说法的。具体情况具体选择，比如，数据肯定不需要被consumer收集的，就应该在publisher处直接扔掉，也就是cleanup，没必要走接下来两步。有些数据是否被consumer收集，需要看它的值，那它们肯定存在于log内，只是有些流不会传出它们，相应的consumer也就接收不到。也有些操作可能只能在consumer端做，比如针对consumer背后系统的aggregation，其他系统都不需要这一阶段，那肯定得它独自增加。
+
+  
+- Real-time data processing
+- Distributed system design
+
+为什么分布式一致性协议全都是需要log？它们不考虑整个table原地修改？
+
+https://zhuanlan.zhihu.com/p/341122718 paxos multi-paxos raft
+

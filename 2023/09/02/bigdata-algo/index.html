@@ -38,7 +38,7 @@
 <meta property="og:image" content="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_simple.png">
 <meta property="og:image" content="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/pipeline_ownership.png">
 <meta property="article:published_time" content="2023-09-02T08:40:22.000Z">
-<meta property="article:modified_time" content="2023-09-09T11:57:48.613Z">
+<meta property="article:modified_time" content="2023-09-16T09:07:36.287Z">
 <meta property="article:author" content="Huang Wei">
 <meta property="article:tag" content="Algo">
 <meta name="twitter:card" content="summary">
@@ -221,7 +221,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-09 19:57:48" itemprop="dateModified" datetime="2023-09-09T19:57:48+08:00">2023-09-09</time>
+                <time title="Modified: 2023-09-16 17:07:36" itemprop="dateModified" datetime="2023-09-16T17:07:36+08:00">2023-09-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -295,8 +295,7 @@
 <p>Dynamo也用到了Vnodes，但还是那句话，Vnodes是一个单独的机制，不是一致性哈希的核心，不影响上图的核心思想，所以Dynamo可以说是使用了一致性哈希的。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; when a node is removed, the next node (moving clockwise on the ring) becomes responsible for all of the keys stored on the outgoing node.</span><br><span class="line"></span><br><span class="line">ref https://www.educative.io/answers/how-data-is-partitioned-in-dynamo</span><br><span class="line"></span><br><span class="line">是一致性哈希的最核心思想，也是最重要的特点。</span><br></pre></td></tr></table></figure>
 
-<h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>TODO 怎么实现的，能不能作为分布式锁？</p>
-<p>消息队列的逻辑，就是做和内存队列一样的事。但它的使用场景，是分布式的。也不会是单一角色的，都分布式了，所以涉及多角色（或者说多进程）。于是，基本都会抽象为，producer发消息给它，consumer去从它那里获取消息。为了保证可靠和堆积，消息会被MQ持久化。MQ的核心是Queue，也就是FIFO。至于producer有几个，consumer有几个，consumer是pull还是被push，都是具体设计的事情。队列消费，听起来，一个消息按理应该只被一个consumer拿到，消费成功后，就会被删除。但实际也会有变种，有MQ不断发展，加新功能的，不会特别死板。</p>
+<h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>消息队列的逻辑，就是做和内存队列一样的事。但它的使用场景，是分布式的。也不会是单一角色的，都分布式了，所以涉及多角色（或者说多进程）。于是，基本都会抽象为，producer发消息给它，consumer去从它那里获取消息。为了保证可靠和堆积，消息会被MQ持久化。MQ的核心是Queue，也就是FIFO。至于producer有几个，consumer有几个，consumer是pull还是被push，都是具体设计的事情。队列消费，听起来，一个消息按理应该只被一个consumer拿到，消费成功后，就会被删除。但实际也会有变种，有MQ不断发展，加新功能的，不会特别死板。</p>
 <p>一个较简单的mq工程可以参考 <a target="_blank" rel="noopener" href="https://github.com/zeromicro/go-queue">https://github.com/zeromicro/go-queue</a> 。注意它是封装者，核心不在它这里，比如它底层接Kafka。</p>
 <h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><h4 id="RSMQ"><a href="#RSMQ" class="headerlink" title="RSMQ"></a>RSMQ</h4><p>真的MQ算法实现，RSMQ是一种经典方案，简单，具体实现有不少项目。可以看看这个 <a target="_blank" rel="noopener" href="https://github.com/mlasevich/PyRSMQ">https://github.com/mlasevich/PyRSMQ</a> 。</p>
 <blockquote>
@@ -308,20 +307,22 @@
 <p>这个项目是将redis作为远程存储，同时利用redis的一些功能，去实现一个MQ，不是简单的使用者。</p>
 <h4 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h4><p>这是最经典的工程实现了吧，值得多研究研究。</p>
 <p>一个队列的基本定义里就应该是有序，不过Kafka并非专注于MQ，它本质是一个分布式事件流平台。这一点要注意，Kafka只是可以用来搭建消息队列，但不是只能做这个。那么事件流和消息队列为什么是两个概念呢？比如，kafka里的一个topic其实也就是一个message queue了，为什么感觉名字差距很远？事件流为何不叫作扩展版的消息队列？</p>
-<p>这个问题，我的理解是一个中间件，上下游同样都是生产者和消费者。生产消费者数量可以是多个，这不是什么难点。所以没必要觉得MQ的consumer只能是一个，概念不至于这么僵硬。但它们对待输入的message的态度是不一样的。</p>
-<p>消息队列注重的是传递消息，满足Message Queueing Pattern，通常保证exactly once。它从描述上就更像是P2P的东西，你一份消息传给多个消费者，感觉就像是消息被复制了一样。消息本身也是用完就扔了，即使有一定backup，也不太可能设计为永久存储，存也不是MQ<strong>必须</strong>去做的事情，不然它叫什么队列呢，叫数据库好了。当然，要做到让MQ同时给多个消费者发同一份消息，也不是难做的事情，不必认为MQ就不可以干更多的事。</p>
+<p>这个问题，我的理解是一个中间件，上下游同样都是生产者和消费者。生产消费者数量可以是多个，这不是什么难点。所以，没必要觉得MQ的consumer只能是一个，概念不至于这么僵硬。但它们对待输入的message的态度是不一样的。</p>
+<p>消息队列注重的是传递消息，满足Message Queueing Pattern，通常保证exactly once。它从描述上就更像是P2P的东西，你一份消息传给多个消费者，感觉就像是消息被复制了一样，所以看到很多地方对MQ的定义就是单消费者，我认为单消费者MQ是经典案例，但不是多消费就被逐出MQ了（没有MQ内核，丢失了MQ的精神，joke）。MQ中，消息本身是用完就扔了，即使有一定backup，也不太可能设计为永久存储，存也不是MQ<strong>必须</strong>去做的事情，不然它叫什么队列呢，叫数据库好了。当然，真有人在MQ里保存永久消息也不是违法的，不必认为MQ就不可以干更多的事。</p>
 <p>Message Queueing Pattern更多的是和Pub-Sub Pattern对立，Pub-Sub的不一样就在于，所有订阅者都应该拿到所有消息。它描述的就是MQ所不包含的一种模式。</p>
-<p>而流streaming就是满足Pub-Sub Pattern的，这里最好不要把流当成“流水”那个意思，感觉好像也是水流过就走了，没留下什么。streaming是会将消息记录下来的，它像是log，它要记录下所有event。当你在某个时刻才加入一个消费者时，它可以获得全部的event。我们谈到streaming，它就应该做得到。如果是MQ的设计，要存下所有message，就不是很像queue了，你不能去要求所有MQ系统都给你这样的功能。如果你就想MQ补充这一功能，那也OK。</p>
-<p>streaming通常被说带有实时的意思，我感觉并不是，real-time streaming才是。参考 <a target="_blank" rel="noopener" href="https://sqlstream.com/real-time-vs-streaming-a-short-explanation/%EF%BC%8Cstreaming%E6%9B%B4%E5%A4%9A%E6%98%AF%E5%9C%A8%E8%AF%B4%E5%AE%83%E6%98%AF%E6%BA%90%E6%BA%90%E4%B8%8D%E6%96%AD%E7%9A%84%EF%BC%8C%E6%8C%81%E7%BB%AD%E7%94%9F%E6%88%90%EF%BC%8C%E7%9C%8B%E4%B8%8D%E5%88%B0%E5%B0%BD%E5%A4%B4%E3%80%82%E5%8C%BA%E5%88%AB%E4%BA%8Ebatch%EF%BC%8C%E6%98%AF%E4%B8%80%E4%B8%AA%E6%89%B9%E6%AC%A1%E8%A2%AB%E5%A4%84%E7%90%86%E3%80%82%E4%BA%8B%E4%BB%B6%E6%98%AF%E6%BA%90%E6%BA%90%E4%B8%8D%E6%96%AD%E5%9C%B0%E4%BA%A7%E7%94%9F%EF%BC%8C%E8%BF%99%E5%B0%B1%E5%8F%AB%E5%81%9Aevent">https://sqlstream.com/real-time-vs-streaming-a-short-explanation/，streaming更多是在说它是源源不断的，持续生成，看不到尽头。区别于batch，是一个批次被处理。事件是源源不断地产生，这就叫做event</a> streaming。</p>
+<p>而流streaming就是满足Pub-Sub Pattern的，这里最好不要把流当成“流水”那个意思，感觉好像也是水流过就走了，没留下什么。streaming是会将消息记录下来的，它像是log，它要记录下所有event。当你在某个时刻才加入一个消费者时，它也可以获得全部的event。我们谈到streaming，它就应该做得到。如果是MQ的设计，要存下所有message，就不是很像queue了，你不能去要求所有MQ系统都给你这样的功能。如果你就想MQ补充这一功能，那也OK。</p>
+<p>streaming通常被说带有实时的意思，我感觉并不是，real-time streaming才是。参考 <a target="_blank" rel="noopener" href="https://sqlstream.com/real-time-vs-streaming-a-short-explanation/%EF%BC%8Cstreaming%E6%9B%B4%E5%A4%9A%E6%98%AF%E5%9C%A8%E8%AF%B4%E5%AE%83%E6%98%AF%E6%BA%90%E6%BA%90%E4%B8%8D%E6%96%AD%E7%9A%84%EF%BC%8C%E6%8C%81%E7%BB%AD%E7%94%9F%E6%88%90%EF%BC%8C%E7%9C%8B%E4%B8%8D%E5%88%B0%E5%B0%BD%E5%A4%B4%E3%80%82%E5%8C%BA%E5%88%AB%E4%BA%8Ebatch%EF%BC%8C%E6%98%AF%E4%B8%80%E4%B8%AA%E6%89%B9%E6%AC%A1%E8%A2%AB%E5%A4%84%E7%90%86%EF%BC%88%E6%AF%8F%E6%9D%A1%E6%B6%88%E6%81%AF%E9%83%BD%E7%9C%8B%E4%BD%9C%E4%B8%80%E4%B8%AAbatch%EF%BC%8C%E8%B0%81%E5%8F%88%E8%83%BD%E8%AF%B4streaming%E4%B8%8D%E6%98%AFbatch%E5%91%A2%EF%BC%8Cjoke">https://sqlstream.com/real-time-vs-streaming-a-short-explanation/，streaming更多是在说它是源源不断的，持续生成，看不到尽头。区别于batch，是一个批次被处理（每条消息都看作一个batch，谁又能说streaming不是batch呢，joke</a> again。这些概念可能没有那么泾渭分明，那也可能是我理解不够深刻）。事件是源源不断地产生，这就叫做event streaming。</p>
 <p>所以，这两个概念可以说是没啥关系，不是非要取分出个所以然。听到某个系统是MQ，你就知道它会给你MQ基本的功能，但它可能还有更多的扩展，它可能做到更多的事情，能当流用，也可能因为它的具体设计，它其他啥也做不到了，但它就是很好用、很适合你的MQ。</p>
 <p><a target="_blank" rel="noopener" href="https://kafka.apache.org/intro">https://kafka.apache.org/intro</a> 官方文档也介绍了Kafka一般的使用场景，反正满足要求你就可以用。Kafka的topic可以pub/sub，所以，就可以拿Kafka作为MQ的底座。</p>
-<h5 id="架构与有序"><a href="#架构与有序" class="headerlink" title="架构与有序"></a>架构与有序</h5><p>Kafka架构上就是可以给topic分区，每个partition也可以有多replica，几乎等于分布式db的架构。也正因此，各个partition之间是无法有序的，就像分布式db的table一样，不能天然支持range scan。单partition当然可以做到有序，不过，能放开限制自然是放开更好，能利用上分布式的优势，并发、容灾等。</p>
-<h2 id="Log"><a href="#Log" class="headerlink" title="Log"></a>Log</h2><p>万物基于log<br><a target="_blank" rel="noopener" href="https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying">https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying</a><br>作者提倡把log作为一种抽象的概念，就像我们谈到hash，不会去具体讨论它是murmur hash还是别的。我们就把log作为一个已知的概念，不去讨论它是什么，而是去讨论它能做什么。</p>
+<h5 id="架构与有序"><a href="#架构与有序" class="headerlink" title="架构与有序"></a>架构与有序</h5><p>Kafka架构上就是可以给topic分区，每个partition也可以有多replica，几乎等于分布式db的架构。也正因此，各个partition之间是无法有序的，就像分布式db中按hash分片的table一样，不能天然支持range scan。单partition当然可以做到有序，不过，能放开限制自然是放开更好，能利用上分布式的优势，并发、容灾等。</p>
+<p>TODO kafka log设计</p>
+<h2 id="Log"><a href="#Log" class="headerlink" title="Log"></a>Log</h2><p>万物基于log，log门。</p>
+<p><a target="_blank" rel="noopener" href="https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying">https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying</a><br>作者提倡把log作为一种抽象的概念，就像我们谈到hash，不会去具体讨论它是murmur hash还是别的。我们就把log作为一个已知的概念，不去讨论它是什么，而是去讨论它能做什么。</p>
 <blockquote>
-<p>So a log, rather than a simple single-value register, is the more natural abstraction.<br>Log可以表示<code>a sequence of requests</code>，也可以说是changes，它是一种很符合现实的抽象概念。程序基本都是在跟持续的请求打交道，而不是单一的请求。单一的，比较简单的例子就是数学计算，与别的无关，没有状态，只要给我同样的输入，我就会给同样的输出。但现实中，基本不是这么简单的情况。</p>
+<p>So a log, rather than a simple single-value register, is the more natural abstraction.<br>Log可以表示<code>a sequence of requests</code>，也可以说是changes，它是一种很符合现实的抽象概念。程序基本都是在跟持续的请求打交道，而不是单一的请求。单一的，比较简单的例子就是数学计算，与别的无关，没有状态，只要给我同样的输入，我就会给同样的输出。还有cache，我就是只get/set，先到先得。但现实中，基本不是这么简单的情况。</p>
 </blockquote>
 <p>拿Table和Log的关系来分析，Table是当前瞬间的状态。而Log是一个序列，包含了所有的变化，也可以说，它保存了所有的历史版本。历史版本，就让人很容易联想到source code version control，每个commit并不是记录当前的所有code，而是记录change。</p>
-<p>介绍三个方向，分别如何使用log来做：<br>Data Integration—Making all of an organization’s data easily available in all its storage and processing systems.<br>Real-time data processing—Computing derived data streams.<br>Distributed system design—How practical systems can by simplified with a log-centric design.</p>
+<p>介绍三个方向，分别如何使用log：<br>Data Integration—Making all of an organization’s data easily available in all its storage and processing systems.<br>Real-time data processing—Computing derived data streams.<br>Distributed system design—How practical systems can by simplified with a log-centric design.</p>
 <ul>
 <li><p>Data Integration<br>类比马斯洛的金字塔需求模型，data就是最底层的需求。（开始玄学，但确实也没说错。）许多现实系统中，其实data就没准备好，Data Integration做的差，就在此基础上搭分析、建模等模块，和搭房子一样地基不稳。<br>Data Integration为什么难，作者认为是两个趋势导致的，一是event data井喷，二是data system变得非常专用。第二个好理解，很多现实场景遇到的挑战，已经不是某个data system可以解决的了，所以出现了很多细分的领域和功能各有优劣的system，例如，olap，oltp，online，batch，streaming，graph等等。第一个event data的话，我理解不深，目前的理解是event data区别于entity data，它描述的是事件、行为，而不是某个东西的最终样子，例如某时刻的点击，某时刻的登录，而entity data例如用户名、id、地区，更静态。如此区分data，主要还是没有万能的银弹，区分后会更适合去处理它们。而单独划出来的event data，传统的DB很难撑住，也就诞生了更多品种。如今的data system确实是相当多，无法将它们视为一个整体，经常要去处理它们谁流到谁那儿去的问题。</p>
 <p>而不同data system如何同步数据？都可以抽象为log-structured data flow。Data Source将数据变化写入log，其他data system作为subscriber，读log并自己追上数据变化。无论subscriber是哪种system，这个模型都是行得通的。就算subscriber是个cache，它实际并不存log，但它也可以通过log来同步数据。而且，log自带版本概念，可以很清楚的知道自己从这些subscriber中读取的是不是最新数据。还有一点是，log可以当作是buffer，不同subscriber消化数据的速度是不同的，也可能在某个时刻，subscriber down了，那么log还在，重启后也能追得上。从图上也可以看到，log是一个用来解耦的概念，subscriber只需要懂log，它不需要知道Data Source长什么样，这也是一个优点。</p>
@@ -329,14 +330,28 @@
 <p>在作者公司linkedin中，实际的场景就是<br><img src="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_complex.png"><br>通过Log，架构变为<br><img src="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_simple.png"><br>非常简洁的架构，也可以看出Log抽象的价值。（其实这也就是kafka的简要架构图了。）</p>
 <p>在这样的架构基础上，实际还有一些点需要考虑，就是ETL，数据并不一定是都有意义的，结构可能不是统一的，很多场景里ETL（cleanup or transformation）后的数据才值得使用或存储（存入数仓）。ETL后的数据还是一样要考虑到subscriber可能是batch的数仓，也可能是实时的什么系统。前面的架构图看不出具体的角色，所以我们应该用下面这样的详细一点的图：<br><img src="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/pipeline_ownership.png"></p>
 <p>图中有三种角色，publisher，log system，consumer，ETL放在三个角色的哪个中，都是有说法的。具体情况具体选择，比如，数据肯定不需要被consumer收集的，就应该在publisher处直接扔掉，也就是cleanup，没必要走接下来两步。有些数据是否被consumer收集，需要看它的值，那它们肯定存在于log内，只是有些流不会传出它们，相应的consumer也就接收不到。也有些操作可能只能在consumer端做，比如针对consumer背后系统的aggregation，其他系统都不需要这一阶段，那肯定得它独自增加。</p>
+<p>Scalable Log，实际为了做到多subscribers，没有那么简单，所以他介绍了kafka log的设计如何满足scalable。暂时不看了，后面读kafka再说。TODO</p>
 </li>
 <li><p>Real-time data processing</p>
+<blockquote>
+<p>Stream processing has nothing to do with SQL. Nor is it limited to real-time processing.</p>
+</blockquote>
+<p>Yes，俺也一样，我也觉得real-time和stream并非绑定关系。</p>
+<blockquote>
+<p>I see stream processing as something much broader: infrastructure for continuous data processing. I think the computational model can be as general as MapReduce or other distributed processing frameworks, but with the ability to produce low-latency results.</p>
+</blockquote>
+<p>batch和stream的概念，他也举了个例子，US人口普查，人口统计是下到挨家挨户统计，记录在纸上，然后this batch of records传到中央，中央把全部加起来。它不是每个地区都有a journal of births and deaths，用它来算当前人口，甚至能算到某一年的人口。这不是说journal形式就很优秀，而是各有各的区别。有些数据就是batch进来的，你就应该batch处理，有些数据就是continuous feeds，那肯定就想要能够能平滑地处理连续数据，而不是转为batch。这是自然的应对方式，当然，如果分析下来，batch没什么不可以，那也可以batch处理。要平滑处理数据，还有就是，不可能数据1s来一条，你stream处理它花5s，来不及消化的数据能堆积到明年，所以stream通常是要求low latency的。</p>
+<p>Log在real-time data processing中怎么工作的，进一步可参考<a target="_blank" rel="noopener" href="https://samza.incubator.apache.org/learn/documentation/latest/core-concepts/core-concepts.html%E3%80%82%E4%BB%96%E8%81%8A%E5%88%B0%E4%BA%86Data">https://samza.incubator.apache.org/learn/documentation/latest/core-concepts/core-concepts.html。他聊到了Data</a> flow graphs，Stateful Real-Time Processing，Log Compaction</p>
 </li>
 <li><p>Distributed system design</p>
+<blockquote>
+<p>The final topic I want to discuss is the role of the log in data system design for online data systems.</p>
+</blockquote>
 </li>
 </ul>
-<p>为什么分布式一致性协议全都是需要log？它们不考虑整个table原地修改？</p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/341122718">https://zhuanlan.zhihu.com/p/341122718</a> paxos multi-paxos raft</p>
+<p>TODO 为什么分布式一致性协议全都是需要log？它们不考虑整个table原地修改？这个话题还是分布式协议再讲。paxos multi-paxos raft这些。<br>附加一个paxos参考 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/341122718">https://zhuanlan.zhihu.com/p/341122718</a> </p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>锁的概念不多赘述，分布式锁当然是分布式里用的锁，语义是一样的。举个例子，分布式中同一个角色有多个时，它们很可能需要协调谁可以写，另外的人此时不要动。每个人都觉得自己该写，那当然要一个第三方角色，来觉得谁能谁不能，要达成共识。常见分布式锁的实现是基于数据库，基于Redis，基于zk的。</p>
+<p>TODO 为啥有个印象，有消息队列做分布式锁？</p>
 
     </div>
 
@@ -420,7 +435,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C"><span class="nav-number">1.</span> <span class="nav-text">一致性哈希</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E7%89%88"><span class="nav-number">1.1.</span> <span class="nav-text">简版</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E6%BA%90%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">开源实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Guava-consistentHash"><span class="nav-number">1.2.1.</span> <span class="nav-text">Guava consistentHash</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Ketama"><span class="nav-number">1.2.2.</span> <span class="nav-text">Ketama</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#redis%EF%BC%88%E5%85%B6%E5%AE%9E%E5%B9%B6%E6%B2%A1%E6%9C%89%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">redis（其实并没有）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dynamo"><span class="nav-number">1.2.4.</span> <span class="nav-text">Dynamo</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">2.</span> <span class="nav-text">消息队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.1.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RSMQ"><span class="nav-number">2.1.1.</span> <span class="nav-text">RSMQ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Kafka"><span class="nav-number">2.1.2.</span> <span class="nav-text">Kafka</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%9C%89%E5%BA%8F"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">架构与有序</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Log"><span class="nav-number">3.</span> <span class="nav-text">Log</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C"><span class="nav-number">1.</span> <span class="nav-text">一致性哈希</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E7%89%88"><span class="nav-number">1.1.</span> <span class="nav-text">简版</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E6%BA%90%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">开源实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Guava-consistentHash"><span class="nav-number">1.2.1.</span> <span class="nav-text">Guava consistentHash</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Ketama"><span class="nav-number">1.2.2.</span> <span class="nav-text">Ketama</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#redis%EF%BC%88%E5%85%B6%E5%AE%9E%E5%B9%B6%E6%B2%A1%E6%9C%89%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">redis（其实并没有）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dynamo"><span class="nav-number">1.2.4.</span> <span class="nav-text">Dynamo</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">2.</span> <span class="nav-text">消息队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.1.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RSMQ"><span class="nav-number">2.1.1.</span> <span class="nav-text">RSMQ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Kafka"><span class="nav-number">2.1.2.</span> <span class="nav-text">Kafka</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%9C%89%E5%BA%8F"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">架构与有序</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Log"><span class="nav-number">3.</span> <span class="nav-text">Log</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">4.</span> <span class="nav-text">分布式锁</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

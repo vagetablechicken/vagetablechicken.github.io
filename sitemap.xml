@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://vagetablechicken.github.io/2023/09/02/bigdata-algo/</loc>
+    
+    <lastmod>2023-09-16</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://vagetablechicken.github.io/2023/09/15/arch-draw/</loc>
     
     <lastmod>2023-09-16</lastmod>
@@ -14,15 +23,6 @@
     <loc>http://vagetablechicken.github.io/2023/09/09/murmur/</loc>
     
     <lastmod>2023-09-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://vagetablechicken.github.io/2023/09/02/bigdata-algo/</loc>
-    
-    <lastmod>2023-09-09</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

@@ -133,8 +133,6 @@ ref https://www.educative.io/answers/how-data-is-partitioned-in-dynamo
 
 ## 消息队列
 
-TODO 怎么实现的，能不能作为分布式锁？
-
 消息队列的逻辑，就是做和内存队列一样的事。但它的使用场景，是分布式的。也不会是单一角色的，都分布式了，所以涉及多角色（或者说多进程）。于是，基本都会抽象为，producer发消息给它，consumer去从它那里获取消息。为了保证可靠和堆积，消息会被MQ持久化。MQ的核心是Queue，也就是FIFO。至于producer有几个，consumer有几个，consumer是pull还是被push，都是具体设计的事情。队列消费，听起来，一个消息按理应该只被一个consumer拿到，消费成功后，就会被删除。但实际也会有变种，有MQ不断发展，加新功能的，不会特别死板。
 
 一个较简单的mq工程可以参考 https://github.com/zeromicro/go-queue 。注意它是封装者，核心不在它这里，比如它底层接Kafka。
@@ -174,15 +172,15 @@ queue.deleteMessage(id=msg['id']).execute()
 
 一个队列的基本定义里就应该是有序，不过Kafka并非专注于MQ，它本质是一个分布式事件流平台。这一点要注意，Kafka只是可以用来搭建消息队列，但不是只能做这个。那么事件流和消息队列为什么是两个概念呢？比如，kafka里的一个topic其实也就是一个message queue了，为什么感觉名字差距很远？事件流为何不叫作扩展版的消息队列？
 
-这个问题，我的理解是一个中间件，上下游同样都是生产者和消费者。生产消费者数量可以是多个，这不是什么难点。所以没必要觉得MQ的consumer只能是一个，概念不至于这么僵硬。但它们对待输入的message的态度是不一样的。
+这个问题，我的理解是一个中间件，上下游同样都是生产者和消费者。生产消费者数量可以是多个，这不是什么难点。所以，没必要觉得MQ的consumer只能是一个，概念不至于这么僵硬。但它们对待输入的message的态度是不一样的。
 
-消息队列注重的是传递消息，满足Message Queueing Pattern，通常保证exactly once。它从描述上就更像是P2P的东西，你一份消息传给多个消费者，感觉就像是消息被复制了一样。消息本身也是用完就扔了，即使有一定backup，也不太可能设计为永久存储，存也不是MQ**必须**去做的事情，不然它叫什么队列呢，叫数据库好了。当然，要做到让MQ同时给多个消费者发同一份消息，也不是难做的事情，不必认为MQ就不可以干更多的事。
+消息队列注重的是传递消息，满足Message Queueing Pattern，通常保证exactly once。它从描述上就更像是P2P的东西，你一份消息传给多个消费者，感觉就像是消息被复制了一样，所以看到很多地方对MQ的定义就是单消费者，我认为单消费者MQ是经典案例，但不是多消费就被逐出MQ了（没有MQ内核，丢失了MQ的精神，joke）。MQ中，消息本身是用完就扔了，即使有一定backup，也不太可能设计为永久存储，存也不是MQ**必须**去做的事情，不然它叫什么队列呢，叫数据库好了。当然，真有人在MQ里保存永久消息也不是违法的，不必认为MQ就不可以干更多的事。
 
 Message Queueing Pattern更多的是和Pub-Sub Pattern对立，Pub-Sub的不一样就在于，所有订阅者都应该拿到所有消息。它描述的就是MQ所不包含的一种模式。
 
-而流streaming就是满足Pub-Sub Pattern的，这里最好不要把流当成“流水”那个意思，感觉好像也是水流过就走了，没留下什么。streaming是会将消息记录下来的，它像是log，它要记录下所有event。当你在某个时刻才加入一个消费者时，它可以获得全部的event。我们谈到streaming，它就应该做得到。如果是MQ的设计，要存下所有message，就不是很像queue了，你不能去要求所有MQ系统都给你这样的功能。如果你就想MQ补充这一功能，那也OK。
+而流streaming就是满足Pub-Sub Pattern的，这里最好不要把流当成“流水”那个意思，感觉好像也是水流过就走了，没留下什么。streaming是会将消息记录下来的，它像是log，它要记录下所有event。当你在某个时刻才加入一个消费者时，它也可以获得全部的event。我们谈到streaming，它就应该做得到。如果是MQ的设计，要存下所有message，就不是很像queue了，你不能去要求所有MQ系统都给你这样的功能。如果你就想MQ补充这一功能，那也OK。
 
-streaming通常被说带有实时的意思，我感觉并不是，real-time streaming才是。参考 https://sqlstream.com/real-time-vs-streaming-a-short-explanation/，streaming更多是在说它是源源不断的，持续生成，看不到尽头。区别于batch，是一个批次被处理。事件是源源不断地产生，这就叫做event streaming。
+streaming通常被说带有实时的意思，我感觉并不是，real-time streaming才是。参考 https://sqlstream.com/real-time-vs-streaming-a-short-explanation/，streaming更多是在说它是源源不断的，持续生成，看不到尽头。区别于batch，是一个批次被处理（每条消息都看作一个batch，谁又能说streaming不是batch呢，joke again。这些概念可能没有那么泾渭分明，那也可能是我理解不够深刻）。事件是源源不断地产生，这就叫做event streaming。
 
 所以，这两个概念可以说是没啥关系，不是非要取分出个所以然。听到某个系统是MQ，你就知道它会给你MQ基本的功能，但它可能还有更多的扩展，它可能做到更多的事情，能当流用，也可能因为它的具体设计，它其他啥也做不到了，但它就是很好用、很适合你的MQ。
 
@@ -190,20 +188,22 @@ https://kafka.apache.org/intro 官方文档也介绍了Kafka一般的使用场�
 
 ##### 架构与有序
 
-Kafka架构上就是可以给topic分区，每个partition也可以有多replica，几乎等于分布式db的架构。也正因此，各个partition之间是无法有序的，就像分布式db的table一样，不能天然支持range scan。单partition当然可以做到有序，不过，能放开限制自然是放开更好，能利用上分布式的优势，并发、容灾等。
+Kafka架构上就是可以给topic分区，每个partition也可以有多replica，几乎等于分布式db的架构。也正因此，各个partition之间是无法有序的，就像分布式db中按hash分片的table一样，不能天然支持range scan。单partition当然可以做到有序，不过，能放开限制自然是放开更好，能利用上分布式的优势，并发、容灾等。
 
+TODO kafka log设计
 
 ## Log
 
-万物基于log
+万物基于log，log门。
+
 https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying
 作者提倡把log作为一种抽象的概念，就像我们谈到hash，不会去具体讨论它是murmur hash还是别的。我们就把log作为一个已知的概念，不去讨论它是什么，而是去讨论它能做什么。
 > So a log, rather than a simple single-value register, is the more natural abstraction.
-Log可以表示`a sequence of requests`，也可以说是changes，它是一种很符合现实的抽象概念。程序基本都是在跟持续的请求打交道，而不是单一的请求。单一的，比较简单的例子就是数学计算，与别的无关，没有状态，只要给我同样的输入，我就会给同样的输出。但现实中，基本不是这么简单的情况。
+Log可以表示`a sequence of requests`，也可以说是changes，它是一种很符合现实的抽象概念。程序基本都是在跟持续的请求打交道，而不是单一的请求。单一的，比较简单的例子就是数学计算，与别的无关，没有状态，只要给我同样的输入，我就会给同样的输出。还有cache，我就是只get/set，先到先得。但现实中，基本不是这么简单的情况。
 
 拿Table和Log的关系来分析，Table是当前瞬间的状态。而Log是一个序列，包含了所有的变化，也可以说，它保存了所有的历史版本。历史版本，就让人很容易联想到source code version control，每个commit并不是记录当前的所有code，而是记录change。
 
-介绍三个方向，分别如何使用log来做：
+介绍三个方向，分别如何使用log：
 Data Integration—Making all of an organization's data easily available in all its storage and processing systems.
 Real-time data processing—Computing derived data streams.
 Distributed system design—How practical systems can by simplified with a log-centric design.
@@ -227,11 +227,26 @@ Distributed system design—How practical systems can by simplified with a log-c
 
   图中有三种角色，publisher，log system，consumer，ETL放在三个角色的哪个中，都是有说法的。具体情况具体选择，比如，数据肯定不需要被consumer收集的，就应该在publisher处直接扔掉，也就是cleanup，没必要走接下来两步。有些数据是否被consumer收集，需要看它的值，那它们肯定存在于log内，只是有些流不会传出它们，相应的consumer也就接收不到。也有些操作可能只能在consumer端做，比如针对consumer背后系统的aggregation，其他系统都不需要这一阶段，那肯定得它独自增加。
 
+  Scalable Log，实际为了做到多subscribers，没有那么简单，所以他介绍了kafka log的设计如何满足scalable。暂时不看了，后面读kafka再说。TODO
   
 - Real-time data processing
+  > Stream processing has nothing to do with SQL. Nor is it limited to real-time processing.
+
+  Yes，俺也一样，我也觉得real-time和stream并非绑定关系。
+  > I see stream processing as something much broader: infrastructure for continuous data processing. I think the computational model can be as general as MapReduce or other distributed processing frameworks, but with the ability to produce low-latency results.
+
+  batch和stream的概念，他也举了个例子，US人口普查，人口统计是下到挨家挨户统计，记录在纸上，然后this batch of records传到中央，中央把全部加起来。它不是每个地区都有a journal of births and deaths，用它来算当前人口，甚至能算到某一年的人口。这不是说journal形式就很优秀，而是各有各的区别。有些数据就是batch进来的，你就应该batch处理，有些数据就是continuous feeds，那肯定就想要能够能平滑地处理连续数据，而不是转为batch。这是自然的应对方式，当然，如果分析下来，batch没什么不可以，那也可以batch处理。要平滑处理数据，还有就是，不可能数据1s来一条，你stream处理它花5s，来不及消化的数据能堆积到明年，所以stream通常是要求low latency的。
+
+  Log在real-time data processing中怎么工作的，进一步可参考https://samza.incubator.apache.org/learn/documentation/latest/core-concepts/core-concepts.html。他聊到了Data flow graphs，Stateful Real-Time Processing，Log Compaction
+
 - Distributed system design
+  > The final topic I want to discuss is the role of the log in data system design for online data systems.
 
-为什么分布式一致性协议全都是需要log？它们不考虑整个table原地修改？
+TODO 为什么分布式一致性协议全都是需要log？它们不考虑整个table原地修改？这个话题还是分布式协议再讲。paxos multi-paxos raft这些。
+附加一个paxos参考 https://zhuanlan.zhihu.com/p/341122718 
 
-https://zhuanlan.zhihu.com/p/341122718 paxos multi-paxos raft
+## 分布式锁
 
+锁的概念不多赘述，分布式锁当然是分布式里用的锁，语义是一样的。举个例子，分布式中同一个角色有多个时，它们很可能需要协调谁可以写，另外的人此时不要动。每个人都觉得自己该写，那当然要一个第三方角色，来觉得谁能谁不能，要达成共识。常见分布式锁的实现是基于数据库，基于Redis，基于zk的。
+
+TODO 为啥有个印象，有消息队列做分布式锁？

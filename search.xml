@@ -1,6 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>大概只有自己能看懂的手绘架构图</title>
+    <url>/2023/09/15/arch-draw/</url>
+    <content><![CDATA[<h1 id="大概只有自己能看懂的手绘架构图"><a href="#大概只有自己能看懂的手绘架构图" class="headerlink" title="大概只有自己能看懂的手绘架构图"></a>大概只有自己能看懂的手绘架构图</h1><p>处理分布式系统好几年了，发现很多使用者最大的障碍是不懂每个组件在干什么。有的人把每个组件都想的很重要，每做一步操作都要询问是否危险，有的人把每个组件都想的很简单，每做一步操作都不会考虑后果。这两种极端都不好，所以我想通过这篇文章，把我对一些现有的分布式系统的理解分享给大家。</p>
+<p>这些结构通常不会在官方文档中展示，因为它有点深入系统，但又没有特别深入。按理说，设计文档里应该有这样的图可以参考，但大多数系统都没有提供设计文档等细节，好像都“藏了起来”。可能又是知识的诅咒吧，会的人觉得都理解了，画图干什么，不会的人也各种原因无法抽时间看代码，参考图都是抽象的不行，不懂就永远不懂。</p>
+<h2 id="OpenMLDB"><a href="#OpenMLDB" class="headerlink" title="OpenMLDB"></a>OpenMLDB</h2><p>五个server组件，分别是：ZooKeeper（以下简称zk），NameServer，TabletServer，TaskManager，APIServer。加上客户端，一共六个组件。我们先不管APIServer，无状态，只是特别的CLI而已，并不需要特别介绍；也不管TaskManager，它也是无状态，管理起来很简单。</p>
+<p>架构上，我们先不管它们之间到底要做些什么，交流的具体内容是什么，只看它们之间是否会产生连接，就有下面这张图。</p>
+<p><img src="/2023/09/15/arch-draw/openmldb-arch.jpg"></p>
+<p>server之间的联系这里画的不多，不要认为它们不联系。上图主要是用户的视角，可以看到几个明显特点。</p>
+<ul>
+<li>CLI跟所有server（包括未画出来的tm和api）都有直连，区别于某些系统，它们有frontend，所有请求都要经过它。</li>
+<li>CLI还会跟zk联系，其实很容易想到，毕竟openmldb地址就是zk地址。一切跟集群的联系都是从zk获取某些信息开始的。</li>
+<li>table是分散放入tablet server的，每个分片还是多副本。副本协议暂不管。</li>
+</ul>
+<p>从运维角度讲，用户需要保证：</p>
+<ul>
+<li><p>组件都活着（当然，少部分掉线可能没关系，分布式的核心优势，但最终都应该恢复，掉线就靠近危险边缘了，不能就这么放着）</p>
+</li>
+<li><p>tablet server上面存着数据，没有一个tablet server置身事外，所以，tablet server的storage要是正常的。tablet活着，storage不正常，该tablet还是无法服务，跟下线没太大区别。</p>
+<p>而tablet server在意外或非意外的重启后，恢复数据是需要时间的，还有可能失败，但并不像server online/offline那么明显，很多用户会不知道有server处于正在恢复，或已经失败（但server仍然在线），直到某次使用时才发现使用出错。这就是一个常见的坑，很多分布式系统都可能发生，不过openmldb很容易出这个错，现在正在改进提示和运维方式。</p>
+</li>
+</ul>
+<p>用户基本不会去关心除了节点是否活着之外的其他事情，甚至节点活没活也不关心。运维角色在很多现实场景下是缺失的，也不能期望用户每次请求前都看下集群是否正常，所以，正规的话应该有“运维角色”，有报警机制，确保集群正常工作，不正常时会告知业务。如果运维不完善，就只能让用户更加容易获取集群状态，也就是事后的补救了。</p>
+<h3 id="SQL查询"><a href="#SQL查询" class="headerlink" title="SQL查询"></a>SQL查询</h3><p>组件在具体某个操作，某种请求下，各自扮演的不同角色，这不是组件架构图能体现的。所以，我们再画一张SQL查询的路线图。</p>
+<p><img src="/2023/09/15/arch-draw/openmldb-sql.jpg"></p>
+<p>类似impala，每个server都可以是一次SQL的主要负责人。当tablet1需要别的tablet上的数据时，是通过subquery找别的tablet查询的，走过engine去storage获取。也就是一个sql会被拆成多个task，有些事情可以在别的tablet上做，就在那边处理好了再返回。可以想象一种最简单的情况，直接从别的tablet获取原始的数据，然后，负责的tablet1里做全部的计算。这个要看SQL计划和SQL Engine的优化，具体不详谈了。</p>
+<h3 id="admin"><a href="#admin" class="headerlink" title="admin"></a>admin</h3><p>Admin操作，例如增删表，增删deployment等等，也不是单点的，毕竟这是个多组件的集群。通常的情况是，CLI发送操作给nameserver，nameserver如有必要，会发送命令给所有tablet server，成功后再在自己本地操作，还可能写操作log到zk。</p>
+<p>可以看到，参与者很多，而且各处都可能有元数据，有些操作又是异步的，某一个点失败了也可能无法回滚。所以，有时候还会发现元数据匹配不上，分布式的痛，只能具体问题具体分析了。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>murmur</title>
+    <url>/2023/09/09/murmur/</url>
+    <content><![CDATA[<h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>这一篇文，记录下我的一些不成熟的心得体会。希望当我懈怠时，能稍微提醒下自己。（虽然懈怠是常态）当我鼓起勇气想要努点力时，能让偏航的自己稍微回归下航道。</p>
+<h1 id="学习"><a href="#学习" class="headerlink" title="学习"></a>学习</h1><p>当被工作占据了时间和精力后，学习就变得很难。即使是不加班的工作，下班后也是想着要放松。曾经不太理解很多人说的，在学校时要专注学习，有这么多时间的时候不多了。现在是真的理解了。</p>
+<p>有那么一些时间阶段，我可以腾出玩耍的时间来学习时，也会突然发现，我不知道该学什么。好像有很多都值得学，但似乎看不到学成后的收益，甚至学了就忘了。这时候，肯定有心灵鸡汤端上来了，说“不要用功利心来对待学习”。但我认为，这多少有点假大空了。当我想要通过学习，来改变自己的工作状态（可以是学习新知识，让自己可以承担新任务，也可以是让自己在现在的工作中做得更好），我凭什么不功利呢？站在这个地方，我就是希望自己能进步，那我当然是要学跟自身工作领域相关的东西。我学习了半天，宽度没拓展，深度也没增加，那我在干啥？当然，努力了，进步了，不代表现实会回报我。但是，是在原地踏步，还是真的进步了，自己是能知道的。</p>
+<p>我们还是需要意识到，现在的世界已经过于复杂了，就单个细分的计算机领域，也已经是一个庞大的体系了。然后，还有无数的书籍，无数的培训课程，无数的学习区博主，我们不通过自己来分辨好坏，来评估收益，怎么学的完？</p>
+<p>在我当了几次不成熟的面试官时，也听到了几次类似的说法，我们在学校时也流行这样的说法：什么语言不重要，要学好基础，掌握内核。事实上，内核有几个人能掌握？语言倒是很明显没有掌握。</p>
+<div class="note info">
+            <p>从我的自身经验来看，计算机的学习中，尤其是我们是面向工程，而非学术，很难只限于理论。一定量地积累后，语言方面不可能什么都不知道。自己写demo、刷题，会不用一个顺手的语言，不碰几个bug么？学习软件工程，设计模式时，会不知道语言能提供的特性么？我不会孔乙己式地考察茴有几种写法，我经历过的面试中，这样的也是少数。或许我们没有那么“八股”。</p>
+          </div>
+
+<p>假大空确实是给学生时的我们好好洗了一遍脑。幸运的是，有的同学确实有着不错的基础和领悟能力，在工作中，面对挑战，也能通过自身努力去解决，然后又从中学习，不断进化；不幸的是，有的同学还没醒过来，不知道自己缺少了什么，在工作中表现得非常不专业。</p>
+<p>所以，我想我们需要“功利心”的学习。明确自己缺了什么，非常重要。学校中努力地学习，它的范围是很明确的，有教材有老师，结果也是很明确的，有课程的成绩。但在工作中，一切都是那么不明显，工作都很难量化，更何况对一个工作的人的能力评判。</p>
+<p>那么，我自己有什么缺陷呢？商业机密（开玩笑）。自己当然不会觉得自己某个方面是很好的，毕竟我也是时代特色教育下长大的，不自信是刻入DNA的。目前，我希望我能在宽度上多积累一点。从自身的工作中，体会过几次，新任务中使用曾经了解或者开发过的东西，让我觉得，我如果能了解的更多，就像手中有更多的钥匙，或许未来又能用上吧。</p>
+<p>世界纷纷扰扰，能够不被打扰，专注自己的人，我十分佩服，这样的人很像修道者了。愿我能成为“修道者”吧，可以肯定自己，信任自己，和自己和解。</p>
+]]></content>
+  </entry>
+  <entry>
     <title>BigData Algo</title>
     <url>/2023/09/02/bigdata-algo/</url>
     <content><![CDATA[<p>一些通用的大数据、分布式等方面的算法总结。单独出一篇文章，因为这类算法都是通用的，但具体到各个系统，实现方式可能不同，本篇只总结算法思想，可能伪代码实现最基础的算法，必要时会给出现实系统的参考链接。</p>
@@ -19,8 +67,10 @@
 <p>整个算法知识都可以看文章 <a href="https://interviewnoodle.com/how-to-use-consistent-hashing-in-a-system-design-interview-b738be3a1ae3">https://interviewnoodle.com/how-to-use-consistent-hashing-in-a-system-design-interview-b738be3a1ae3</a><br>，讲的很细，图都是引用的它的。</p>
 <p>现在来讲讲如何代码实现一致性哈希。</p>
 <h3 id="简版"><a href="#简版" class="headerlink" title="简版"></a>简版</h3><p>简单版本，我们只做哈希环，然后node负责连续分片。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">def hash(key):</span><br><span class="line">    return hash(key) % 2^32</span><br><span class="line"></span><br><span class="line">map&lt;hash_value, node&gt; ring</span><br><span class="line"># map key可以不是范围，而是end分片，这样可以用lower bound来找到第一个大于等于req_key的node</span><br><span class="line"># 但原生Python不支持，得新建class</span><br><span class="line"># Java ceilingEntry和C++ std都可以直接用</span><br><span class="line"></span><br><span class="line">def get_node(key):</span><br><span class="line">    hash_value = hash(key)</span><br><span class="line">    return ring[lower_bound(hash_value)]</span><br><span class="line"></span><br><span class="line"># main</span><br><span class="line">req_key = hash(req)</span><br><span class="line">node = get_node(req_key)</span><br><span class="line">node.handle(req)</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">如果存在一群相同元素，那么 lower_bound 和 upper_bound 就可以找到这群元素的上下界限，前者指向下界限，用 lower 表示，后者指向上界限的后一个位置，用 upper 来表示。也就是说，lb是大于等于key的第一个元素，ub是大于key的第一个元素。</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">hash</span>(<span class="params">key</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">hash</span>(key) % <span class="number">2</span>^<span class="number">32</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">map</span>&lt;hash_value, node&gt; ring</span><br><span class="line"><span class="comment"># map key可以不是范围，而是end分片，这样可以用lower bound来找到第一个大于等于req_key的node</span></span><br><span class="line"><span class="comment"># 但原生Python不支持，得新建class</span></span><br><span class="line"><span class="comment"># Java ceilingEntry和C++ std都可以直接用</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_node</span>(<span class="params">key</span>):</span><br><span class="line">    hash_value = <span class="built_in">hash</span>(key)</span><br><span class="line">    <span class="keyword">return</span> ring[lower_bound(hash_value)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># main</span></span><br><span class="line">req_key = <span class="built_in">hash</span>(req)</span><br><span class="line">node = get_node(req_key)</span><br><span class="line">node.handle(req)</span><br></pre></td></tr></table></figure>
+<div class="note ">
+            <p>如果存在一群相同元素，那么 lower_bound 和 upper_bound 就可以找到这群元素的上下界限，前者指向下界限，用 lower 表示，后者指向上界限的后一个位置，用 upper 来表示。也就是说，lb是大于等于key的第一个元素，ub是大于key的第一个元素。</p>
+          </div>
 
 <h3 id="开源实现"><a href="#开源实现" class="headerlink" title="开源实现"></a>开源实现</h3><h4 id="Guava-consistentHash"><a href="#Guava-consistentHash" class="headerlink" title="Guava consistentHash"></a>Guava consistentHash</h4><p>Guava库中的<a href="https://github.com/google/guava/blob/f491b8922f9dc8003ffdf0cbde110b76bcec4b6e/guava/src/com/google/common/hash/Hashing.java#L660">com.google.common.hash.Hashing.consistentHash</a>就实现一致性哈希算法。一般使用方法是，你有一个key，用Hashing中提供的某种hash算法来hash这个key（比自行提供hashCode会好，提供了murmur之类的算法），得到的HashCode去调用consistentHash方法，再加上一个bucket数据限定，就可以得到一个bucket的index，也就是说，你的key会被分到这个bucket里。</p>
 <p>但仔细看它的consistentHash函数，它压根儿没做一致性哈希理论的那些事，完全没有哈希虚拟空间的事儿。</p>
@@ -72,7 +122,28 @@
 <p>streaming通常被说带有实时的意思，我感觉并不是，real-time streaming才是。参考 <a href="https://sqlstream.com/real-time-vs-streaming-a-short-explanation/%EF%BC%8Cstreaming%E6%9B%B4%E5%A4%9A%E6%98%AF%E5%9C%A8%E8%AF%B4%E5%AE%83%E6%98%AF%E6%BA%90%E6%BA%90%E4%B8%8D%E6%96%AD%E7%9A%84%EF%BC%8C%E6%8C%81%E7%BB%AD%E7%94%9F%E6%88%90%EF%BC%8C%E7%9C%8B%E4%B8%8D%E5%88%B0%E5%B0%BD%E5%A4%B4%E3%80%82%E5%8C%BA%E5%88%AB%E4%BA%8Ebatch%EF%BC%8C%E6%98%AF%E4%B8%80%E4%B8%AA%E6%89%B9%E6%AC%A1%E8%A2%AB%E5%A4%84%E7%90%86%E3%80%82%E4%BA%8B%E4%BB%B6%E6%98%AF%E6%BA%90%E6%BA%90%E4%B8%8D%E6%96%AD%E5%9C%B0%E4%BA%A7%E7%94%9F%EF%BC%8C%E8%BF%99%E5%B0%B1%E5%8F%AB%E5%81%9Aevent">https://sqlstream.com/real-time-vs-streaming-a-short-explanation/，streaming更多是在说它是源源不断的，持续生成，看不到尽头。区别于batch，是一个批次被处理。事件是源源不断地产生，这就叫做event</a> streaming。</p>
 <p>所以，这两个概念可以说是没啥关系，不是非要取分出个所以然。听到某个系统是MQ，你就知道它会给你MQ基本的功能，但它可能还有更多的扩展，它可能做到更多的事情，能当流用，也可能因为它的具体设计，它其他啥也做不到了，但它就是很好用、很适合你的MQ。</p>
 <p><a href="https://kafka.apache.org/intro">https://kafka.apache.org/intro</a> 官方文档也介绍了Kafka一般的使用场景，反正满足要求你就可以用。Kafka的topic可以pub/sub，所以，就可以拿Kafka作为MQ的底座。</p>
-<p>TODO<br>消息队列kafka可以只partition有序，那它如何保住全局有序？</p>
+<h5 id="架构与有序"><a href="#架构与有序" class="headerlink" title="架构与有序"></a>架构与有序</h5><p>Kafka架构上就是可以给topic分区，每个partition也可以有多replica，几乎等于分布式db的架构。也正因此，各个partition之间是无法有序的，就像分布式db的table一样，不能天然支持range scan。单partition当然可以做到有序，不过，能放开限制自然是放开更好，能利用上分布式的优势，并发、容灾等。</p>
+<h2 id="Log"><a href="#Log" class="headerlink" title="Log"></a>Log</h2><p>万物基于log<br><a href="https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying">https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying</a><br>作者提倡把log作为一种抽象的概念，就像我们谈到hash，不会去具体讨论它是murmur hash还是别的。我们就把log作为一个已知的概念，不去讨论它是什么，而是去讨论它能做什么。</p>
+<blockquote>
+<p>So a log, rather than a simple single-value register, is the more natural abstraction.<br>Log可以表示<code>a sequence of requests</code>，也可以说是changes，它是一种很符合现实的抽象概念。程序基本都是在跟持续的请求打交道，而不是单一的请求。单一的，比较简单的例子就是数学计算，与别的无关，没有状态，只要给我同样的输入，我就会给同样的输出。但现实中，基本不是这么简单的情况。</p>
+</blockquote>
+<p>拿Table和Log的关系来分析，Table是当前瞬间的状态。而Log是一个序列，包含了所有的变化，也可以说，它保存了所有的历史版本。历史版本，就让人很容易联想到source code version control，每个commit并不是记录当前的所有code，而是记录change。</p>
+<p>介绍三个方向，分别如何使用log来做：<br>Data Integration—Making all of an organization’s data easily available in all its storage and processing systems.<br>Real-time data processing—Computing derived data streams.<br>Distributed system design—How practical systems can by simplified with a log-centric design.</p>
+<ul>
+<li><p>Data Integration<br>类比马斯洛的金字塔需求模型，data就是最底层的需求。（开始玄学，但确实也没说错。）许多现实系统中，其实data就没准备好，Data Integration做的差，就在此基础上搭分析、建模等模块，和搭房子一样地基不稳。<br>Data Integration为什么难，作者认为是两个趋势导致的，一是event data井喷，二是data system变得非常专用。第二个好理解，很多现实场景遇到的挑战，已经不是某个data system可以解决的了，所以出现了很多细分的领域和功能各有优劣的system，例如，olap，oltp，online，batch，streaming，graph等等。第一个event data的话，我理解不深，目前的理解是event data区别于entity data，它描述的是事件、行为，而不是某个东西的最终样子，例如某时刻的点击，某时刻的登录，而entity data例如用户名、id、地区，更静态。如此区分data，主要还是没有万能的银弹，区分后会更适合去处理它们。而单独划出来的event data，传统的DB很难撑住，也就诞生了更多品种。如今的data system确实是相当多，无法将它们视为一个整体，经常要去处理它们谁流到谁那儿去的问题。</p>
+<p>而不同data system如何同步数据？都可以抽象为log-structured data flow。Data Source将数据变化写入log，其他data system作为subscriber，读log并自己追上数据变化。无论subscriber是哪种system，这个模型都是行得通的。就算subscriber是个cache，它实际并不存log，但它也可以通过log来同步数据。而且，log自带版本概念，可以很清楚的知道自己从这些subscriber中读取的是不是最新数据。还有一点是，log可以当作是buffer，不同subscriber消化数据的速度是不同的，也可能在某个时刻，subscriber down了，那么log还在，重启后也能追得上。从图上也可以看到，log是一个用来解耦的概念，subscriber只需要懂log，它不需要知道Data Source长什么样，这也是一个优点。</p>
+<p><img src="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/log_subscription.png"></p>
+<p>在作者公司linkedin中，实际的场景就是<br><img src="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_complex.png"><br>通过Log，架构变为<br><img src="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_simple.png"><br>非常简洁的架构，也可以看出Log抽象的价值。（其实这也就是kafka的简要架构图了。）</p>
+<p>在这样的架构基础上，实际还有一些点需要考虑，就是ETL，数据并不一定是都有意义的，结构可能不是统一的，很多场景里ETL（cleanup or transformation）后的数据才值得使用或存储（存入数仓）。ETL后的数据还是一样要考虑到subscriber可能是batch的数仓，也可能是实时的什么系统。前面的架构图看不出具体的角色，所以我们应该用下面这样的详细一点的图：<br><img src="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/pipeline_ownership.png"></p>
+<p>图中有三种角色，publisher，log system，consumer，ETL放在三个角色的哪个中，都是有说法的。具体情况具体选择，比如，数据肯定不需要被consumer收集的，就应该在publisher处直接扔掉，也就是cleanup，没必要走接下来两步。有些数据是否被consumer收集，需要看它的值，那它们肯定存在于log内，只是有些流不会传出它们，相应的consumer也就接收不到。也有些操作可能只能在consumer端做，比如针对consumer背后系统的aggregation，其他系统都不需要这一阶段，那肯定得它独自增加。</p>
+</li>
+<li><p>Real-time data processing</p>
+</li>
+<li><p>Distributed system design</p>
+</li>
+</ul>
+<p>为什么分布式一致性协议全都是需要log？它们不考虑整个table原地修改？</p>
+<p><a href="https://zhuanlan.zhihu.com/p/341122718">https://zhuanlan.zhihu.com/p/341122718</a> paxos multi-paxos raft</p>
 ]]></content>
       <categories>
         <category>BigData</category>
@@ -313,12 +384,121 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;registry-mirrors&quot;: [</span><br><span class="line">        &quot;http://hub-mirror.c.163.com&quot;,</span><br><span class="line">        &quot;https://docker.mirrors.ustc.edu.cn&quot;,</span><br><span class="line">        &quot;https://registry.docker-cn.com&quot;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>重启后<code>docker info</code>可以查看。</p>
-<h2 id="tmux"><a href="#tmux" class="headerlink" title="tmux"></a>tmux</h2><p>tmux如果另一个没退，就又attach，可能分辨率会用另一个的，就会右边下边出现很多点点。可以ctrl-b/a，再shift-b（大写B），选择分辨率，选小的就能撑满屏幕。</p>
+<h2 id="tmux"><a href="#tmux" class="headerlink" title="tmux"></a>tmux</h2><p>tmux如果另一个没退，就又attach，可能分辨率会用另一个的，就会右边下边出现很多点点。tmux命令<code>choose-client</code>，选择分辨率，选小的就能撑满屏幕。</p>
+<p>默认<code>choose-client</code>是shift-b，但我改了tmux的prefix，所以是ctrl-a，再shift-d。自己查自己tmux的keys，用<code>choose-client</code> bind的key。</p>
 <h2 id="debug"><a href="#debug" class="headerlink" title="debug"></a>debug</h2><h3 id="oom"><a href="#oom" class="headerlink" title="oom"></a>oom</h3><p>怀疑进程被oom kill了，需要查日志，dmesg -T没有权限要求，但它的时间<a href="https://zhuanlan.zhihu.com/p/619173424?utm_id=0">不准确</a>，甚至可能是未来时间。最好查/var/log/messages，但它可能需要root权限。<br>Docker内的进程也是被物理机管理的，如果占满内存，也是会被kill，而且在物理机上会有日志。</p>
 ]]></content>
       <tags>
         <tag>env</tag>
         <tag>os</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Grokking Pattern 1</title>
+    <url>/2021/05/06/grokking-1/</url>
+    <content><![CDATA[<h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p><a href="https://www.educative.io/courses/grokking-the-coding-interview?aff=K7qB">课程原地址</a></p>
+<p><a href="https://github.com/cl2333/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions">题目目录与答案 Python版</a>——完整题目目录，包含challenge。 </p>
+<p><a href="https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97">题目目录与答案 C++版(附题目OJ的地址)</a>——推荐用OJ测试自己的算法，但是这个repo里基本没有challenge题目。</p>
+<h2 id="1-Pattern-Sliding-Window"><a href="#1-Pattern-Sliding-Window" class="headerlink" title="1. Pattern: Sliding Window"></a>1. Pattern: Sliding Window</h2><h3 id="Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks"><a href="#Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks" class="headerlink" title="Maximum Sum Subarray of Size K (easy) – GeeksforGeeks"></a><a href="https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/">Maximum Sum Subarray of Size K (easy) – GeeksforGeeks</a></h3><p>k长的<strong>连续子序列</strong>，使该子序列和最大，这个和为output。<br>窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。</p>
+<h3 id="Smallest-Subarray-with-a-given-sum-medium-–-LeetCode"><a href="#Smallest-Subarray-with-a-given-sum-medium-–-LeetCode" class="headerlink" title="Smallest Subarray with a given sum (medium) – LeetCode"></a><a href="https://leetcode.com/problems/minimum-size-subarray-sum/">Smallest Subarray with a given sum (medium) – LeetCode</a></h3><p>注意读题，nums都是正整数，target也是正整数。这个条件大概率需要用到。</p>
+<p>假设有一段连续子序列了，它已经&gt;=target了，就不需要再继续加入元素了（序列外右边第一个元素），因为再加的话size就变大了。而这个size可以向右横移一格，可以立马算出新的sum（这里很节约时间，降低算法复杂度）。</p>
+<p>这个sum如果 &gt;= target，那么它就有机会再小一点，而这一次需要的是减去序列内的第一个元素，可以理解为“收缩窗口”。<br>这个sum如果 &lt; target，那就可以再向右横移了，因为size扩大，对结果没有任何帮助。</p>
+<p>总体看下来，只要横移和收缩，算法复杂度是O(n)。</p>
+<h4 id="初步思路"><a href="#初步思路" class="headerlink" title="初步思路"></a>初步思路</h4><p>初步思路是，先算个nums[0…x]之和 &gt;= target的窗口，然后这个窗口开始向右移并尝试收缩。但其实不对，因为第一个窗口，不是非得从第0个元素开始，这个窗口自身就应该尝试收缩。这个逻辑补上后是能ac的。<br>不过，初步思路翻译为代码，还是有些小坑，肉眼很难查。建议背一个滑动窗口模板。</p>
+<h4 id="滑动窗口模板思路"><a href="#滑动窗口模板思路" class="headerlink" title="滑动窗口模板思路"></a>滑动窗口模板思路</h4><p>此思路最核心的思想就是，不强求窗口横移，反正先向右扩展1个，再左边收缩一个，就达到了横移。<br>因此滑动窗口的头尾都可以移动，而且是分别移动，用两个变量来表示，（start，end）。<br>因为收缩（start向右移）和扩展（end向右移）可以各做各的，所以没必要先找到一个总和 &gt;= target的初始窗口了。</p>
+<p>所以，步骤可以化简为，<strong>每一次都扩展1下，然后尽力收缩</strong>（while不定次收缩）。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">    tmp_sum += nums[end]</span><br><span class="line">    while tmp_sum &gt;= target:</span><br><span class="line">        win_size = min(win_size, end-start+1)</span><br><span class="line">        tmp_sum -= nums[start]</span><br><span class="line">        start += 1</span><br><span class="line">    end += 1</span><br></pre></td></tr></table></figure>
+
+<p>至于几个变量的初始值，现场推理一下也可以得到，不做赘述。<br>P.S. win_size没必要用int的max，用len(nums)+1就可以了，反正都是不可能的值。</p>
+<h4 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h4><p>滑动窗口的算法，nums就算有负数也无所谓。（被烟雾弹迷惑🐶）这个条件大概是为“前缀和”这一方法准备的。</p>
+<p>前缀和方法，简单来讲就是nums[0..i]之和组成一个sum数组，这个数组严格递增，都不存在相等的元素。</p>
+<p>然后就可以用二分来找了（看到有序就要想到二分），当前sum[i]为0到i元素的和，<code>sum[j] - sum[i] &gt;= target</code>转换为<code>sum[j]&gt;=target+sum[i]</code>，那么就是在sum数组里找<code>target+sum[i]</code>的lower bound。</p>
+<p>为什么不是以j为结尾，<code>sum[j] - sum[x] &gt;= target</code>转换成<code>sum[x] &lt;= sum[j]-target</code>，找sum[x]呢？因为是upper bound（第一个&gt;某值的元素）的前一个（必定&lt;=某值），不如直接找lower bound简洁，而且不用处理减出负数的情况。</p>
+<h3 id="Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode"><a href="#Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode" class="headerlink" title="Longest Substring with K Distinct Characters (medium, google) – LintCode"></a><a href="https://www.lintcode.com/problem/longest-substring-with-at-most-k-distinct-characters/description">Longest Substring with K Distinct Characters (medium, google) – LintCode</a></h3><p>Given a string, find the length of the longest substring in it with no more than K distinct characters.</p>
+<p>也就是LeetCode340题 Longest Substring at Most K Distinct Characters。</p>
+<p>这道题输出是最长子串的长度，所以显然可以套用滑动窗口的模板。和上一个题目一样，都是扩展会使得条件不符，要通过收缩来满足条件。<br>即，窗口扩展一旦字符种类超过k，就可以通过窗口收缩来削减字符种类。<br>唯一不同的点是：update longest string的时机（其实就是用end-start+1来尝试更新记录的longest）<br>因为while distinct_count(dict) &gt; k时是去收缩，break while时说明distinct_count(dict) 已经&lt;=k了，这个时候的[start, end]才是一个可能解，符合条件的可能解。<br>所以update longest string len是在while循环外，而且是之后。<br>至于如何实现dict和distinct_count，随便吧，简单也好，高效也好。</p>
+<p>P.S.注意到了吗，这个题目和前面一题Smallest Subarray的区别？</p>
+<p>看不出来也正常，我做了几道题才突然回头发现的😂而且明明之前做过笔记，重蹈覆撤🙄️</p>
+<p><del>果然人类的本质都是复读机</del></p>
+<p>这个题已经开始了longest之路，也就是说，只是想求一个最长的长度，根本不在意“重复无意义的更新”。</p>
+<p>按之前的模板，此题的伪代码应写为：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">    dic[s[end]]+=1</span><br><span class="line">    while len(dic)&gt;k:</span><br><span class="line">        dic[s[start]]-=1</span><br><span class="line">        if dic[s[start]]==0:</span><br><span class="line">            del dic[s[start]]</span><br><span class="line">        start+=1</span><br><span class="line">    longest = max(longest, end-start+1)</span><br><span class="line">    end+=1</span><br></pre></td></tr></table></figure>
+
+<p>这样的写法，保证了longest变量更新时，当前窗口都是len(dic)&lt;=k的，也就是合法的情况。但确实可能会出现窗口被收缩的很小的时候（为了合法），此时max更新也是白干的（longest还是原值）。</p>
+<p>而如果代码将内层while变为if：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">    dic[s[end]]+=1</span><br><span class="line">    if len(dic)&gt;k:</span><br><span class="line">        dic[s[start]]-=1</span><br><span class="line">        if dic[s[start]]==0:</span><br><span class="line">            del dic[s[start]]</span><br><span class="line">        start+=1</span><br><span class="line">    longest = max(longest, end-start+1)</span><br><span class="line">    end+=1</span><br></pre></td></tr></table></figure>
+
+<p>自然，在longest更新时，当前窗口可能都还满足条件，不合法，但仍旧去做了一次longest的更新。但从数值上来讲，由于不满足条件会被收缩一次，加上前面的end扩展一次，窗口等于做了一次平移。那么end=start+1的值就不会变大，longest的更新自然也是不会有实际作用的。</p>
+<p>这一个改动，它到底好在了哪里呢？光看经过，start，end两个游标都是单向前进的，2-while和while-if都不会使两个游标左右飘。但由于2-while会保证每次窗口都是合法的，和while-if相比，start这个游标可能会更靠右。举个极端例子，如果longest是[0, n-2]这个窗口，下一次扩展end就会到末尾n-1，while-if此时发现窗口不合法，收缩一次，就溜了。而2-while，会愣是要求[start, n-1]窗口合法，可能start从0不断右移，直到n-1才停止。无用操作在这个例子就占了一半。具体例子就是AAAAB, k =1。</p>
+<p>这个优化并不容易读，我也不建议平时代码搞这么tricky。在这个题目里，仅仅在节省len查询和dict更新，都是较高效的操作，而且有次数上限（由于start标最多都走到末尾，操作次数最多n次）。优化效果仅仅锦上添花。但这个将while改为if，在其他题目中可能有奇效。因为while的判断条件如果复杂度较高，这里的收益就很大了，见Longest Substring with Same Letters after Replacement一题。</p>
+<h3 id="Fruits-into-Baskets-medium-–-LeetCode"><a href="#Fruits-into-Baskets-medium-–-LeetCode" class="headerlink" title="Fruits into Baskets (medium) – LeetCode"></a><a href="https://leetcode.com/problems/fruit-into-baskets/">Fruits into Baskets (medium) – LeetCode</a></h3><p>跟上题一模一样。题目暗示着连续区间，就可以尝试滑动窗口方法。</p>
+<p>但这一题case比上一题的规模大，最简单的dict实现（不及时删除value为0的项，每次都要遍历得到distinct count）这种方法就超时了。还是推荐及时删除value为0的项，其实比不删还简单，因为删除这个操作只会在收缩时出现（只有此处count–）。</p>
+<p>可优化为while-if。</p>
+<h3 id="No-repeat-Substring-medium-–-LeetCode"><a href="#No-repeat-Substring-medium-–-LeetCode" class="headerlink" title="No-repeat Substring (medium) – LeetCode"></a><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">No-repeat Substring (medium) – LeetCode</a></h3><p>和前面的题目毫无差别。</p>
+<p>但注意第二层while的判断条件是什么，如果判断条件是“窗口dict的value全为1”，那么你可以改出while-if。</p>
+<p>如果是“当前字符c的count&gt;1”，就改不了了。因为现在只看当前字符，那就意味着窗口必须是合法的，然后扩展，加入当前字符。while-if便不可用。</p>
+<p>“只看当前字符”这种方法的优化思路是，如果start要跳，直接让start去“当前字符上一次出现的位置的右边”。 因为前面的字符都可以跳过了。还可以再化简代码，但会很难读，所以还是适合而止吧。</p>
+<h3 id="Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks"><a href="#Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks" class="headerlink" title="Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks"></a><a href="https://practice.geeksforgeeks.org/problems/maximum-sub-string-after-at-most-k-changes/0">Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks</a></h3><p>We have a string <strong>s</strong> of length n, which consist only UPPERCASE characters and we have a number k (always less than n and greater than 0). We can make at most k changes in our string such that we can get a sub-string of maximum length which have all same characters.</p>
+<p><strong>Example 1:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Input: s = &quot;ABAB&quot;, k = 2</span><br><span class="line">Output: 4</span><br><span class="line">Explanation: Change 2 &#x27;B&#x27; into &#x27;A&#x27;.</span><br></pre></td></tr></table></figure>
+
+<p><strong>Example:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Input: s = &quot;ABCD&quot;, k = 1</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Change one &#x27;B&#x27; into &#x27;A&#x27;.</span><br></pre></td></tr></table></figure>
+
+<p>这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 &gt;= k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。</p>
+<p>统计问题虽然简单，但是复杂度略高。想要快速，可能需要两个map，ch-&gt;count, count-&gt;ch。所以，while-if就很适合了，由于只收缩一次，max_count就从dict里统计一次就好了，不用强求更快速。</p>
+<h3 id="Longest-Subarray-with-Ones-after-Replacement-medium-–-GeeksforGeeks"><a href="#Longest-Subarray-with-Ones-after-Replacement-medium-–-GeeksforGeeks" class="headerlink" title="Longest Subarray with Ones after Replacement (medium) – GeeksforGeeks"></a><a href="https://www.geeksforgeeks.org/longest-subsegment-1s-formed-changing-k-0s/">Longest Subarray with Ones after Replacement (medium) – GeeksforGeeks</a></h3><p>比上题更简单，只需要一个int变量就能描述一个窗口内的0的个数。</p>
+<h3 id="Problem-Challenge-1-Permutation-in-a-String-hard"><a href="#Problem-Challenge-1-Permutation-in-a-String-hard" class="headerlink" title="Problem Challenge 1 - Permutation in a String (hard)"></a><a href="https://leetcode-cn.com/problems/permutation-in-string/">Problem Challenge 1 - Permutation in a String (hard)</a></h3><p>排列，不允许多一个字符，所以窗口大小是固定的，滑动用来节省“更新窗口属性的代价”。题目如果对字符多加限制，比如此题限制只有小写字母，也就只有26个可能，其实描述窗口用长26的数组都可以，不用非要用counter。用counter有个麻烦点在于当某个字符的count为0时，你需要删掉它，不然就没法和s1的counter比大小。如果两个字符串的counter都先把26个字母的空间开出来，那还不如数组节省空间。</p>
+<h3 id="Problem-Challenge-2-String-Anagrams-hard"><a href="#Problem-Challenge-2-String-Anagrams-hard" class="headerlink" title="Problem Challenge 2 - String Anagrams (hard)"></a><a href="https://leetcode-cn.com/problems/find-all-anagrams-in-a-string/submissions/">Problem Challenge 2 - String Anagrams (hard)</a></h3><p>和challenge1没有区别</p>
+<h3 id="Problem-Challenge-3-Smallest-Window-containing-Substring-hard"><a href="#Problem-Challenge-3-Smallest-Window-containing-Substring-hard" class="headerlink" title="Problem Challenge 3 - Smallest Window containing Substring (hard) *"></a><a href="https://leetcode-cn.com/problems/minimum-window-substring/">Problem Challenge 3 - Smallest Window containing Substring (hard) *</a></h3><p>没啥特别，就是用collections.Counter()减法，比自己写的比较函数要慢不少，1200ms vs 500ms。</p>
+<h3 id="Problem-Challenge-4-Words-Concatenation-hard"><a href="#Problem-Challenge-4-Words-Concatenation-hard" class="headerlink" title="Problem Challenge 4 - Words Concatenation (hard)"></a><a href="https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/">Problem Challenge 4 - Words Concatenation (hard)</a></h3><p>注意读题！words长度相同！匆忙读题后，我还以为要处理不同的切割方式，以为会出现“一个substring里有几种正确的word排列”。那这题可能不止hard了。</p>
+<p>可以简单想到的办法就是窗口从0一直滑到尾，step为1，每一次窗口都得重新计算下word-count，然后和words参数比较。</p>
+<p>显然这个没有什么巧妙点，没有节约计算量，所以想要利用滑动窗口，当然得想点骚方法。其实就是，每一次都设置一个起点，从这个起点开始，只会按词长来拓展，这样就能像字符型的题目一样，充分利用滑动窗口的扩展收缩，减少计算。举例说明，就是一个单词长度为len，s串总长为n的话，第一趟是从0开始一个len切一刀，这样切割后的串扩展和收缩都是一个词的，第二趟就是从1开始切，以此类推，最后一次是len-1开始切。可以想到，这样也是把所有可能性都考虑到了。</p>
+<p>改进后的滑动窗口方法效果是明显的，1000ms到100ms。</p>
+<h3 id="Additional"><a href="#Additional" class="headerlink" title="Additional"></a>Additional</h3><h4 id="Sliding-Window-Maximum-hard-–-LeetCode"><a href="#Sliding-Window-Maximum-hard-–-LeetCode" class="headerlink" title="Sliding Window Maximum (hard) – LeetCode"></a><a href="https://leetcode.com/problems/sliding-window-maximum/">Sliding Window Maximum (hard) – LeetCode</a></h4><p>这个题跟滑动窗口模板毫无关系，窗口大小都固定牢了。唯一的问题点在于用什么结构体来提炼窗口信息，既能很快查到最大值，又能在窗口滑动时很快更新好（滑动本质就是加入一个数，去掉一个数）。快速查到最大值，可以想到利用堆。但是堆有一个明显问题，就是它不适合去删除内部的某个元素（不是堆首）。而“去掉一个数”这个操作很可能就是去删除某个中间的值。堆的删除操作是个不太ok的操作，因为这个堆是简单的堆（并非压平了看，完全有序的，不是堆排序之后的结果），也就是删除操作不能快速定位到要删除的元素。</p>
+<p>但是别直接放弃堆（我就放弃了，想别的方法，走远了）。这时候，尝试多推导一下，就会发现，不用着急删除元素。因为元素可以跟上自己的位置idx，如果堆顶拿到的idx已经不在窗口内，再删除也不迟。也就是延迟了删除操作，正好还让删除操作符合堆的操作习惯，只删堆顶。</p>
+<p>到这里，起码算是题目做出来了，而且这个方法也不差，能交差。</p>
+<p>但这道题更想考的点是别的，所以还需要再优化。说是优化，不如说是换了解法。从堆想到单调队列，反正我是做不到。。。</p>
+<p>单调队列是什么东西？先记住它能够动态地维护定长序列中的最值。所以只要定长、最值，就可以想到尝试单调队列。具体来讲，单调队列是，push元素前会把前面的元素都从后往前访问一遍（遇到比自己大的停止），比当前元素小的都删除，再将元素放在队尾。其实，全访问也没关系，最后结果没有差别，不过，遇到比自己大的就停止可以节省点时间。最后的结果就是队列里头到尾是从大到小有序的。</p>
+<p>举例说明(为了多点情况，和leetcode原例子有差别)：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nums = [1,3,-1,-3,-2,3,6,7], k = 3</span><br></pre></td></tr></table></figure>
+
+<p>单调队列应该长什么样？</p>
+<p>[1,3,-1]初始窗口入队列后，q=[3,-1]，那么这个窗口的最值就是3；</p>
+<p>[3,-1,-3], q=[3,-1,-3]，最值还是3；</p>
+<p>[-1,-3,-2], q=[3,-1,-2]，最值3，但3已经不在窗口内，所以pop，q=[-1,-2]，最值-1；</p>
+<p>[-3,-2,3], q=[3]，最值3；</p>
+<p>[5,3,6], q=[6]，最值6；</p>
+<p>[3,6,7], q=[7]，最值7。</p>
+<p>可以看到，只用进行简单比较，就能维持着最值，比堆的时间复杂度低。</p>
+<p>单调队列它为什么做到了呢？</p>
+<p>可以这么想，首先简单起见，只考虑窗口内元素的单调队列情况，比如3,1,2序列，k=3，很明显1会在2进入时被扔掉，因为2进入了之后，怎么也是2比1晚出窗口，就算可能是最大值，也是2可能，1是完全没有可能竞争最大值的。</p>
+<p>再考虑队列前部还有窗口外元素的情况，窗口外的元素还留在队列里（可以称为过期元素），也就是说窗口内的单调队列最大值（也就是队列列首）比过期元素小。但这并不影响窗口元素那部分的选择，无论有没有过期元素，窗口那部分的单调队列都长一个样。所以过期元素可以简单地pop出来扔掉。</p>
+<p>总的来说，单调队列就是剔除了“必然不能争最大值”的那部分无用值。单调队列实现上没有什么难度，不再赘述。</p>
+<p>P.S. Python实现遇到超时问题，因为我没有用pop，而是选择到一个点，取出切片[:x]，然后又append。具体细节待调查。从耗时来看，很明显这一连串操作应该搞出了deep copy之类的耗时操作。都叫单调队列了，就好好用python collections里的deque。</p>
+<h4 id="Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode"><a href="#Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode" class="headerlink" title="Shortest Subarray with Sum at Least K (hard) – LeetCode"></a><a href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/">Shortest Subarray with Sum at Least K (hard) – LeetCode</a></h4><p>仔细读题，这个题的数组里有负数。滑动窗口的算法模板是没办法直接套用的，因为窗口收缩的停止条件是sum &lt; k，由于有负数，你不能在窗口sum &lt; k时停止，你必须继续收缩，否则就可能错过解。</p>
+<p>停留在滑动窗口算法模板这个框架里，是没办法找到解法的。</p>
+<p>这时候<del>只能躺平</del>。</p>
+<p>只能说先回答个O(n^2)的解法吧，聊胜于无。很明显，所有区间和都是可能的最佳答案，所以前缀和加<strong>二级遍历</strong>所有区间，能得到答案。</p>
+<p>当然可以优化，但是很难凭空想出来参考答案“单调队列”。接下来的说明是以知道“前缀和+单调队列是较好解法”为前提来看这个题目，所以没有什么顺理成章推导，全凭参考答案提示。</p>
+<p>单调队列维护什么？</p>
+<p>题目核心是求最短的合法子串，所以短是最核心的，和只要&gt;=k什么都行。那么假设当前看i，以i开头的最佳子串，当然是从i开始寻找第一个j，能使sum[i..j]&gt;k（前缀和数组里两个数减一下就好了）。j之后的都不用找了，没有比i到j更短的了。那么反过来思考，从i到j，中间可能有多个值，一一遍历就是暴力解法，优化当然是更快找到j，那么如何迅速定位到j呢？</p>
+<p>或者换个说法，i到j中间的多个可能性，有哪些是必然不可能的，可以直接过滤？答案是没得😛。因为如果从[i, n)区间提取出单调递增的部分，可以使用二分，但这个题应该用不着。那这个思路还有什么优势呢？我们一一遍历到j，然后得到这个i的最优解，然后i++，然后你还是得遍历过去，因为单调递增队列本身不能有更多的改动，最多把队列头比i小的pop出来。那换个角度，递增队列是不是能从后往前看，当某个靠后的j满足了条件，你能把它怎么样？你不能动它，因为接下来的i（更大的i）和j一起也能满足条件，这个窗口长度肯定比现在的短，你删了这个j，就丢掉了解。</p>
+<p>那么就应该考虑换个顺序，以当前j为标杆，去找前面的i，它有个什么好处呢？当你从前往后找i，某个i满足条件后，你可以大胆删了它，因为j会++，当前的i充分发挥价值（用来更新window len）后，就不需要了，后面的j和这个i组合是无意义的。</p>
+<p>P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看，跟以i找j没什么差别，它们跟暴力解法比，完全不是稳定降低复杂度，甚至可以劣到没区别。（于是Python实现也完美超时了）</p>
+<p>总的看“前缀和+单调队列”，大概的最好状态是每次O(1)，然后n个j，所以O(n)，比如，每次看队列头d[0]的preSum都很大，不能让preSum[j]-preSum[d[0]]&gt;=k，单调递增的d后面的元素也不能满足要求了，所以每次就立马完成。最差的状态可能是某次j，从0到j遍历，每次都符合条件，都要pop并更新window len。但很明显，队列最多跟n一样长，而且pop出去了又不会回来，所以次数最多n次，并不会膨胀。所以总的复杂度还是O(n)的。</p>
+<p>这道题还是很难的，难在拼出正确的方法，知道方法后，代码实现不难。</p>
+<h4 id="Max-Consecutive-Ones-III"><a href="#Max-Consecutive-Ones-III" class="headerlink" title="Max Consecutive Ones III"></a><a href="https://leetcode.com/problems/max-consecutive-ones-iii/">Max Consecutive Ones III</a></h4><p>突如其来的一道复习题。while-if即可，虽然和while-while实测没什么区别，大概是case的原因。</p>
+<h4 id="Replace-the-Substring-for-Balanced-String-medium-–-LeetCode"><a href="#Replace-the-Substring-for-Balanced-String-medium-–-LeetCode" class="headerlink" title="Replace the Substring for Balanced String (medium) – LeetCode"></a><a href="https://leetcode.com/problems/replace-the-substring-for-balanced-string/">Replace the Substring for Balanced String (medium) – LeetCode</a></h4><p>题目是说要替换的字符包含在一个子串里，要求子串最短，子串符合某个条件即可，那就很适合套用滑动窗口模板了。</p>
+<h4 id="Count-Number-of-Nice-Subarrays-medium-–-LeetCode"><a href="#Count-Number-of-Nice-Subarrays-medium-–-LeetCode" class="headerlink" title="Count Number of Nice Subarrays (medium) – LeetCode"></a><a href="https://leetcode.com/problems/count-number-of-nice-subarrays/">Count Number of Nice Subarrays (medium) – LeetCode</a></h4><p>这题一看就不适合立马套用模板，扩展和收缩求最长最短很有效，但这里没有用处。举例说明，当我们找到一个窗口恰好有k个奇数，此时可以滑动窗口么？当然不能。所以放弃吧。然后考虑到奇数是核心，先找到k个奇数的最小可能，它的左右两边如果分别有a个偶数和b个偶数，那么这里就有很多个子串可能，1+a+b+a*b。而找奇数，可以直接抽出奇数，这样奇数数组里每k个就是一个base，延展下两边的偶数。既没有重复也不会漏算。</p>
+<p>滑动窗口完结撒花🎉</p>
+]]></content>
+      <categories>
+        <category>Algo</category>
+      </categories>
+      <tags>
+        <tag>Algo</tag>
+        <tag>LeetCode</tag>
       </tags>
   </entry>
   <entry>
@@ -444,141 +624,6 @@
 </ol>
 <p>总结到这里，突然想到一个问题，既然只有全正全负会陷入while loop不能提前退出，而全正全负又一定能有广义的环。那么完全不用快慢指针，只需要把每个点当作可能的入环口，也就是从这个点开始我能转回这个点，就找到了一个广义环。并不是非得快慢指针。只是这里有个坑，那就是这个点只是可能的入环口，它也有可能是类似有环链表的直线部分，走了几步才入环。所以得有个限制退出while步进，不然会死循环出不去。又由前面整理的结果，想要全正or全负没有环是不可能的，最大的环也就到整个数组的长度（当然，可能链表箭头走的很骚，不是说只能沿着数组+1/-1步这么走，但长度是不能再长了）。</p>
 <p>这个思路比快慢指针代码上简单点，时间复杂度上却不是变少，因为这个思路走满环，最坏时能达到数组长度，O(n)，快慢指针中fast指针和slow指针第一次相遇时slow也没有走满环，fast多一倍步数，也没差多少。所以这个思路也不会带来质变，聊胜于无。</p>
-]]></content>
-      <categories>
-        <category>Algo</category>
-      </categories>
-      <tags>
-        <tag>Algo</tag>
-        <tag>LeetCode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Grokking Pattern 6</title>
-    <url>/2021/05/06/grokking-6/</url>
-    <content><![CDATA[<h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p>See <a href="/2021/05/06/grokking-1/" title="Grokking Pattern 1">Grokking Pattern 1</a>.</p>
-<h2 id="6-Pattern-In-place-Reversal-of-a-LinkedList"><a href="#6-Pattern-In-place-Reversal-of-a-LinkedList" class="headerlink" title="6. Pattern In-place Reversal of a LinkedList"></a>6. Pattern In-place Reversal of a LinkedList</h2><h3 id="Reverse-a-LinkedList-easy"><a href="#Reverse-a-LinkedList-easy" class="headerlink" title="Reverse a LinkedList (easy)"></a>Reverse a LinkedList (easy)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a Singly LinkedList, reverse the LinkedList.</span><br><span class="line"> Write a function to return the new head of the reversed LinkedList.</span><br></pre></td></tr></table></figure>
-
-<p>反转的基本操作：两个指针，一前一后，改变后一节点的next指针，同时就会失去后一节点的原next，所以需要第三个指针，保住后一节点的原next。</p>
-<p>再优化：由于每一次新的比较，都只需要两个指针，指向“后一节点的next节点”的指针是可以在此基础上再找到的，不需要一直追着。</p>
-<p>遍历结束后，最后一个节点就是头节点，所以不需要别的额外的变量。</p>
-<h3 id="Reverse-a-Sub-list-medium"><a href="#Reverse-a-Sub-list-medium" class="headerlink" title="Reverse a Sub-list (medium)"></a>Reverse a Sub-list (medium)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a LinkedList and two positions ‘p’ and ‘q’, reverse the LinkedList from position ‘p’ to ‘q’.</span><br></pre></td></tr></table></figure>
-
-<p>p,q是positions，也就是第几个元素。不是value，更不是直接的node地址。</p>
-<h3 id="Reverse-every-K-element-Sub-list-medium"><a href="#Reverse-every-K-element-Sub-list-medium" class="headerlink" title="Reverse every K-element Sub-list (medium) *"></a>Reverse every K-element Sub-list (medium) *</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a LinkedList and a number ‘k’, reverse every ‘k’ sized sub-list starting from the head.</span><br><span class="line"></span><br><span class="line">If, in the end, you are left with a sub-list with less than ‘k’ elements, reverse it too.</span><br></pre></td></tr></table></figure>
-
-<p>首先看边界，因为末尾不足k的也翻转，所以可以无脑翻转。如果题目末尾变成不足k的<strong>不可以翻转</strong>（<a href="https://leetcode.cn/problems/reverse-nodes-in-k-group/">leetcode 原题</a>），那么就得先数k，不到k个就退出，有k个再翻转，多了一次遍历，不过也是O(n)。</p>
-<p>题目有些细节，但本质还是两个指针的事情，不难做对。不过我第一反应是不会改动初始链表的，但这一题如果加哨兵（一个dummy node接上链表head），会更简单点，不用在遍历while里写if判断是不是首次翻转，如果是首次，需要存下这个new head。（效率还是更高的，虽然不算太重要）</p>
-<h3 id="Problem-Challenge-1-Reverse-alternating-K-element-Sub-list-medium"><a href="#Problem-Challenge-1-Reverse-alternating-K-element-Sub-list-medium" class="headerlink" title="Problem Challenge 1 - Reverse alternating K-element Sub-list (medium)"></a>Problem Challenge 1 - Reverse alternating K-element Sub-list (medium)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a LinkedList and a number ‘k’, reverse every alternating ‘k’ sized sub-list starting from the head.</span><br><span class="line"></span><br><span class="line">If, in the end, you are left with a sub-list with less than ‘k’ elements, reverse it too.</span><br></pre></td></tr></table></figure>
-
-<h3 id="Problem-Challenge-2-Rotate-a-LinkedList-medium"><a href="#Problem-Challenge-2-Rotate-a-LinkedList-medium" class="headerlink" title="Problem Challenge 2 - Rotate a LinkedList (medium)"></a>Problem Challenge 2 - Rotate a LinkedList (medium)</h3>]]></content>
-      <categories>
-        <category>Algo</category>
-      </categories>
-      <tags>
-        <tag>Algo</tag>
-        <tag>LeetCode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Grokking Pattern 1</title>
-    <url>/2021/05/06/grokking-1/</url>
-    <content><![CDATA[<h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p><a href="https://www.educative.io/courses/grokking-the-coding-interview?aff=K7qB">课程原地址</a></p>
-<p><a href="https://github.com/cl2333/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions">题目目录与答案 Python版</a>——完整题目目录，包含challenge。 </p>
-<p><a href="https://github.com/Huixxi/Algorithm-with-Cplusplus/tree/master/%E8%8E%B1%E7%89%B9%E6%89%A3%E7%9A%84-%E7%B3%BB%E5%88%97">题目目录与答案 C++版(附题目OJ的地址)</a>——推荐用OJ测试自己的算法，但是这个repo里基本没有challenge题目。</p>
-<h2 id="1-Pattern-Sliding-Window"><a href="#1-Pattern-Sliding-Window" class="headerlink" title="1. Pattern: Sliding Window"></a>1. Pattern: Sliding Window</h2><h3 id="Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks"><a href="#Maximum-Sum-Subarray-of-Size-K-easy-–-GeeksforGeeks" class="headerlink" title="Maximum Sum Subarray of Size K (easy) – GeeksforGeeks"></a><a href="https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/">Maximum Sum Subarray of Size K (easy) – GeeksforGeeks</a></h3><p>k长的<strong>连续子序列</strong>，使该子序列和最大，这个和为output。<br>窗口长度都固定了，只需在遍历一遍时加后一个减前一个就行了，O(n)。</p>
-<h3 id="Smallest-Subarray-with-a-given-sum-medium-–-LeetCode"><a href="#Smallest-Subarray-with-a-given-sum-medium-–-LeetCode" class="headerlink" title="Smallest Subarray with a given sum (medium) – LeetCode"></a><a href="https://leetcode.com/problems/minimum-size-subarray-sum/">Smallest Subarray with a given sum (medium) – LeetCode</a></h3><p>注意读题，nums都是正整数，target也是正整数。这个条件大概率需要用到。</p>
-<p>假设有一段连续子序列了，它已经&gt;=target了，就不需要再继续加入元素了（序列外右边第一个元素），因为再加的话size就变大了。而这个size可以向右横移一格，可以立马算出新的sum（这里很节约时间，降低算法复杂度）。</p>
-<p>这个sum如果 &gt;= target，那么它就有机会再小一点，而这一次需要的是减去序列内的第一个元素，可以理解为“收缩窗口”。<br>这个sum如果 &lt; target，那就可以再向右横移了，因为size扩大，对结果没有任何帮助。</p>
-<p>总体看下来，只要横移和收缩，算法复杂度是O(n)。</p>
-<h4 id="初步思路"><a href="#初步思路" class="headerlink" title="初步思路"></a>初步思路</h4><p>初步思路是，先算个nums[0…x]之和 &gt;= target的窗口，然后这个窗口开始向右移并尝试收缩。但其实不对，因为第一个窗口，不是非得从第0个元素开始，这个窗口自身就应该尝试收缩。这个逻辑补上后是能ac的。<br>不过，初步思路翻译为代码，还是有些小坑，肉眼很难查。建议背一个滑动窗口模板。</p>
-<h4 id="滑动窗口模板思路"><a href="#滑动窗口模板思路" class="headerlink" title="滑动窗口模板思路"></a>滑动窗口模板思路</h4><p>此思路最核心的思想就是，不强求窗口横移，反正先向右扩展1个，再左边收缩一个，就达到了横移。<br>因此滑动窗口的头尾都可以移动，而且是分别移动，用两个变量来表示，（start，end）。<br>因为收缩（start向右移）和扩展（end向右移）可以各做各的，所以没必要先找到一个总和 &gt;= target的初始窗口了。</p>
-<p>所以，步骤可以化简为，<strong>每一次都扩展1下，然后尽力收缩</strong>（while不定次收缩）。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">    tmp_sum += nums[end]</span><br><span class="line">    while tmp_sum &gt;= target:</span><br><span class="line">        win_size = min(win_size, end-start+1)</span><br><span class="line">        tmp_sum -= nums[start]</span><br><span class="line">        start += 1</span><br><span class="line">    end += 1</span><br></pre></td></tr></table></figure>
-
-<p>至于几个变量的初始值，现场推理一下也可以得到，不做赘述。<br>P.S. win_size没必要用int的max，用len(nums)+1就可以了，反正都是不可能的值。</p>
-<h4 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h4><p>滑动窗口的算法，nums就算有负数也无所谓。（被烟雾弹迷惑🐶）这个条件大概是为“前缀和”这一方法准备的。</p>
-<p>前缀和方法，简单来讲就是nums[0..i]之和组成一个sum数组，这个数组严格递增，都不存在相等的元素。</p>
-<p>然后就可以用二分来找了（看到有序就要想到二分），当前sum[i]为0到i元素的和，<code>sum[j] - sum[i] &gt;= target</code>转换为<code>sum[j]&gt;=target+sum[i]</code>，那么就是在sum数组里找<code>target+sum[i]</code>的lower bound。</p>
-<p>为什么不是以j为结尾，<code>sum[j] - sum[x] &gt;= target</code>转换成<code>sum[x] &lt;= sum[j]-target</code>，找sum[x]呢？因为是upper bound（第一个&gt;某值的元素）的前一个（必定&lt;=某值），不如直接找lower bound简洁，而且不用处理减出负数的情况。</p>
-<h3 id="Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode"><a href="#Longest-Substring-with-K-Distinct-Characters-medium-google-–-LintCode" class="headerlink" title="Longest Substring with K Distinct Characters (medium, google) – LintCode"></a><a href="https://www.lintcode.com/problem/longest-substring-with-at-most-k-distinct-characters/description">Longest Substring with K Distinct Characters (medium, google) – LintCode</a></h3><p>Given a string, find the length of the longest substring in it with no more than K distinct characters.</p>
-<p>也就是LeetCode340题 Longest Substring at Most K Distinct Characters。</p>
-<p>这道题输出是最长子串的长度，所以显然可以套用滑动窗口的模板。和上一个题目一样，都是扩展会使得条件不符，要通过收缩来满足条件。<br>即，窗口扩展一旦字符种类超过k，就可以通过窗口收缩来削减字符种类。<br>唯一不同的点是：update longest string的时机（其实就是用end-start+1来尝试更新记录的longest）<br>因为while distinct_count(dict) &gt; k时是去收缩，break while时说明distinct_count(dict) 已经&lt;=k了，这个时候的[start, end]才是一个可能解，符合条件的可能解。<br>所以update longest string len是在while循环外，而且是之后。<br>至于如何实现dict和distinct_count，随便吧，简单也好，高效也好。</p>
-<p>P.S.注意到了吗，这个题目和前面一题Smallest Subarray的区别？</p>
-<p>看不出来也正常，我做了几道题才突然回头发现的😂而且明明之前做过笔记，重蹈覆撤🙄️</p>
-<p><del>果然人类的本质都是复读机</del></p>
-<p>这个题已经开始了longest之路，也就是说，只是想求一个最长的长度，根本不在意“重复无意义的更新”。</p>
-<p>按之前的模板，此题的伪代码应写为：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">    dic[s[end]]+=1</span><br><span class="line">    while len(dic)&gt;k:</span><br><span class="line">        dic[s[start]]-=1</span><br><span class="line">        if dic[s[start]]==0:</span><br><span class="line">            del dic[s[start]]</span><br><span class="line">        start+=1</span><br><span class="line">    longest = max(longest, end-start+1)</span><br><span class="line">    end+=1</span><br></pre></td></tr></table></figure>
-
-<p>这样的写法，保证了longest变量更新时，当前窗口都是len(dic)&lt;=k的，也就是合法的情况。但确实可能会出现窗口被收缩的很小的时候（为了合法），此时max更新也是白干的（longest还是原值）。</p>
-<p>而如果代码将内层while变为if：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">while end &lt; n:</span><br><span class="line">    dic[s[end]]+=1</span><br><span class="line">    if len(dic)&gt;k:</span><br><span class="line">        dic[s[start]]-=1</span><br><span class="line">        if dic[s[start]]==0:</span><br><span class="line">            del dic[s[start]]</span><br><span class="line">        start+=1</span><br><span class="line">    longest = max(longest, end-start+1)</span><br><span class="line">    end+=1</span><br></pre></td></tr></table></figure>
-
-<p>自然，在longest更新时，当前窗口可能都还满足条件，不合法，但仍旧去做了一次longest的更新。但从数值上来讲，由于不满足条件会被收缩一次，加上前面的end扩展一次，窗口等于做了一次平移。那么end=start+1的值就不会变大，longest的更新自然也是不会有实际作用的。</p>
-<p>这一个改动，它到底好在了哪里呢？光看经过，start，end两个游标都是单向前进的，2-while和while-if都不会使两个游标左右飘。但由于2-while会保证每次窗口都是合法的，和while-if相比，start这个游标可能会更靠右。举个极端例子，如果longest是[0, n-2]这个窗口，下一次扩展end就会到末尾n-1，while-if此时发现窗口不合法，收缩一次，就溜了。而2-while，会愣是要求[start, n-1]窗口合法，可能start从0不断右移，直到n-1才停止。无用操作在这个例子就占了一半。具体例子就是AAAAB, k =1。</p>
-<p>这个优化并不容易读，我也不建议平时代码搞这么tricky。在这个题目里，仅仅在节省len查询和dict更新，都是较高效的操作，而且有次数上限（由于start标最多都走到末尾，操作次数最多n次）。优化效果仅仅锦上添花。但这个将while改为if，在其他题目中可能有奇效。因为while的判断条件如果复杂度较高，这里的收益就很大了，见Longest Substring with Same Letters after Replacement一题。</p>
-<h3 id="Fruits-into-Baskets-medium-–-LeetCode"><a href="#Fruits-into-Baskets-medium-–-LeetCode" class="headerlink" title="Fruits into Baskets (medium) – LeetCode"></a><a href="https://leetcode.com/problems/fruit-into-baskets/">Fruits into Baskets (medium) – LeetCode</a></h3><p>跟上题一模一样。题目暗示着连续区间，就可以尝试滑动窗口方法。</p>
-<p>但这一题case比上一题的规模大，最简单的dict实现（不及时删除value为0的项，每次都要遍历得到distinct count）这种方法就超时了。还是推荐及时删除value为0的项，其实比不删还简单，因为删除这个操作只会在收缩时出现（只有此处count–）。</p>
-<p>可优化为while-if。</p>
-<h3 id="No-repeat-Substring-medium-–-LeetCode"><a href="#No-repeat-Substring-medium-–-LeetCode" class="headerlink" title="No-repeat Substring (medium) – LeetCode"></a><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">No-repeat Substring (medium) – LeetCode</a></h3><p>和前面的题目毫无差别。</p>
-<p>但注意第二层while的判断条件是什么，如果判断条件是“窗口dict的value全为1”，那么你可以改出while-if。</p>
-<p>如果是“当前字符c的count&gt;1”，就改不了了。因为现在只看当前字符，那就意味着窗口必须是合法的，然后扩展，加入当前字符。while-if便不可用。</p>
-<p>“只看当前字符”这种方法的优化思路是，如果start要跳，直接让start去“当前字符上一次出现的位置的右边”。 因为前面的字符都可以跳过了。还可以再化简代码，但会很难读，所以还是适合而止吧。</p>
-<h3 id="Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks"><a href="#Longest-Substring-with-Same-Letters-after-Replacement-medium-amazon-–-GeeksforGeeks" class="headerlink" title="Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks"></a><a href="https://practice.geeksforgeeks.org/problems/maximum-sub-string-after-at-most-k-changes/0">Longest Substring with Same Letters after Replacement (medium, amazon) – GeeksforGeeks</a></h3><p>We have a string <strong>s</strong> of length n, which consist only UPPERCASE characters and we have a number k (always less than n and greater than 0). We can make at most k changes in our string such that we can get a sub-string of maximum length which have all same characters.</p>
-<p><strong>Example 1:</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Input: s = &quot;ABAB&quot;, k = 2</span><br><span class="line">Output: 4</span><br><span class="line">Explanation: Change 2 &#x27;B&#x27; into &#x27;A&#x27;.</span><br></pre></td></tr></table></figure>
-
-<p><strong>Example:</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Input: s = &quot;ABCD&quot;, k = 1</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Change one &#x27;B&#x27; into &#x27;A&#x27;.</span><br></pre></td></tr></table></figure>
-
-<p>这种要替换字符的题目，往往不用真的替换，只要数值上达到某个条件就行了。比如这个题，不用想着应该替换哪些字符，而应该想“总字符个数 - 不需要被替换的字符个数 &gt;= k”就行了。很容易想到，“不需要被替换的字符个数”就是区间内个数最多的那个字符，这样，总字符数才能多一点（对某个区间而言，不需要理会那些无意义的可能解，“保留频率最高的字符，把其他的替换为该字符”肯定是操作数最少的）。于是，替不替换的问题就化简为简单的统计问题。</p>
-<p>统计问题虽然简单，但是复杂度略高。想要快速，可能需要两个map，ch-&gt;count, count-&gt;ch。所以，while-if就很适合了，由于只收缩一次，max_count就从dict里统计一次就好了，不用强求更快速。</p>
-<h3 id="Longest-Subarray-with-Ones-after-Replacement-medium-–-GeeksforGeeks"><a href="#Longest-Subarray-with-Ones-after-Replacement-medium-–-GeeksforGeeks" class="headerlink" title="Longest Subarray with Ones after Replacement (medium) – GeeksforGeeks"></a><a href="https://www.geeksforgeeks.org/longest-subsegment-1s-formed-changing-k-0s/">Longest Subarray with Ones after Replacement (medium) – GeeksforGeeks</a></h3><p>比上题更简单，只需要一个int变量就能描述一个窗口内的0的个数。</p>
-<h3 id="Problem-Challenge-1-Permutation-in-a-String-hard"><a href="#Problem-Challenge-1-Permutation-in-a-String-hard" class="headerlink" title="Problem Challenge 1 - Permutation in a String (hard)"></a><a href="https://leetcode-cn.com/problems/permutation-in-string/">Problem Challenge 1 - Permutation in a String (hard)</a></h3><p>排列，不允许多一个字符，所以窗口大小是固定的，滑动用来节省“更新窗口属性的代价”。题目如果对字符多加限制，比如此题限制只有小写字母，也就只有26个可能，其实描述窗口用长26的数组都可以，不用非要用counter。用counter有个麻烦点在于当某个字符的count为0时，你需要删掉它，不然就没法和s1的counter比大小。如果两个字符串的counter都先把26个字母的空间开出来，那还不如数组节省空间。</p>
-<h3 id="Problem-Challenge-2-String-Anagrams-hard"><a href="#Problem-Challenge-2-String-Anagrams-hard" class="headerlink" title="Problem Challenge 2 - String Anagrams (hard)"></a><a href="https://leetcode-cn.com/problems/find-all-anagrams-in-a-string/submissions/">Problem Challenge 2 - String Anagrams (hard)</a></h3><p>和challenge1没有区别</p>
-<h3 id="Problem-Challenge-3-Smallest-Window-containing-Substring-hard"><a href="#Problem-Challenge-3-Smallest-Window-containing-Substring-hard" class="headerlink" title="Problem Challenge 3 - Smallest Window containing Substring (hard) *"></a><a href="https://leetcode-cn.com/problems/minimum-window-substring/">Problem Challenge 3 - Smallest Window containing Substring (hard) *</a></h3><p>没啥特别，就是用collections.Counter()减法，比自己写的比较函数要慢不少，1200ms vs 500ms。</p>
-<h3 id="Problem-Challenge-4-Words-Concatenation-hard"><a href="#Problem-Challenge-4-Words-Concatenation-hard" class="headerlink" title="Problem Challenge 4 - Words Concatenation (hard)"></a><a href="https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/">Problem Challenge 4 - Words Concatenation (hard)</a></h3><p>注意读题！words长度相同！匆忙读题后，我还以为要处理不同的切割方式，以为会出现“一个substring里有几种正确的word排列”。那这题可能不止hard了。</p>
-<p>可以简单想到的办法就是窗口从0一直滑到尾，step为1，每一次窗口都得重新计算下word-count，然后和words参数比较。</p>
-<p>显然这个没有什么巧妙点，没有节约计算量，所以想要利用滑动窗口，当然得想点骚方法。其实就是，每一次都设置一个起点，从这个起点开始，只会按词长来拓展，这样就能像字符型的题目一样，充分利用滑动窗口的扩展收缩，减少计算。举例说明，就是一个单词长度为len，s串总长为n的话，第一趟是从0开始一个len切一刀，这样切割后的串扩展和收缩都是一个词的，第二趟就是从1开始切，以此类推，最后一次是len-1开始切。可以想到，这样也是把所有可能性都考虑到了。</p>
-<p>改进后的滑动窗口方法效果是明显的，1000ms到100ms。</p>
-<h3 id="Additional"><a href="#Additional" class="headerlink" title="Additional"></a>Additional</h3><h4 id="Sliding-Window-Maximum-hard-–-LeetCode"><a href="#Sliding-Window-Maximum-hard-–-LeetCode" class="headerlink" title="Sliding Window Maximum (hard) – LeetCode"></a><a href="https://leetcode.com/problems/sliding-window-maximum/">Sliding Window Maximum (hard) – LeetCode</a></h4><p>这个题跟滑动窗口模板毫无关系，窗口大小都固定牢了。唯一的问题点在于用什么结构体来提炼窗口信息，既能很快查到最大值，又能在窗口滑动时很快更新好（滑动本质就是加入一个数，去掉一个数）。快速查到最大值，可以想到利用堆。但是堆有一个明显问题，就是它不适合去删除内部的某个元素（不是堆首）。而“去掉一个数”这个操作很可能就是去删除某个中间的值。堆的删除操作是个不太ok的操作，因为这个堆是简单的堆（并非压平了看，完全有序的，不是堆排序之后的结果），也就是删除操作不能快速定位到要删除的元素。</p>
-<p>但是别直接放弃堆（我就放弃了，想别的方法，走远了）。这时候，尝试多推导一下，就会发现，不用着急删除元素。因为元素可以跟上自己的位置idx，如果堆顶拿到的idx已经不在窗口内，再删除也不迟。也就是延迟了删除操作，正好还让删除操作符合堆的操作习惯，只删堆顶。</p>
-<p>到这里，起码算是题目做出来了，而且这个方法也不差，能交差。</p>
-<p>但这道题更想考的点是别的，所以还需要再优化。说是优化，不如说是换了解法。从堆想到单调队列，反正我是做不到。。。</p>
-<p>单调队列是什么东西？先记住它能够动态地维护定长序列中的最值。所以只要定长、最值，就可以想到尝试单调队列。具体来讲，单调队列是，push元素前会把前面的元素都从后往前访问一遍（遇到比自己大的停止），比当前元素小的都删除，再将元素放在队尾。其实，全访问也没关系，最后结果没有差别，不过，遇到比自己大的就停止可以节省点时间。最后的结果就是队列里头到尾是从大到小有序的。</p>
-<p>举例说明(为了多点情况，和leetcode原例子有差别)：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nums = [1,3,-1,-3,-2,3,6,7], k = 3</span><br></pre></td></tr></table></figure>
-
-<p>单调队列应该长什么样？</p>
-<p>[1,3,-1]初始窗口入队列后，q=[3,-1]，那么这个窗口的最值就是3；</p>
-<p>[3,-1,-3], q=[3,-1,-3]，最值还是3；</p>
-<p>[-1,-3,-2], q=[3,-1,-2]，最值3，但3已经不在窗口内，所以pop，q=[-1,-2]，最值-1；</p>
-<p>[-3,-2,3], q=[3]，最值3；</p>
-<p>[5,3,6], q=[6]，最值6；</p>
-<p>[3,6,7], q=[7]，最值7。</p>
-<p>可以看到，只用进行简单比较，就能维持着最值，比堆的时间复杂度低。</p>
-<p>单调队列它为什么做到了呢？</p>
-<p>可以这么想，首先简单起见，只考虑窗口内元素的单调队列情况，比如3,1,2序列，k=3，很明显1会在2进入时被扔掉，因为2进入了之后，怎么也是2比1晚出窗口，就算可能是最大值，也是2可能，1是完全没有可能竞争最大值的。</p>
-<p>再考虑队列前部还有窗口外元素的情况，窗口外的元素还留在队列里（可以称为过期元素），也就是说窗口内的单调队列最大值（也就是队列列首）比过期元素小。但这并不影响窗口元素那部分的选择，无论有没有过期元素，窗口那部分的单调队列都长一个样。所以过期元素可以简单地pop出来扔掉。</p>
-<p>总的来说，单调队列就是剔除了“必然不能争最大值”的那部分无用值。单调队列实现上没有什么难度，不再赘述。</p>
-<p>P.S. Python实现遇到超时问题，因为我没有用pop，而是选择到一个点，取出切片[:x]，然后又append。具体细节待调查。从耗时来看，很明显这一连串操作应该搞出了deep copy之类的耗时操作。都叫单调队列了，就好好用python collections里的deque。</p>
-<h4 id="Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode"><a href="#Shortest-Subarray-with-Sum-at-Least-K-hard-–-LeetCode" class="headerlink" title="Shortest Subarray with Sum at Least K (hard) – LeetCode"></a><a href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/">Shortest Subarray with Sum at Least K (hard) – LeetCode</a></h4><p>仔细读题，这个题的数组里有负数。滑动窗口的算法模板是没办法直接套用的，因为窗口收缩的停止条件是sum &lt; k，由于有负数，你不能在窗口sum &lt; k时停止，你必须继续收缩，否则就可能错过解。</p>
-<p>停留在滑动窗口算法模板这个框架里，是没办法找到解法的。</p>
-<p>这时候<del>只能躺平</del>。</p>
-<p>只能说先回答个O(n^2)的解法吧，聊胜于无。很明显，所有区间和都是可能的最佳答案，所以前缀和加<strong>二级遍历</strong>所有区间，能得到答案。</p>
-<p>当然可以优化，但是很难凭空想出来参考答案“单调队列”。接下来的说明是以知道“前缀和+单调队列是较好解法”为前提来看这个题目，所以没有什么顺理成章推导，全凭参考答案提示。</p>
-<p>单调队列维护什么？</p>
-<p>题目核心是求最短的合法子串，所以短是最核心的，和只要&gt;=k什么都行。那么假设当前看i，以i开头的最佳子串，当然是从i开始寻找第一个j，能使sum[i..j]&gt;k（前缀和数组里两个数减一下就好了）。j之后的都不用找了，没有比i到j更短的了。那么反过来思考，从i到j，中间可能有多个值，一一遍历就是暴力解法，优化当然是更快找到j，那么如何迅速定位到j呢？</p>
-<p>或者换个说法，i到j中间的多个可能性，有哪些是必然不可能的，可以直接过滤？答案是没得😛。因为如果从[i, n)区间提取出单调递增的部分，可以使用二分，但这个题应该用不着。那这个思路还有什么优势呢？我们一一遍历到j，然后得到这个i的最优解，然后i++，然后你还是得遍历过去，因为单调递增队列本身不能有更多的改动，最多把队列头比i小的pop出来。那换个角度，递增队列是不是能从后往前看，当某个靠后的j满足了条件，你能把它怎么样？你不能动它，因为接下来的i（更大的i）和j一起也能满足条件，这个窗口长度肯定比现在的短，你删了这个j，就丢掉了解。</p>
-<p>那么就应该考虑换个顺序，以当前j为标杆，去找前面的i，它有个什么好处呢？当你从前往后找i，某个i满足条件后，你可以大胆删了它，因为j会++，当前的i充分发挥价值（用来更新window len）后，就不需要了，后面的j和这个i组合是无意义的。</p>
-<p>P.S. 我想到了以j找i，但又想的是从j-1往0这个方向找，想想看，跟以i找j没什么差别，它们跟暴力解法比，完全不是稳定降低复杂度，甚至可以劣到没区别。（于是Python实现也完美超时了）</p>
-<p>总的看“前缀和+单调队列”，大概的最好状态是每次O(1)，然后n个j，所以O(n)，比如，每次看队列头d[0]的preSum都很大，不能让preSum[j]-preSum[d[0]]&gt;=k，单调递增的d后面的元素也不能满足要求了，所以每次就立马完成。最差的状态可能是某次j，从0到j遍历，每次都符合条件，都要pop并更新window len。但很明显，队列最多跟n一样长，而且pop出去了又不会回来，所以次数最多n次，并不会膨胀。所以总的复杂度还是O(n)的。</p>
-<p>这道题还是很难的，难在拼出正确的方法，知道方法后，代码实现不难。</p>
-<h4 id="Max-Consecutive-Ones-III"><a href="#Max-Consecutive-Ones-III" class="headerlink" title="Max Consecutive Ones III"></a><a href="https://leetcode.com/problems/max-consecutive-ones-iii/">Max Consecutive Ones III</a></h4><p>突如其来的一道复习题。while-if即可，虽然和while-while实测没什么区别，大概是case的原因。</p>
-<h4 id="Replace-the-Substring-for-Balanced-String-medium-–-LeetCode"><a href="#Replace-the-Substring-for-Balanced-String-medium-–-LeetCode" class="headerlink" title="Replace the Substring for Balanced String (medium) – LeetCode"></a><a href="https://leetcode.com/problems/replace-the-substring-for-balanced-string/">Replace the Substring for Balanced String (medium) – LeetCode</a></h4><p>题目是说要替换的字符包含在一个子串里，要求子串最短，子串符合某个条件即可，那就很适合套用滑动窗口模板了。</p>
-<h4 id="Count-Number-of-Nice-Subarrays-medium-–-LeetCode"><a href="#Count-Number-of-Nice-Subarrays-medium-–-LeetCode" class="headerlink" title="Count Number of Nice Subarrays (medium) – LeetCode"></a><a href="https://leetcode.com/problems/count-number-of-nice-subarrays/">Count Number of Nice Subarrays (medium) – LeetCode</a></h4><p>这题一看就不适合立马套用模板，扩展和收缩求最长最短很有效，但这里没有用处。举例说明，当我们找到一个窗口恰好有k个奇数，此时可以滑动窗口么？当然不能。所以放弃吧。然后考虑到奇数是核心，先找到k个奇数的最小可能，它的左右两边如果分别有a个偶数和b个偶数，那么这里就有很多个子串可能，1+a+b+a*b。而找奇数，可以直接抽出奇数，这样奇数数组里每k个就是一个base，延展下两边的偶数。既没有重复也不会漏算。</p>
-<p>滑动窗口完结撒花🎉</p>
 ]]></content>
       <categories>
         <category>Algo</category>
@@ -755,6 +800,33 @@
       </tags>
   </entry>
   <entry>
+    <title>Grokking Pattern 6</title>
+    <url>/2021/05/06/grokking-6/</url>
+    <content><![CDATA[<h1 id="Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"><a href="#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions" class="headerlink" title="Grokking the Coding Interview: Patterns for Coding Questions"></a>Grokking the Coding Interview: Patterns for Coding Questions</h1><p>See <a href="/2021/05/06/grokking-1/" title="Grokking Pattern 1">Grokking Pattern 1</a>.</p>
+<h2 id="6-Pattern-In-place-Reversal-of-a-LinkedList"><a href="#6-Pattern-In-place-Reversal-of-a-LinkedList" class="headerlink" title="6. Pattern In-place Reversal of a LinkedList"></a>6. Pattern In-place Reversal of a LinkedList</h2><h3 id="Reverse-a-LinkedList-easy"><a href="#Reverse-a-LinkedList-easy" class="headerlink" title="Reverse a LinkedList (easy)"></a>Reverse a LinkedList (easy)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a Singly LinkedList, reverse the LinkedList.</span><br><span class="line"> Write a function to return the new head of the reversed LinkedList.</span><br></pre></td></tr></table></figure>
+
+<p>反转的基本操作：两个指针，一前一后，改变后一节点的next指针，同时就会失去后一节点的原next，所以需要第三个指针，保住后一节点的原next。</p>
+<p>再优化：由于每一次新的比较，都只需要两个指针，指向“后一节点的next节点”的指针是可以在此基础上再找到的，不需要一直追着。</p>
+<p>遍历结束后，最后一个节点就是头节点，所以不需要别的额外的变量。</p>
+<h3 id="Reverse-a-Sub-list-medium"><a href="#Reverse-a-Sub-list-medium" class="headerlink" title="Reverse a Sub-list (medium)"></a>Reverse a Sub-list (medium)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a LinkedList and two positions ‘p’ and ‘q’, reverse the LinkedList from position ‘p’ to ‘q’.</span><br></pre></td></tr></table></figure>
+
+<p>p,q是positions，也就是第几个元素。不是value，更不是直接的node地址。</p>
+<h3 id="Reverse-every-K-element-Sub-list-medium"><a href="#Reverse-every-K-element-Sub-list-medium" class="headerlink" title="Reverse every K-element Sub-list (medium) *"></a>Reverse every K-element Sub-list (medium) *</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a LinkedList and a number ‘k’, reverse every ‘k’ sized sub-list starting from the head.</span><br><span class="line"></span><br><span class="line">If, in the end, you are left with a sub-list with less than ‘k’ elements, reverse it too.</span><br></pre></td></tr></table></figure>
+
+<p>首先看边界，因为末尾不足k的也翻转，所以可以无脑翻转。如果题目末尾变成不足k的<strong>不可以翻转</strong>（<a href="https://leetcode.cn/problems/reverse-nodes-in-k-group/">leetcode 原题</a>），那么就得先数k，不到k个就退出，有k个再翻转，多了一次遍历，不过也是O(n)。</p>
+<p>题目有些细节，但本质还是两个指针的事情，不难做对。不过我第一反应是不会改动初始链表的，但这一题如果加哨兵（一个dummy node接上链表head），会更简单点，不用在遍历while里写if判断是不是首次翻转，如果是首次，需要存下这个new head。（效率还是更高的，虽然不算太重要）</p>
+<h3 id="Problem-Challenge-1-Reverse-alternating-K-element-Sub-list-medium"><a href="#Problem-Challenge-1-Reverse-alternating-K-element-Sub-list-medium" class="headerlink" title="Problem Challenge 1 - Reverse alternating K-element Sub-list (medium)"></a>Problem Challenge 1 - Reverse alternating K-element Sub-list (medium)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Given the head of a LinkedList and a number ‘k’, reverse every alternating ‘k’ sized sub-list starting from the head.</span><br><span class="line"></span><br><span class="line">If, in the end, you are left with a sub-list with less than ‘k’ elements, reverse it too.</span><br></pre></td></tr></table></figure>
+
+<h3 id="Problem-Challenge-2-Rotate-a-LinkedList-medium"><a href="#Problem-Challenge-2-Rotate-a-LinkedList-medium" class="headerlink" title="Problem Challenge 2 - Rotate a LinkedList (medium)"></a>Problem Challenge 2 - Rotate a LinkedList (medium)</h3>]]></content>
+      <categories>
+        <category>Algo</category>
+      </categories>
+      <tags>
+        <tag>Algo</tag>
+        <tag>LeetCode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>leetcode-roadmap</title>
     <url>/2021/03/22/leetcode-roadmap/</url>
     <content><![CDATA[<p>推荐站点：</p>
@@ -886,7 +958,7 @@
   <entry>
     <title>Hexo</title>
     <url>/2021/01/06/build-hexo/</url>
-    <content><![CDATA[<h1 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h1><p>Hexo的创建使用不多赘述。</p>
+    <content><![CDATA[<h1 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h1><p>Hexo的创建使用不多赘述。注意，先搞清楚hexo是否满足书写要求，可能你需要的是sphinx。</p>
 <h2 id="With-github"><a href="#With-github" class="headerlink" title="With github"></a>With github</h2><p>Hexo通过<code>hexo d</code>来发布到github，因此github中deploy到的分支是网站目录。也就是deploy后在本地可以看到的<code>.deloy_git</code>。<br>我个人使用了另一个branch来保存hexo项目的原始文件，也就是_config.yml配置，md文档等等。</p>
 <h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>名字解释：<br><code>&lt;root&gt;</code>: 指的网页根目录，或者说是hexo deploy到的repo分支根目录。</p>
 <p>Q: 遇到网站repo中路径是存在的，比如<code>&lt;root&gt;/categories/index.html</code>确实存在，但是浏览器点击却是404？<br>A: 可以自行访问尝试下<code>&lt;root&gt;/categories/</code>或者全路径，看看<code>index.html</code>是不是有问题。如果这样就能访问到正常页面，那么问题大概就是缓存了。你可以换个浏览器快速检查下，或清除该页面缓存重试下。</p>
@@ -917,6 +989,10 @@
 
 <p><code>hexo version</code>可以查到相关version。</p>
 <p>然后又可能遇到<code>npm rebuild node-sass</code>很慢的问题，卡在github上下载node-sass了。可以换下源试试，<code>npm i node-sass --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/</code>。socks5代理会hang up，不知道是不是暂时的不稳定。</p>
+<p>node版本再升高，<a href="https://github.com/nodesource/distributions#debian-and-ubuntu-based-distributions">https://github.com/nodesource/distributions#debian-and-ubuntu-based-distributions</a> 。</p>
+<p>hexo-renderer-sass有点旧，node版本高了不行，升高sass版本就没有问题了。</p>
+<p>我想要个block admonition，但没有插件能做到解析’<code>&#123;note&#125;</code>‘这种。只能改用现有语法，缺陷是vscode没法preview，只能deploy/server后看效果。最终还是决定使用hexo next主题自带的。preview的问题不大，用的频率不会太多。<br>切换sphinx有点麻烦，hexo配reStructuredText插件，例如hexo-renderer-pandoc，没成功，据说这个插件也比较大，deploy会慢。</p>
+<h2 id="Next-Dark"><a href="#Next-Dark" class="headerlink" title="Next Dark"></a>Next Dark</h2><p>@media (prefers-color-scheme: dark) {}删了，只保留内层。否则，会考察OS或浏览器的主题，可能不能dark，强制弄黑，保护眼睛。</p>
 ]]></content>
       <categories>
         <category>build</category>

@@ -37,7 +37,7 @@ tags:
 
 常见分布式锁就是zookeeper和redis。
 
-[这篇文章介绍的redis做分布式锁](https://mp.weixin.qq.com/s/RViDM1WHE61SDLNKzUmTAg)。我们先读读看。
+具体看算法总结 {% post_link bigdata-algo %}。这里后续贴一点常见的具体面试题吧。
 
 ## CAP定理 theorem/principle
 

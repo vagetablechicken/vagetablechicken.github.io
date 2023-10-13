@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"vagetablechicken.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Useless Knowledge先叠甲，不是知识无用，只是对我来说用不上。纯当课外读物了解着玩，包括一些朋友对我作为计算机专业人士的神奇提问，和我觉得很离谱的新闻，我就想看看它是不是真的。 PWM 脉冲宽度调制Pulse width modulation，https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Pulse-width_modulation 突然想到了大学实验课上的呼吸灯实验，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Useless Knowledge">
+<meta property="og:url" content="http://vagetablechicken.github.io/2023/10/11/useless-knowledge/index.html">
+<meta property="og:site_name" content="Wei">
+<meta property="og:description" content="Useless Knowledge先叠甲，不是知识无用，只是对我来说用不上。纯当课外读物了解着玩，包括一些朋友对我作为计算机专业人士的神奇提问，和我觉得很离谱的新闻，我就想看看它是不是真的。 PWM 脉冲宽度调制Pulse width modulation，https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Pulse-width_modulation 突然想到了大学实验课上的呼吸灯实验，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://en.wikipedia.org/wiki/File:Talbot-Plateau_disk.png">
+<meta property="og:image" content="https://pic3.zhimg.com/v2-214e5dfea486d22f905b465587e8cd0a_b.jpg">
+<meta property="article:published_time" content="2023-10-11T12:56:17.000Z">
+<meta property="article:modified_time" content="2023-10-13T04:25:19.027Z">
+<meta property="article:author" content="Huang Wei">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://en.wikipedia.org/wiki/File:Talbot-Plateau_disk.png">
+
+<link rel="canonical" href="http://vagetablechicken.github.io/2023/10/11/useless-knowledge/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Useless Knowledge | Wei</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Wei" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Wei</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://vagetablechicken.github.io/2023/10/11/useless-knowledge/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Huang Wei">
+      <meta itemprop="description" content="Coding, Struggling, and Living.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wei">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Useless Knowledge
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-10-11 20:56:17" itemprop="dateCreated datePublished" datetime="2023-10-11T20:56:17+08:00">2023-10-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-10-13 12:25:19" itemprop="dateModified" datetime="2023-10-13T12:25:19+08:00">2023-10-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Useless-Knowledge"><a href="#Useless-Knowledge" class="headerlink" title="Useless Knowledge"></a>Useless Knowledge</h1><p>先叠甲，不是知识无用，只是对我来说用不上。纯当课外读物了解着玩，包括一些朋友对我作为计算机专业人士的神奇提问，和我觉得很离谱的新闻，我就想看看它是不是真的。</p>
+<h2 id="PWM-脉冲宽度调制"><a href="#PWM-脉冲宽度调制" class="headerlink" title="PWM 脉冲宽度调制"></a>PWM 脉冲宽度调制</h2><p>Pulse width modulation，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Pulse-width_modulation">https://en.wikipedia.org/wiki/Pulse-width_modulation</a></p>
+<p>突然想到了大学实验课上的呼吸灯实验，联想起来自己还是不太理解当时为什么要那么写代码，所以这次来深度了解一下。当时只是知道代码写法，并不理解原理，现在才查到是PWM。</p>
+<p>首先，PWM并不唯一，它可以用在很多地方，它本身的实现也很多，呼吸灯就是个简单实验而已。</p>
+<p>模拟电路的缺点不多说了，总之是希望用数字电路来顶替模拟电路，但是数字电路的输出是高电平或低电平，而模拟电路的输出是连续的，可以是高低电平范围内的任何一个值，PWM就是来解决这个取值问题的。</p>
+<p>硬件，比如LED灯，本来就是可以接收一个范围的电压，并给与相应的亮度，当然，此处还是理想地说，电压是稳定的一个值，LED就在那里亮着。如果LED接受的电压不是稳定的，是脉冲呢？假设脉冲很慢，1s高，1s低，我们就能看到LED在闪烁，但是如果脉冲很快，比如10ms高，10ms低，我们就看到LED是亮的，但是亮度不是100%，而是50%（10ms仅仅是个假设，我不知道具体什么频率才能让人眼看到，频率过快应该跟常亮没有区别）。100Hz应该就看不到闪烁了。这就是PWM呼吸灯的基础，PWM调光，PWM Dimming。</p>
+<p>有了Dimming，我们可以在LED上实现各种亮度，比如50%，75%等等，只要每一小段时间变换亮度，就能实现呼吸灯。</p>
+<p>那么，PWM Dimming具体什么样子？</p>
+<p>可以想象，如果当前给一条高电平直线，我们看到的是常亮；如果直线中每个1s只出现1ms的低电平，那个时候LED肯定是熄灭的，但持续低电平时间太短了，人眼根本无法察觉，而且LED还可能有余晖，不会瞬间黑了，就更加容易掩盖熄灭的时间，也就是视觉残留。</p>
+<p>但为何视觉残留，就能完美模拟出0-100%的亮度呢？我们为什么<strong>不能</strong>从50%空占比（Duty Cycle）中捕捉到那么一瞬的高于50%的亮度？这个从经验上有人总结过，就是说，人眼看到的是一种平均值，而不是瞬间的值，所以，如果LED的空占比是50%，那么人眼看到的就是50%的亮度，而不是瞬间的100%亮度。这个叫做<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Talbot-Plateau_law">Talbot-Plateau Law</a>，中文名不统一，可能叫塔尔博特-普拉托定律。它是由实验支撑的，就是下图的黑白盘，又称扇形实验。</p>
+<p><img src="https://en.wikipedia.org/wiki/File:Talbot-Plateau_disk.png" alt="圆盘"></p>
+<p>圆盘的一个环和PWM调光的某个亮度是类似的，转起来后，我们人眼就是看到了一个平均值，而不是瞬间的值。背后的生物理论还不了解，但这个实验还是能让人理解，我们人眼确实是被这么骗了。</p>
+<p>我们将这个定律作为前提条件，相信它，那么，可以得到下图所示的结论，我如果恒定频率，将会得到不同亮度。</p>
+<p><img src="https://pic3.zhimg.com/v2-214e5dfea486d22f905b465587e8cd0a_b.jpg" alt="PWM调光"></p>
+<p>顺带一提，PWM虽然骗过人眼感受，但实际还是让我们的眼部细胞被迫处理瞬时的变化。所以有些PWM频率过低，会让人眼睛类，甚至头疼。说起来，有些手机就是被人吐槽PWM频率过低，瞎眼睛。不知道为何，它们不适用高频，可能和功耗有关？</p>
+<p>PWM调光，应该可以代码模拟一下。不知道电脑显示器的刷新频率是否会拖后腿，但先尝试一下吧。学校时期还真有单片机、arduino一类的开发板，和LED灯，目前就只能电脑模拟一下了。</p>
+<p>首先看看能不能一步到位，Python中使用画图的工具，最终要能达到做动画的效果，限制为只使用某个亮度，那么它就作为本实验的100%亮度。比如matplotlib就可以做类似事情，而展示图片wsl也适配了，可以弹出图片框。但测试了一下频率，做不到人眼感受不到闪烁的程度，人眼还是牛啊。</p>
+<p>那就只能做PWM波形了，这个用matplotlib画图，并不断更新图片就可以。假设这个生成程序可以用于控制LED硬件，它应该是可以设置频率和占空比，然后持续生成电平值的。我们就以这个角度来写代码，再找个方法做图片。</p>
+<p><a target="_blank" rel="noopener" href="https://www.electronicwings.com/raspberry-pi/raspberry-pi-pwm-generation-using-python-and-c">https://www.electronicwings.com/raspberry-pi/raspberry-pi-pwm-generation-using-python-and-c</a></p>
+<p>但其实真正的硬件控制，是有些高度封装的。但为了好画图，我还是当作是set value的，而不是set frequency的。并且是持续输出，最大频率先定一个，一段时间为高电平，体现为很多个1。得到代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">import matplotlib.pyplot as plt</span><br><span class="line"></span><br><span class="line">resolution = 1000  # Hz</span><br><span class="line"># 1 / resolution = 1ms 1 value in the list is 1ms</span><br><span class="line"></span><br><span class="line">def pwm(freq, duty_cycle):</span><br><span class="line">    # gen a list of 0 and 1</span><br><span class="line">    period = int(1 / freq * resolution)</span><br><span class="line">    on = int(period * duty_cycle)</span><br><span class="line">    off = int(period * (1 - duty_cycle))</span><br><span class="line">    print(on, off)</span><br><span class="line">    while True:</span><br><span class="line">        for i in range(on):</span><br><span class="line">            yield 1</span><br><span class="line">        for i in range(off):</span><br><span class="line">            yield 0</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line">for i in range(30, 100, 10):</span><br><span class="line">    gen = pwm(10, i / 100)</span><br><span class="line">    data += [next(gen) for j in range(1000)]</span><br><span class="line">for i in range(100, 30, -10):</span><br><span class="line">    gen = pwm(10, i / 100)</span><br><span class="line">    data += [next(gen) for j in range(1000)]</span><br><span class="line"># plot</span><br><span class="line">xs = [x for x in range(len(data))]</span><br><span class="line">print(len(data))</span><br><span class="line">plt.plot(xs, data)</span><br><span class="line">plt.show()</span><br><span class="line">plt.close()</span><br></pre></td></tr></table></figure>
+
+<h2 id="芯片制程"><a href="#芯片制程" class="headerlink" title="芯片制程"></a>芯片制程</h2><p>学校中曾经了解过一点皮毛，但我的速度已经跟不上2023年前后的芯片厂们了，怎么能2nm都出来，它不会失效么？而这一问题，还真有人问过我，那时我只记得它们是虚标，工艺是在进步但废片率也高，所以虽然说得很先进，但目前还不会变成产品到我们手上。</p>
+<p>突然想起这事，想要了解多一点细节，比如哪里假了，为什么虽然假，还是可以这么命名。搜到很多营销号千篇一律的话，完全没有解释，只是说了一些芯片制程的历史，然后就说了一句，这是虚标。知乎上的回答才稍微找到一点靠谱的，我也读的不深入，此处也不引用了，免得我的错误解读曲解了知乎回答。</p>
+<p>我就大致写下我想要了解的问题解释，不加太细节的名词，以免误导。</p>
+<p>首先，最早的芯片是planar的，要往里塞更多单元，当然是把单元做的越来越小，这样就能让单位面积里密度越来越高。但当初并没有用密度来衡量芯片，而是用了单元的尺寸来描述。可能从硬件制作来讲，如何做出一个小的单元，才是工艺的最直接体现吧。造单元的时候，衡量它用密度也很奇怪。但进一步的，也就用这个尺寸来描述芯片了，我们并没去在意芯片有多大，有多少个单元，密度多少，而是用单元的尺寸来说这个芯片有多强。这里就是误解的第一步了。即使还是planar，制程的Xnm（应该一直是Gate Length吧，不知道有没有改变过指标，还需要订正，本文只做虚指）已经不代表单元的尺寸了，因为它比单元尺寸缩减地快。可能因为单元尺寸、制程尺寸都是在缩减，正相关。Gate好像跟耗电量也有关，功耗也是一个很重要的点。反正一通下来，可能没找着更合适的，就没有换。</p>
+<p>第二步，设计革新，芯片不再是planar了，它变造型了，还开始立体叠甲了。从设计造型改变后，Gate尺寸大概可以理解为能直接缩的很小很小，这时候还用它当指标，当然就很明显不对了。你说你电脑超薄，结果是电脑的最边缘超薄（joke）。那么，它就开始是理论指标了。比如，新的芯片密度是随便什么面积单位下有100M个单元，那么它的制程就是换算成planar，如果planar设计下要5nm才能塞下这么多单元，我就叫5nm制程的芯片。根据好几个人的说法，是2012年22nm后开始无法标志实际尺寸，而是只能做等效计算的。</p>
+<p>但既然都是等效制程了，为什么又出现了英特尔和吹水厂们两派？这个地方我还不确定，有空读一下图做一下计算。目前看来，是英特尔完全遵循等效计算法，但其他吹水厂又换了个玩法，就是摩尔定律坐标图。它们的下一代就一定是摩尔定律的下一个点，于是，16nm是某年的一代，我下一代进步了，只进步了一点点，但我一定要叫下一代的名字，也就是12nm/10nm。（摩尔是翻倍，那么芯片二维来看，面积变成上一代的0.5倍，等于边长变为上一代的0.7），所以16*0.7=11.2nm，反正都是虚假的了，向上取整向下取整随便来。这一招6啊，没有人比他们更懂摩尔。</p>
+<p>这故事告诉我们营销的重要性，我身边的人不知道有多少人被这些名词忽悠了，还说某厂掌握核心科技，远超国外。太猛了，我解释了，但我感觉也并没有改变他的观点，因为他已经信了。</p>
+<p>希望我能有一天负责任地夸奖国产芯片，主要是说热门的那些。（没有说全都不好的意思）</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/09/15/arch-draw/" rel="prev" title="大概只有自己能看懂的手绘架构图">
+      <i class="fa fa-chevron-left"></i> 大概只有自己能看懂的手绘架构图
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/10/12/cs-tips/" rel="next" title="cs tips">
+      cs tips <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Useless-Knowledge"><span class="nav-number">1.</span> <span class="nav-text">Useless Knowledge</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PWM-%E8%84%89%E5%86%B2%E5%AE%BD%E5%BA%A6%E8%B0%83%E5%88%B6"><span class="nav-number">1.1.</span> <span class="nav-text">PWM 脉冲宽度调制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E5%88%B6%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">芯片制程</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Huang Wei</p>
+  <div class="site-description" itemprop="description">Coding, Struggling, and Living.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huang Wei</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

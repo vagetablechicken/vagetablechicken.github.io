@@ -1,6 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>cs tips</title>
+    <url>/2023/10/12/cs-tips/</url>
+    <content><![CDATA[<h1 id="Computer-Science-Tips"><a href="#Computer-Science-Tips" class="headerlink" title="Computer Science Tips"></a>Computer Science Tips</h1><p>记录一些小知识点，供个人搜索使用。反正脑内记忆也会忘。</p>
+<h2 id="Nan"><a href="#Nan" class="headerlink" title="Nan"></a>Nan</h2><p>真的float/double类型当然不会有nan，它就是个数字？但print float/double类型的时候，可能打印nan，它既不是最大值也不是最小值。C++中，构造如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span>   <span class="comment">// std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span>     <span class="comment">// std::string, std::to_string</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">double</span> d = <span class="number">0.0</span> / <span class="number">0.0</span>;</span><br><span class="line">  std::cout &lt;&lt; d &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; std::<span class="built_in">to_string</span>(d) &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; std::numeric_limits&lt;<span class="type">double</span>&gt;::<span class="built_in">max</span>() + <span class="number">1e308</span> &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; <span class="number">1.7e308</span> + <span class="number">1e308</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>应该只有/0的非法值能打印出nan吧，加大值再加一点溢出应该只会得到inf而不是nan。但它具体是个什么数字？查c++和java的文档，可以知道它是超出double正常值理解的一个值，<a href="https://en.cppreference.com/w/cpp/numeric/math/nan">https://en.cppreference.com/w/cpp/numeric/math/nan</a> ，打印出其hex值，为7ff0000000000000。根据标准来读<a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%9B%B4%E5%AE%B9%E6%98%93%E6%87%82%EF%BC%8Chttps://gregstoll.com/~gregstoll/floattohex/">https://en.wikipedia.org/wiki/Double-precision_floating-point_format，可以使用转换工具，更容易懂，https://gregstoll.com/~gregstoll/floattohex/</a> ，1位S符号位是0正数，跟着11位作为指数E(Exponent)全1，10进制是2047，这个数定义是special的，读到了这个都会被认为是nan。后面52位都是fraction，记为F，F以1开头，不为0。</p>
+<p><img src="/2023/10/12/cs-tips/image.png" alt="Alt text"></p>
+<p>当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。可以看到E最大只能到1023，1024是不给用的。但都能存在double变量里。</p>
+<p>但很离谱的是，rapidjson 1.0.2版里，如果double是nan，你write它成json，会得到怪东西。</p>
+<h2 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h2><p>union在json里还有妙用，印象中union是被拿来节约内存的，有必要再查查。</p>
+<p>单说json中的应用，因为json的数字是没有类型的，特别的是，你认为json应该传入浮点数，但它传入整数，其实也是应该被允许的，<code>1</code>被当作<code>1.0</code>这很合理。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Useless Knowledge</title>
+    <url>/2023/10/11/useless-knowledge/</url>
+    <content><![CDATA[<h1 id="Useless-Knowledge"><a href="#Useless-Knowledge" class="headerlink" title="Useless Knowledge"></a>Useless Knowledge</h1><p>先叠甲，不是知识无用，只是对我来说用不上。纯当课外读物了解着玩，包括一些朋友对我作为计算机专业人士的神奇提问，和我觉得很离谱的新闻，我就想看看它是不是真的。</p>
+<h2 id="PWM-脉冲宽度调制"><a href="#PWM-脉冲宽度调制" class="headerlink" title="PWM 脉冲宽度调制"></a>PWM 脉冲宽度调制</h2><p>Pulse width modulation，<a href="https://en.wikipedia.org/wiki/Pulse-width_modulation">https://en.wikipedia.org/wiki/Pulse-width_modulation</a></p>
+<p>突然想到了大学实验课上的呼吸灯实验，联想起来自己还是不太理解当时为什么要那么写代码，所以这次来深度了解一下。当时只是知道代码写法，并不理解原理，现在才查到是PWM。</p>
+<p>首先，PWM并不唯一，它可以用在很多地方，它本身的实现也很多，呼吸灯就是个简单实验而已。</p>
+<p>模拟电路的缺点不多说了，总之是希望用数字电路来顶替模拟电路，但是数字电路的输出是高电平或低电平，而模拟电路的输出是连续的，可以是高低电平范围内的任何一个值，PWM就是来解决这个取值问题的。</p>
+<p>硬件，比如LED灯，本来就是可以接收一个范围的电压，并给与相应的亮度，当然，此处还是理想地说，电压是稳定的一个值，LED就在那里亮着。如果LED接受的电压不是稳定的，是脉冲呢？假设脉冲很慢，1s高，1s低，我们就能看到LED在闪烁，但是如果脉冲很快，比如10ms高，10ms低，我们就看到LED是亮的，但是亮度不是100%，而是50%（10ms仅仅是个假设，我不知道具体什么频率才能让人眼看到，频率过快应该跟常亮没有区别）。100Hz应该就看不到闪烁了。这就是PWM呼吸灯的基础，PWM调光，PWM Dimming。</p>
+<p>有了Dimming，我们可以在LED上实现各种亮度，比如50%，75%等等，只要每一小段时间变换亮度，就能实现呼吸灯。</p>
+<p>那么，PWM Dimming具体什么样子？</p>
+<p>可以想象，如果当前给一条高电平直线，我们看到的是常亮；如果直线中每个1s只出现1ms的低电平，那个时候LED肯定是熄灭的，但持续低电平时间太短了，人眼根本无法察觉，而且LED还可能有余晖，不会瞬间黑了，就更加容易掩盖熄灭的时间，也就是视觉残留。</p>
+<p>但为何视觉残留，就能完美模拟出0-100%的亮度呢？我们为什么<strong>不能</strong>从50%空占比（Duty Cycle）中捕捉到那么一瞬的高于50%的亮度？这个从经验上有人总结过，就是说，人眼看到的是一种平均值，而不是瞬间的值，所以，如果LED的空占比是50%，那么人眼看到的就是50%的亮度，而不是瞬间的100%亮度。这个叫做<a href="https://en.wikipedia.org/wiki/Talbot-Plateau_law">Talbot-Plateau Law</a>，中文名不统一，可能叫塔尔博特-普拉托定律。它是由实验支撑的，就是下图的黑白盘，又称扇形实验。</p>
+<p><img src="https://en.wikipedia.org/wiki/File:Talbot-Plateau_disk.png" alt="圆盘"></p>
+<p>圆盘的一个环和PWM调光的某个亮度是类似的，转起来后，我们人眼就是看到了一个平均值，而不是瞬间的值。背后的生物理论还不了解，但这个实验还是能让人理解，我们人眼确实是被这么骗了。</p>
+<p>我们将这个定律作为前提条件，相信它，那么，可以得到下图所示的结论，我如果恒定频率，将会得到不同亮度。</p>
+<p><img src="https://pic3.zhimg.com/v2-214e5dfea486d22f905b465587e8cd0a_b.jpg" alt="PWM调光"></p>
+<p>顺带一提，PWM虽然骗过人眼感受，但实际还是让我们的眼部细胞被迫处理瞬时的变化。所以有些PWM频率过低，会让人眼睛类，甚至头疼。说起来，有些手机就是被人吐槽PWM频率过低，瞎眼睛。不知道为何，它们不适用高频，可能和功耗有关？</p>
+<p>PWM调光，应该可以代码模拟一下。不知道电脑显示器的刷新频率是否会拖后腿，但先尝试一下吧。学校时期还真有单片机、arduino一类的开发板，和LED灯，目前就只能电脑模拟一下了。</p>
+<p>首先看看能不能一步到位，Python中使用画图的工具，最终要能达到做动画的效果，限制为只使用某个亮度，那么它就作为本实验的100%亮度。比如matplotlib就可以做类似事情，而展示图片wsl也适配了，可以弹出图片框。但测试了一下频率，做不到人眼感受不到闪烁的程度，人眼还是牛啊。</p>
+<p>那就只能做PWM波形了，这个用matplotlib画图，并不断更新图片就可以。假设这个生成程序可以用于控制LED硬件，它应该是可以设置频率和占空比，然后持续生成电平值的。我们就以这个角度来写代码，再找个方法做图片。</p>
+<p><a href="https://www.electronicwings.com/raspberry-pi/raspberry-pi-pwm-generation-using-python-and-c">https://www.electronicwings.com/raspberry-pi/raspberry-pi-pwm-generation-using-python-and-c</a></p>
+<p>但其实真正的硬件控制，是有些高度封装的。但为了好画图，我还是当作是set value的，而不是set frequency的。并且是持续输出，最大频率先定一个，一段时间为高电平，体现为很多个1。得到代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import matplotlib.pyplot as plt</span><br><span class="line"></span><br><span class="line">resolution = 1000  # Hz</span><br><span class="line"># 1 / resolution = 1ms 1 value in the list is 1ms</span><br><span class="line"></span><br><span class="line">def pwm(freq, duty_cycle):</span><br><span class="line">    # gen a list of 0 and 1</span><br><span class="line">    period = int(1 / freq * resolution)</span><br><span class="line">    on = int(period * duty_cycle)</span><br><span class="line">    off = int(period * (1 - duty_cycle))</span><br><span class="line">    print(on, off)</span><br><span class="line">    while True:</span><br><span class="line">        for i in range(on):</span><br><span class="line">            yield 1</span><br><span class="line">        for i in range(off):</span><br><span class="line">            yield 0</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line">for i in range(30, 100, 10):</span><br><span class="line">    gen = pwm(10, i / 100)</span><br><span class="line">    data += [next(gen) for j in range(1000)]</span><br><span class="line">for i in range(100, 30, -10):</span><br><span class="line">    gen = pwm(10, i / 100)</span><br><span class="line">    data += [next(gen) for j in range(1000)]</span><br><span class="line"># plot</span><br><span class="line">xs = [x for x in range(len(data))]</span><br><span class="line">print(len(data))</span><br><span class="line">plt.plot(xs, data)</span><br><span class="line">plt.show()</span><br><span class="line">plt.close()</span><br></pre></td></tr></table></figure>
+
+<h2 id="芯片制程"><a href="#芯片制程" class="headerlink" title="芯片制程"></a>芯片制程</h2><p>学校中曾经了解过一点皮毛，但我的速度已经跟不上2023年前后的芯片厂们了，怎么能2nm都出来，它不会失效么？而这一问题，还真有人问过我，那时我只记得它们是虚标，工艺是在进步但废片率也高，所以虽然说得很先进，但目前还不会变成产品到我们手上。</p>
+<p>突然想起这事，想要了解多一点细节，比如哪里假了，为什么虽然假，还是可以这么命名。搜到很多营销号千篇一律的话，完全没有解释，只是说了一些芯片制程的历史，然后就说了一句，这是虚标。知乎上的回答才稍微找到一点靠谱的，我也读的不深入，此处也不引用了，免得我的错误解读曲解了知乎回答。</p>
+<p>我就大致写下我想要了解的问题解释，不加太细节的名词，以免误导。</p>
+<p>首先，最早的芯片是planar的，要往里塞更多单元，当然是把单元做的越来越小，这样就能让单位面积里密度越来越高。但当初并没有用密度来衡量芯片，而是用了单元的尺寸来描述。可能从硬件制作来讲，如何做出一个小的单元，才是工艺的最直接体现吧。造单元的时候，衡量它用密度也很奇怪。但进一步的，也就用这个尺寸来描述芯片了，我们并没去在意芯片有多大，有多少个单元，密度多少，而是用单元的尺寸来说这个芯片有多强。这里就是误解的第一步了。即使还是planar，制程的Xnm（应该一直是Gate Length吧，不知道有没有改变过指标，还需要订正，本文只做虚指）已经不代表单元的尺寸了，因为它比单元尺寸缩减地快。可能因为单元尺寸、制程尺寸都是在缩减，正相关。Gate好像跟耗电量也有关，功耗也是一个很重要的点。反正一通下来，可能没找着更合适的，就没有换。</p>
+<p>第二步，设计革新，芯片不再是planar了，它变造型了，还开始立体叠甲了。从设计造型改变后，Gate尺寸大概可以理解为能直接缩的很小很小，这时候还用它当指标，当然就很明显不对了。你说你电脑超薄，结果是电脑的最边缘超薄（joke）。那么，它就开始是理论指标了。比如，新的芯片密度是随便什么面积单位下有100M个单元，那么它的制程就是换算成planar，如果planar设计下要5nm才能塞下这么多单元，我就叫5nm制程的芯片。根据好几个人的说法，是2012年22nm后开始无法标志实际尺寸，而是只能做等效计算的。</p>
+<p>但既然都是等效制程了，为什么又出现了英特尔和吹水厂们两派？这个地方我还不确定，有空读一下图做一下计算。目前看来，是英特尔完全遵循等效计算法，但其他吹水厂又换了个玩法，就是摩尔定律坐标图。它们的下一代就一定是摩尔定律的下一个点，于是，16nm是某年的一代，我下一代进步了，只进步了一点点，但我一定要叫下一代的名字，也就是12nm/10nm。（摩尔是翻倍，那么芯片二维来看，面积变成上一代的0.5倍，等于边长变为上一代的0.7），所以16*0.7=11.2nm，反正都是虚假的了，向上取整向下取整随便来。这一招6啊，没有人比他们更懂摩尔。</p>
+<p>这故事告诉我们营销的重要性，我身边的人不知道有多少人被这些名词忽悠了，还说某厂掌握核心科技，远超国外。太猛了，我解释了，但我感觉也并没有改变他的观点，因为他已经信了。</p>
+<p>希望我能有一天负责任地夸奖国产芯片，主要是说热门的那些。（没有说全都不好的意思）</p>
+]]></content>
+  </entry>
+  <entry>
     <title>大概只有自己能看懂的手绘架构图</title>
     <url>/2023/09/15/arch-draw/</url>
     <content><![CDATA[<h1 id="大概只有自己能看懂的手绘架构图"><a href="#大概只有自己能看懂的手绘架构图" class="headerlink" title="大概只有自己能看懂的手绘架构图"></a>大概只有自己能看懂的手绘架构图</h1><p>处理分布式系统好几年了，发现很多使用者最大的障碍是不懂每个组件在干什么。有的人把每个组件都想的很重要，每做一步操作都要询问是否危险，有的人把每个组件都想的很简单，每做一步操作都不会考虑后果。这两种极端都不好，所以我想通过这篇文章，把我对一些现有的分布式系统的理解分享给大家。</p>
@@ -156,7 +205,9 @@
 </ul>
 <p>TODO 为什么分布式一致性协议全都是需要log？它们不考虑整个table原地修改？这个话题还是分布式协议再讲。paxos multi-paxos raft这些。<br>附加一个paxos参考 <a href="https://zhuanlan.zhihu.com/p/341122718">https://zhuanlan.zhihu.com/p/341122718</a> </p>
 <h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>锁的概念不多赘述，分布式锁当然是分布式里用的锁，语义是一样的。举个例子，分布式中同一个角色有多个时，它们很可能需要协调谁可以写，另外的人此时不要动。每个人都觉得自己该写，那当然要一个第三方角色，来觉得谁能谁不能，要达成共识。常见分布式锁的实现是基于数据库，基于Redis，基于zk的。</p>
-<p>TODO 为啥有个印象，有消息队列做分布式锁？</p>
+<p>TODO 为啥有个印象，有消息队列做分布式锁？<br>估计是经常有人说redis实现这两个<br>以及消息队列会用到锁</p>
+<p>现实考虑，已有消息队列时，利用它可以不用加其他的依赖。</p>
+<p>但mq的分布式锁是有限制的？模型如果是msg发送，收到msg的认为自己是主，那么msg定时发送的话，下一次的主就不一定是当前这个。如果是利用sub订阅的排他性？只有一个consumer能连通，其他consumer都在等着，那倒是可以。</p>
 ]]></content>
       <categories>
         <category>BigData</category>
@@ -164,24 +215,6 @@
       <tags>
         <tag>Algo</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>pwm</title>
-    <url>/2023/07/31/pwm/</url>
-    <content><![CDATA[<h1 id="PWM-脉冲宽度调制"><a href="#PWM-脉冲宽度调制" class="headerlink" title="PWM 脉冲宽度调制"></a>PWM 脉冲宽度调制</h1><p>Pulse width modulation，<a href="https://en.wikipedia.org/wiki/Pulse-width_modulation">https://en.wikipedia.org/wiki/Pulse-width_modulation</a></p>
-<p>突然想到了大学实验课上的呼吸灯实验，联想起来自己还是不太理解当时为什么要那么写代码，所以这次来深度了解一下。当时只是知道代码写法，并不理解原理，现在才查到是PWM。</p>
-<p>首先，PWM并不唯一，它可以用在很多地方，它本身的实现也很多，呼吸灯就是个简单实验而已。</p>
-<p>模拟电路的缺点不多说了，总之是希望用数字电路来顶替模拟电路，但是数字电路的输出是高电平或低电平，而模拟电路的输出是连续的，可以是高低电平范围内的任何一个值，PWM就是来解决这个取值问题的。</p>
-<p>硬件，比如LED灯，本来就是可以接收一个范围的电压，并给与相应的亮度，当然，此处还是理想地说，电压是稳定的一个值，LED就在那里亮着。如果LED接受的电压不是稳定的，是脉冲呢？假设脉冲很慢，1s高，1s低，我们就能看到LED在闪烁，但是如果脉冲很快，比如10ms高，10ms低，我们就看到LED是亮的，但是亮度不是100%，而是50%（10ms仅仅是个假设，我不知道具体什么频率才能让人眼看到，频率过快应该跟常亮没有区别）。100Hz应该就看不到闪烁了。这就是PWM呼吸灯的基础，PWM调光，PWM Dimming。</p>
-<p>有了Dimming，我们可以在LED上实现各种亮度，比如50%，75%等等，只要每一小段时间变换亮度，就能实现呼吸灯。</p>
-<p>那么，PWM Dimming具体什么样子？</p>
-<p>可以想象，如果当前给一条高电平直线，我们看到的是常亮；如果直线中每个1s只出现1ms的低电平，那个时候LED肯定是熄灭的，但持续低电平时间太短了，人眼根本无法察觉，而且LED还可能有余晖，不会瞬间黑了，就更加容易掩盖熄灭的时间，也就是视觉残留。</p>
-<p>但为何视觉残留，就能完美模拟出0-100%的亮度呢？我们为什么<strong>不能</strong>从50%空占比（Duty Cycle）中捕捉到那么一瞬的高于50%的亮度？这个从经验上有人总结过，就是说，人眼看到的是一种平均值，而不是瞬间的值，所以，如果LED的空占比是50%，那么人眼看到的就是50%的亮度，而不是瞬间的100%亮度。这个叫做<a href="https://en.wikipedia.org/wiki/Talbot-Plateau_law">Talbot-Plateau Law</a>，中文名不统一，可能叫塔尔博特-普拉托定律。它是由实验支撑的，就是那个黑白盘，又称扇形实验。</p>
-<p><img src="https://en.wikipedia.org/wiki/File:Talbot-Plateau_disk.png" alt="圆盘"></p>
-<p><img src="https://pic3.zhimg.com/v2-214e5dfea486d22f905b465587e8cd0a_b.jpg" alt="PWM调光"></p>
-<p>圆盘的一个环和PWM调光的某个亮度是类似的，转起来后，我们人眼就是看到了一个平均值，而不是瞬间的值。背后的生物理论还不了解，但这个实验还是能让人理解，我们人眼确实是被这么骗了。</p>
-<p>顺带一提，PWM虽然骗过人眼感受，但实际还是让我们的眼部细胞被迫处理瞬时的变化。所以有些PWM频率过低，会让人眼睛类，甚至头疼。</p>
-]]></content>
   </entry>
   <entry>
     <title>ParallelComputing</title>

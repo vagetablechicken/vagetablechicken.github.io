@@ -6,7 +6,7 @@
   <link href="http://vagetablechicken.github.io/atom.xml" rel="self"/>
   
   <link href="http://vagetablechicken.github.io/"/>
-  <updated>2023-10-13T15:13:34.121Z</updated>
+  <updated>2023-10-15T03:33:12.966Z</updated>
   <id>http://vagetablechicken.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://vagetablechicken.github.io/2023/10/12/cs-tips/"/>
     <id>http://vagetablechicken.github.io/2023/10/12/cs-tips/</id>
     <published>2023-10-12T08:21:58.000Z</published>
-    <updated>2023-10-13T15:13:34.121Z</updated>
+    <updated>2023-10-15T03:33:12.966Z</updated>
     
     
       
@@ -105,7 +105,7 @@
     <link href="http://vagetablechicken.github.io/2023/09/02/bigdata-algo/"/>
     <id>http://vagetablechicken.github.io/2023/09/02/bigdata-algo/</id>
     <published>2023-09-02T08:40:22.000Z</published>
-    <updated>2023-10-13T15:20:49.447Z</updated>
+    <updated>2023-10-15T03:38:19.003Z</updated>
     
     
       
@@ -220,6 +220,33 @@
   </entry>
   
   <entry>
+    <title>Grokking Pattern 1</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-1/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-1/</id>
+    <published>2021-05-06T02:58:13.000Z</published>
+    <updated>2023-07-31T10:56:53.712Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
+    
+    
+    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
+    
+    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Grokking Pattern 2</title>
     <link href="http://vagetablechicken.github.io/2021/05/06/grokking-2/"/>
     <id>http://vagetablechicken.github.io/2021/05/06/grokking-2/</id>
@@ -301,33 +328,6 @@
   </entry>
   
   <entry>
-    <title>Grokking Pattern 6</title>
-    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-6/"/>
-    <id>http://vagetablechicken.github.io/2021/05/06/grokking-6/</id>
-    <published>2021-05-06T02:58:13.000Z</published>
-    <updated>2023-07-31T10:56:53.712Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;&gt;&lt;a href=&quot;#Grokking-the-Coding-Interview-Patterns-for-Coding-Questions&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Algo" scheme="http://vagetablechicken.github.io/categories/Algo/"/>
-    
-    
-    <category term="Algo" scheme="http://vagetablechicken.github.io/tags/Algo/"/>
-    
-    <category term="LeetCode" scheme="http://vagetablechicken.github.io/tags/LeetCode/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Grokking Pattern 5</title>
     <link href="http://vagetablechicken.github.io/2021/05/06/grokking-5/"/>
     <id>http://vagetablechicken.github.io/2021/05/06/grokking-5/</id>
@@ -355,9 +355,9 @@
   </entry>
   
   <entry>
-    <title>Grokking Pattern 1</title>
-    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-1/"/>
-    <id>http://vagetablechicken.github.io/2021/05/06/grokking-1/</id>
+    <title>Grokking Pattern 6</title>
+    <link href="http://vagetablechicken.github.io/2021/05/06/grokking-6/"/>
+    <id>http://vagetablechicken.github.io/2021/05/06/grokking-6/</id>
     <published>2021-05-06T02:58:13.000Z</published>
     <updated>2023-07-31T10:56:53.712Z</updated>
     

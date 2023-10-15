@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://vagetablechicken.github.io/2023/10/12/cs-tips/image.png">
 <meta property="article:published_time" content="2023-10-12T08:21:58.000Z">
-<meta property="article:modified_time" content="2023-10-13T15:13:34.121Z">
+<meta property="article:modified_time" content="2023-10-15T03:33:12.966Z">
 <meta property="article:author" content="Huang Wei">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://vagetablechicken.github.io/2023/10/12/cs-tips/image.png">
@@ -211,7 +211,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-10-13 23:13:34" itemprop="dateModified" datetime="2023-10-13T23:13:34+08:00">2023-10-13</time>
+                <time title="Modified: 2023-10-15 11:33:12" itemprop="dateModified" datetime="2023-10-15T11:33:12+08:00">2023-10-15</time>
               </span>
 
           
@@ -232,8 +232,8 @@
 <p><img src="/2023/10/12/cs-tips/image.png" alt="Alt text"></p>
 <p>当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。可以看到E最大只能到1023，1024是不给用的。但都能存在double变量里。</p>
 <p>但很离谱的是，rapidjson 1.0.2版里，如果double是nan，你write它成json，会得到怪东西。</p>
-<h2 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h2><p>union在json里还有妙用，印象中union是被拿来节约内存的，有必要再查查。</p>
-<p>单说json中的应用，因为json的数字是没有类型的，特别的是，你认为json应该传入浮点数，但它传入整数，其实也是应该被允许的，<code>1</code>被当作<code>1.0</code>这很合理。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。</p>
+<h2 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h2><p>union在json里还有妙用，印象中union是被拿来节约内存的，也知道如何计算占用内存，包括看最长的和padding。但其实没真正利用过它，不知道它的优雅用法，甚至有时候会误以为它是把几个变量用更紧凑的方式放在一起，好像是把union和struct记混了，因为struct考题会考到padding。注意区别，union是共用，struct是组合。</p>
+<p>单说union在json中的应用，因为json的数字是没有类型的，特别的是，你认为json应该传入浮点数，但它传入整数，其实也是应该被允许的，<code>1</code>被当作<code>1.0</code>这很合理。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。</p>
 
     </div>
 

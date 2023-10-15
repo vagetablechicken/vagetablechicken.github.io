@@ -38,7 +38,7 @@
 <meta property="og:image" content="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/datapipeline_simple.png">
 <meta property="og:image" content="https://content.linkedin.com/content/dam/engineering/en-us/blog/migrated/pipeline_ownership.png">
 <meta property="article:published_time" content="2023-09-02T08:40:22.000Z">
-<meta property="article:modified_time" content="2023-10-13T15:20:49.447Z">
+<meta property="article:modified_time" content="2023-10-15T03:38:19.003Z">
 <meta property="article:author" content="Huang Wei">
 <meta property="article:tag" content="Algo">
 <meta name="twitter:card" content="summary">
@@ -221,7 +221,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-10-13 23:20:49" itemprop="dateModified" datetime="2023-10-13T23:20:49+08:00">2023-10-13</time>
+                <time title="Modified: 2023-10-15 11:38:19" itemprop="dateModified" datetime="2023-10-15T11:38:19+08:00">2023-10-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -354,7 +354,7 @@
 <p>TODO 为啥有个印象，有消息队列做分布式锁？<br>估计是经常有人说redis实现这两个<br>以及消息队列会用到锁</p>
 <p>现实考虑，已有消息队列时，利用它可以不用加其他的依赖。</p>
 <p>但mq的分布式锁是有限制的？模型如果是msg发送，收到msg的认为自己是主，那么msg定时发送的话，下一次的主就不一定是当前这个。如果是利用sub订阅的排他性？只有一个consumer能连通，其他consumer都在等着，那倒是可以。</p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/RViDM1WHE61SDLNKzUmTAg">这篇文章介绍的redis做分布式锁</a>，先读读看。</p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/RViDM1WHE61SDLNKzUmTAg">这篇文章介绍的redis做分布式锁</a>，也有redlock和zk的一些理解，还提到大佬对redlock的讨论，读一读</p>
 
     </div>
 

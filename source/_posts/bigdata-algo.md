@@ -257,4 +257,4 @@ TODO 为啥有个印象，有消息队列做分布式锁？
 
 但mq的分布式锁是有限制的？模型如果是msg发送，收到msg的认为自己是主，那么msg定时发送的话，下一次的主就不一定是当前这个。如果是利用sub订阅的排他性？只有一个consumer能连通，其他consumer都在等着，那倒是可以。
 
-[这篇文章介绍的redis做分布式锁](https://mp.weixin.qq.com/s/RViDM1WHE61SDLNKzUmTAg)，先读读看。
+[这篇文章介绍的redis做分布式锁](https://mp.weixin.qq.com/s/RViDM1WHE61SDLNKzUmTAg)，也有redlock和zk的一些理解，还提到大佬对redlock的讨论，读一读

@@ -207,7 +207,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-10-15 11:33:12" itemprop="dateModified" datetime="2023-10-15T11:33:12+08:00">2023-10-15</time>
+                <time title="Modified: 2023-10-22 19:12:46" itemprop="dateModified" datetime="2023-10-22T19:12:46+08:00">2023-10-22</time>
               </span>
 
           
@@ -224,12 +224,12 @@
           <h1 id="Computer-Science-Tips"><a href="#Computer-Science-Tips" class="headerlink" title="Computer Science Tips"></a>Computer Science Tips</h1><p>记录一些小知识点，供个人搜索使用。反正脑内记忆也会忘。</p>
 <h2 id="Nan"><a href="#Nan" class="headerlink" title="Nan"></a>Nan</h2><p>真的float/double类型当然不会有nan，它就是个数字？但print float/double类型的时候，可能打印nan，它既不是最大值也不是最小值。C++中，构造如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span>   <span class="comment">// std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span>     <span class="comment">// std::string, std::to_string</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">double</span> d = <span class="number">0.0</span> / <span class="number">0.0</span>;</span><br><span class="line">  std::cout &lt;&lt; d &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; std::<span class="built_in">to_string</span>(d) &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; std::numeric_limits&lt;<span class="type">double</span>&gt;::<span class="built_in">max</span>() + <span class="number">1e308</span> &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; <span class="number">1.7e308</span> + <span class="number">1e308</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>应该只有/0的非法值能打印出nan吧，加大值再加一点溢出应该只会得到inf而不是nan。但它具体是个什么数字？查c++和java的文档，可以知道它是超出double正常值理解的一个值，<a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/numeric/math/nan">https://en.cppreference.com/w/cpp/numeric/math/nan</a> ，打印出其hex值，为7ff0000000000000。根据标准来读<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%9B%B4%E5%AE%B9%E6%98%93%E6%87%82%EF%BC%8Chttps://gregstoll.com/~gregstoll/floattohex/">https://en.wikipedia.org/wiki/Double-precision_floating-point_format，可以使用转换工具，更容易懂，https://gregstoll.com/~gregstoll/floattohex/</a> ，1位S符号位是0正数，跟着11位作为指数E(Exponent)全1，10进制是2047，这个数定义是special的，读到了这个都会被认为是nan。后面52位都是fraction，记为F，F以1开头，不为0。</p>
+<p>应该只有/0的非法值能打印出nan吧，加大值再加一点溢出应该只会得到inf而不是nan。但它具体是个什么数字？查c++和java的文档，可以知道它是超出double正常值理解的一个值，<a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/numeric/math/nan">https://en.cppreference.com/w/cpp/numeric/math/nan</a> ，打印出其hex值，为7ff0000000000000。根据标准来读<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%9B%B4%E5%AE%B9%E6%98%93%E6%87%82%EF%BC%8Chttps://gregstoll.com/~gregstoll/floattohex/">https://en.wikipedia.org/wiki/Double-precision_floating-point_format，可以使用转换工具，更容易懂，https://gregstoll.com/~gregstoll/floattohex/</a> ，1位S符号位是0正数，跟着11位作为指数E(Exponent)全1，10进制是2047，这个数定义是special的，后面52位都是fraction，记为F，F以1开头，不为0。</p>
 <p><img src="/2023/10/12/cs-tips/image.png" alt="Alt text"></p>
-<p>当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。可以看到E最大只能到1023，1024是不给用的。但都能存在double变量里。</p>
-<p>但很离谱的是，rapidjson 1.0.2版里，如果double是nan，你write它成json，会得到怪东西。</p>
-<h2 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h2><p>union在json里还有妙用，印象中union是被拿来节约内存的，也知道如何计算占用内存，包括看最长的和padding。但其实没真正利用过它，不知道它的优雅用法，甚至有时候会误以为它是把几个变量用更紧凑的方式放在一起，好像是把union和struct记混了，因为struct考题会考到padding。注意区别，union是共用，struct是组合。</p>
-<p>单说union在json中的应用，因为json的数字是没有类型的，特别的是，你认为json应该传入浮点数，但它传入整数，其实也是应该被允许的，<code>1</code>被当作<code>1.0</code>这很合理。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。</p>
+<p>按照上图的说明来判断，当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。也就是inf，nan虽然特别，但都能存在double变量里，只是读取时遵循规则，可以提取出这两个特别的数。</p>
+<p>但很离谱的是，rapidjson 1.0.2版里，它是不管的，不会判定nan/inf，直接当作数字来打印，当然就会得到很大的值，超过double合理范围的。inf还好说，inf打印出的数字，基本上能被各种语言的json库读出来，但nan打印出的更大的数字，json read时就会被当作inf了。所以，rapidjson 1.0.2版，是无法正确读取nan的。但rapidjson 1.1.0是可以的，还有多种读写规则。</p>
+<h2 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h2><p>union在json里还有妙用，印象中union是被拿来节约内存的，也知道如何计算占用内存，包括看最长的和padding。但其实没真正利用过它，不知道它的优雅用法，甚至有时候会误以为它是把几个变量用更紧凑的方式放在一起，好像是把union和struct记混了，因为struct考题会考到padding。<strong>注意区别，union是共用，struct是组合。</strong></p>
+<p>单说union在json中的应用，因为json的number数值实际可以是好多种，int，double，读的时候还要支持无符号位整数，但作为一个对象，它当然只会一种。给这个类整多个数据类型的成员，分别来存，使用时却只使用一个，其他全浪费，当然不如union存一块区域。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。</p>
 
       
     </div>
@@ -461,7 +461,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-16 15:26:33" itemprop="dateModified" datetime="2023-09-16T15:26:33+08:00">2023-09-16</time>
+                <time title="Modified: 2023-10-16 15:28:02" itemprop="dateModified" datetime="2023-10-16T15:28:02+08:00">2023-10-16</time>
               </span>
 
           
@@ -488,6 +488,15 @@
 <p>所以，我想我们需要“功利心”的学习。明确自己缺了什么，非常重要。学校中努力地学习，它的范围是很明确的，有教材有老师，结果也是很明确的，有课程的成绩。但在工作中，一切都是那么不明显，工作都很难量化，更何况对一个工作的人的能力评判。</p>
 <p>那么，我自己有什么缺陷呢？商业机密（开玩笑）。自己当然不会觉得自己某个方面是很好的，毕竟我也是时代特色教育下长大的，不自信是刻入DNA的。目前，我希望我能在宽度上多积累一点。从自身的工作中，体会过几次，新任务中使用曾经了解或者开发过的东西，让我觉得，我如果能了解的更多，就像手中有更多的钥匙，或许未来又能用上吧。</p>
 <p>世界纷纷扰扰，能够不被打扰，专注自己的人，我十分佩服，这样的人很像修道者了。愿我能成为“修道者”吧，可以肯定自己，信任自己，和自己和解。</p>
+<h1 id="英语"><a href="#英语" class="headerlink" title="英语"></a>英语</h1><p>Tough right? 大学以前的英语学习就经常全程问号，也不知道自己怎么过来的，每次英语做对的题我也不知道是怎么回事。听力其实成绩不错，但说实话，听不懂，理解或记录一句话时，听力音频已经blabla好几句了。但大概能抓住重点，做题是没问题了。而选择题之类的，词组更是记不住，看谁念起来通顺就是它了。那时候，觉得英语想分数变高，不是去学日常英语，而是去感受考试题目，提升语感。但毕竟科目众多，不可能花太多时间在英语上，所以，经常是多分精力给英语时，成绩就涨，一旦分更多时间给理科，英语就又回去了。最终，我还是选择了让英语回去，毕竟就科目而言，它涨分的效率是最低的。</p>
+<p>四级就不谈了，躺着也能过。大学的六级难度还是加高了一截，能过，但听力分数不够高，而当时我正需要听力分数。于是，我又开始了强化听力练习，选择题、作文是一点精力没花。那段时间对于应试还是很充足的，不像工作后精力时间都有限，而且目的也是应试，并不是为了真实口语水平。但在有限时间里想提高，还是到处收集了一些方法，毕竟我也不知道学到什么地步足够，只能尽力提升。方法是真的五花八门，谁都说得很有道理，但坚持才是最重要的。可时间总是有限的，想要效率最高的方法，我认为并不是错误的。</p>
+<p>这里又吐槽一句，经常在谈起学英语，学画画，学钢琴的时候，很多懂哥就会出现。“不打好基础怎么提升？”“你不苦过，怎么甘来？”每句话单说都是对的，可前提呢？提问的人想要知道速成，或者说半成（不需要到什么专业水平，只是想让自己能快速获得一定的结果），他们是想获得结果、获得快乐或成就，不是要拿它当饭碗，你却来说一句，要从三岁开始学起。这不是在搞笑吗？我还能倒退回去不成。可成人又不是不能学，不可以学成。我不是很理解，在成人探讨学习路线时，跑来泼冷水的心态。就像是要维护自己的护城河一样，感觉别人半路出家，就是对自己的侮辱。事实上，护城河只有两个，真实实力和学历，你可以实力不强，但学历高，也会加分，你可以学历不高，但你得让人看到实力。你不能阻止别人增长实力，甚至超过科班，一切只在于那个人自身，请牢记“天外有天”。我希望，在做尝试的人不要被这些人打击到。当然，中间更有不少卖教材、卖课程的，通过夸大难度，强调你应该买课程，应该找外教。想要从那么多的方法里快速找到适合自己的，是真的不容易。</p>
+<p>回想当时，我那时候考虑过，是不是还是从语感入手，就是通常所说的磨耳朵。可是，这个耳朵磨到起多少茧才会有用？这是无法衡量的东西，你听懂了Hey，What’s up，How you doing，这不代表你能听懂考试听力。仔细对比听力文本和日常用语，也就能发现，它们各个方面都不一样。考试听力并不快，也不会讲俚语，所以特点是，说得不快，但信息量更大。非母语的我们，消化一句日常用语，不会很难，甚至听个50%就基本理解了，但消化一句听力的时间很长，会感觉听力特别快，感觉自己忙不过来。事实上，单看语速，每分钟讲了几个单词，它并不快。所以，那时候我选择硬嗑真题听力，因为我需要习惯，从听力里提取出有用信息拿来做题。要习惯从这样的语速中，获取一些不太直观的信息。不断地听同一段听力，慢速、正常速，真的很折磨我，主要是我是非常不喜欢重复的人。但所幸考试这个动力还是足的，我还是坚持了下来，最后的听力成绩超过我的预期，也算证明我的选择是对的吧？</p>
+<p>毕业后，英语对我来说就是看计算机知识、项目的工具了，但这样，它就几乎只有读写了，于是，我的听力就。。。poor thing。这个时候，我想提升英语，就不再为考试服务了，可以倾向于听说。听方面有非常多的方法，也可以不再枯燥地学习教材，很多人会推荐美剧、动画等等。但难过的是，我不是美系爱好者，就算我喜欢，还是会有阻碍。我不喜欢重复，我不喜欢看我已经知道结局的东西，可以说是出厂天赋点歪了，这些升级办法对我来说并不是轻松学习而是痛苦。从我以前看日文动画的结果来看，即使每部作品只看一遍，也会变得能做到日常听说，但并不爱好美剧，也导致我甚至没有什么感兴趣的素材作品，很难积累到质变。我也实际测试过，掏出我为数不多喜欢的英语作品，我也并没有坚持下去，实在不感兴趣了。这就是兴趣的重要性吧，实名羡慕拥有英语兴趣的人。</p>
+<p>现在的普遍观念好像是改变了一下，以前会有学生家长问我怎么学英语，但他们的关注点是怎么提高分数，而现在感觉问的人重点都是如何培养英语兴趣。他们的眼光似乎都更长远了，当然，只是我身边的变化。甚至还问看美剧有没有用，放在我读书时，这是不好好学习，大逆不道吧。然后我都直接推荐《小猪佩奇》，只能从学校学英语，能把它听懂的，听力都是很好了。现在的家长对英语更加重视了，手机电脑网络更加普及，家长也不再特别敌视网络，如今的学生可以接触更多样化的英语输入了。对比之下，我很难想明白，当初我们如何学习的，那些英语成绩奇好的但也非从小学习的同学是多么的天赋异禀。没有忽视他们努力的意思，毕竟大家都只有这几年的学习时间，当时信息又很闭塞，没有多的捷径，能把英语学好，其他学科也样样不落的，真的很厉害。</p>
+<p>但《小猪佩奇》也有一点问题，就像是看美剧学英语，记住的只有骂人的话一样，看佩奇真的感觉只能记住那几声猪叫。我个人感觉比较明显，它存在感太强了。所以，以后我可能会推荐别的吧，目前候选者是《咱们裸熊》。对家长三大宝具：英语看动画片，学好数学，大学前编程学Python。</p>
+<h2 id="听力素材"><a href="#听力素材" class="headerlink" title="听力素材"></a>听力素材</h2><p>扯东扯西了不少，下面说点有用的吧。想提升日常听说，当然是要听日常的语音。最完美的教材应该还是真人的对话，并且有画面，很多话也要看一个气氛，缺少画面听英语会难很多。如果这一片找不到你感兴趣的教材，就只能找无画面的音频了。podcast里难度低一点可以尝试ESLpod教材（教材，不是它的所有音频，那太多了），难一点的不用我说了，自行随便找。最难的是选择一个不难的。</p>
+<p>ESLpod教材是有文本的，听它的课里，实际也会教单词如何拼写。其实不用那么敌视学校学习的方法，音标、语法和单词并不是学不好英语的原因，学习它们肯定是有利的。谁能说音标对自己听力无用？谁又能说语法对自己理解语句无用？当然，英语考试是不够合理的，死背单词是会忘记的。错在于僵硬，而不是这些知识本身。假设背过的单词不会忘，谁能说背单词不是英语学习的最佳方法呢？也不用那么敌视哑巴英语，能听懂再说又不是不行。先要求环境这样那样，结果要求的环境达到了，也不一定就学好了，差生文具多。只要你感觉到了听越来越轻松了，哪怕就是同一段内容，那也是往前走了一步，永远比停在原地好。当然，如果你不满意于这样的效率，可以再找找别的方法。</p>
 
       
     </div>

@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://vagetablechicken.github.io/2023/10/12/cs-tips/image.png">
 <meta property="article:published_time" content="2023-10-12T08:21:58.000Z">
-<meta property="article:modified_time" content="2023-10-15T03:33:12.966Z">
+<meta property="article:modified_time" content="2023-10-22T11:12:46.923Z">
 <meta property="article:author" content="Huang Wei">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://vagetablechicken.github.io/2023/10/12/cs-tips/image.png">
@@ -211,7 +211,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-10-15 11:33:12" itemprop="dateModified" datetime="2023-10-15T11:33:12+08:00">2023-10-15</time>
+                <time title="Modified: 2023-10-22 19:12:46" itemprop="dateModified" datetime="2023-10-22T19:12:46+08:00">2023-10-22</time>
               </span>
 
           
@@ -228,12 +228,12 @@
         <h1 id="Computer-Science-Tips"><a href="#Computer-Science-Tips" class="headerlink" title="Computer Science Tips"></a>Computer Science Tips</h1><p>记录一些小知识点，供个人搜索使用。反正脑内记忆也会忘。</p>
 <h2 id="Nan"><a href="#Nan" class="headerlink" title="Nan"></a>Nan</h2><p>真的float/double类型当然不会有nan，它就是个数字？但print float/double类型的时候，可能打印nan，它既不是最大值也不是最小值。C++中，构造如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span>   <span class="comment">// std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span>     <span class="comment">// std::string, std::to_string</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">double</span> d = <span class="number">0.0</span> / <span class="number">0.0</span>;</span><br><span class="line">  std::cout &lt;&lt; d &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; std::<span class="built_in">to_string</span>(d) &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; std::numeric_limits&lt;<span class="type">double</span>&gt;::<span class="built_in">max</span>() + <span class="number">1e308</span> &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; <span class="number">1.7e308</span> + <span class="number">1e308</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>应该只有/0的非法值能打印出nan吧，加大值再加一点溢出应该只会得到inf而不是nan。但它具体是个什么数字？查c++和java的文档，可以知道它是超出double正常值理解的一个值，<a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/numeric/math/nan">https://en.cppreference.com/w/cpp/numeric/math/nan</a> ，打印出其hex值，为7ff0000000000000。根据标准来读<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%9B%B4%E5%AE%B9%E6%98%93%E6%87%82%EF%BC%8Chttps://gregstoll.com/~gregstoll/floattohex/">https://en.wikipedia.org/wiki/Double-precision_floating-point_format，可以使用转换工具，更容易懂，https://gregstoll.com/~gregstoll/floattohex/</a> ，1位S符号位是0正数，跟着11位作为指数E(Exponent)全1，10进制是2047，这个数定义是special的，读到了这个都会被认为是nan。后面52位都是fraction，记为F，F以1开头，不为0。</p>
+<p>应该只有/0的非法值能打印出nan吧，加大值再加一点溢出应该只会得到inf而不是nan。但它具体是个什么数字？查c++和java的文档，可以知道它是超出double正常值理解的一个值，<a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/numeric/math/nan">https://en.cppreference.com/w/cpp/numeric/math/nan</a> ，打印出其hex值，为7ff0000000000000。根据标准来读<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%9B%B4%E5%AE%B9%E6%98%93%E6%87%82%EF%BC%8Chttps://gregstoll.com/~gregstoll/floattohex/">https://en.wikipedia.org/wiki/Double-precision_floating-point_format，可以使用转换工具，更容易懂，https://gregstoll.com/~gregstoll/floattohex/</a> ，1位S符号位是0正数，跟着11位作为指数E(Exponent)全1，10进制是2047，这个数定义是special的，后面52位都是fraction，记为F，F以1开头，不为0。</p>
 <p><img src="/2023/10/12/cs-tips/image.png" alt="Alt text"></p>
-<p>当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。可以看到E最大只能到1023，1024是不给用的。但都能存在double变量里。</p>
-<p>但很离谱的是，rapidjson 1.0.2版里，如果double是nan，你write它成json，会得到怪东西。</p>
-<h2 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h2><p>union在json里还有妙用，印象中union是被拿来节约内存的，也知道如何计算占用内存，包括看最长的和padding。但其实没真正利用过它，不知道它的优雅用法，甚至有时候会误以为它是把几个变量用更紧凑的方式放在一起，好像是把union和struct记混了，因为struct考题会考到padding。注意区别，union是共用，struct是组合。</p>
-<p>单说union在json中的应用，因为json的数字是没有类型的，特别的是，你认为json应该传入浮点数，但它传入整数，其实也是应该被允许的，<code>1</code>被当作<code>1.0</code>这很合理。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。</p>
+<p>按照上图的说明来判断，当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。也就是inf，nan虽然特别，但都能存在double变量里，只是读取时遵循规则，可以提取出这两个特别的数。</p>
+<p>但很离谱的是，rapidjson 1.0.2版里，它是不管的，不会判定nan/inf，直接当作数字来打印，当然就会得到很大的值，超过double合理范围的。inf还好说，inf打印出的数字，基本上能被各种语言的json库读出来，但nan打印出的更大的数字，json read时就会被当作inf了。所以，rapidjson 1.0.2版，是无法正确读取nan的。但rapidjson 1.1.0是可以的，还有多种读写规则。</p>
+<h2 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h2><p>union在json里还有妙用，印象中union是被拿来节约内存的，也知道如何计算占用内存，包括看最长的和padding。但其实没真正利用过它，不知道它的优雅用法，甚至有时候会误以为它是把几个变量用更紧凑的方式放在一起，好像是把union和struct记混了，因为struct考题会考到padding。<strong>注意区别，union是共用，struct是组合。</strong></p>
+<p>单说union在json中的应用，因为json的number数值实际可以是好多种，int，double，读的时候还要支持无符号位整数，但作为一个对象，它当然只会一种。给这个类整多个数据类型的成员，分别来存，使用时却只使用一个，其他全浪费，当然不如union存一块区域。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。</p>
 
     </div>
 

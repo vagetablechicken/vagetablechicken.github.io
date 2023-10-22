@@ -23,16 +23,16 @@ int main ()
   return 0;
 }
 ```
-应该只有/0的非法值能打印出nan吧，加大值再加一点溢出应该只会得到inf而不是nan。但它具体是个什么数字？查c++和java的文档，可以知道它是超出double正常值理解的一个值，https://en.cppreference.com/w/cpp/numeric/math/nan ，打印出其hex值，为7ff0000000000000。根据标准来读https://en.wikipedia.org/wiki/Double-precision_floating-point_format，可以使用转换工具，更容易懂，https://gregstoll.com/~gregstoll/floattohex/ ，1位S符号位是0正数，跟着11位作为指数E(Exponent)全1，10进制是2047，这个数定义是special的，读到了这个都会被认为是nan。后面52位都是fraction，记为F，F以1开头，不为0。
+应该只有/0的非法值能打印出nan吧，加大值再加一点溢出应该只会得到inf而不是nan。但它具体是个什么数字？查c++和java的文档，可以知道它是超出double正常值理解的一个值，https://en.cppreference.com/w/cpp/numeric/math/nan ，打印出其hex值，为7ff0000000000000。根据标准来读https://en.wikipedia.org/wiki/Double-precision_floating-point_format，可以使用转换工具，更容易懂，https://gregstoll.com/~gregstoll/floattohex/ ，1位S符号位是0正数，跟着11位作为指数E(Exponent)全1，10进制是2047，这个数定义是special的，后面52位都是fraction，记为F，F以1开头，不为0。
 
 ![Alt text](cs-tips/image.png)
 
-当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。可以看到E最大只能到1023，1024是不给用的。但都能存在double变量里。
+按照上图的说明来判断，当E是全1时，会被拿来当作特殊数字，inf和nan，具体是谁，看F是否为0。也就是inf，nan虽然特别，但都能存在double变量里，只是读取时遵循规则，可以提取出这两个特别的数。
 
-但很离谱的是，rapidjson 1.0.2版里，如果double是nan，你write它成json，会得到怪东西。
+但很离谱的是，rapidjson 1.0.2版里，它是不管的，不会判定nan/inf，直接当作数字来打印，当然就会得到很大的值，超过double合理范围的。inf还好说，inf打印出的数字，基本上能被各种语言的json库读出来，但nan打印出的更大的数字，json read时就会被当作inf了。所以，rapidjson 1.0.2版，是无法正确读取nan的。但rapidjson 1.1.0是可以的，还有多种读写规则。
 
 ## Union
 
-union在json里还有妙用，印象中union是被拿来节约内存的，也知道如何计算占用内存，包括看最长的和padding。但其实没真正利用过它，不知道它的优雅用法，甚至有时候会误以为它是把几个变量用更紧凑的方式放在一起，好像是把union和struct记混了，因为struct考题会考到padding。注意区别，union是共用，struct是组合。
+union在json里还有妙用，印象中union是被拿来节约内存的，也知道如何计算占用内存，包括看最长的和padding。但其实没真正利用过它，不知道它的优雅用法，甚至有时候会误以为它是把几个变量用更紧凑的方式放在一起，好像是把union和struct记混了，因为struct考题会考到padding。**注意区别，union是共用，struct是组合。**
 
-单说union在json中的应用，因为json的数字是没有类型的，特别的是，你认为json应该传入浮点数，但它传入整数，其实也是应该被允许的，`1`被当作`1.0`这很合理。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。
+单说union在json中的应用，因为json的number数值实际可以是好多种，int，double，读的时候还要支持无符号位整数，但作为一个对象，它当然只会一种。给这个类整多个数据类型的成员，分别来存，使用时却只使用一个，其他全浪费，当然不如union存一块区域。所以，类似rapidjson就是用union来表示数字，其实无论数字大还是小，都存在一块内存里，读的时候再具体选union中的某个，实际就是在选不同的指针。

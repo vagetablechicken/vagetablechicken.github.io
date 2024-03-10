@@ -258,3 +258,69 @@ TODO 为啥有个印象，有消息队列做分布式锁？
 但mq的分布式锁是有限制的？模型如果是msg发送，收到msg的认为自己是主，那么msg定时发送的话，下一次的主就不一定是当前这个。如果是利用sub订阅的排他性？只有一个consumer能连通，其他consumer都在等着，那倒是可以。
 
 [这篇文章介绍的redis做分布式锁](https://mp.weixin.qq.com/s/RViDM1WHE61SDLNKzUmTAg)，也有redlock和zk的一些理解，还提到大佬对redlock的讨论，读一读
+
+## MVCC
+
+MVCC 是经典题目了，把它当八股文来记，感觉非常悬浮。我曾经说出过，每行多增加两列，但两列怎么运作的，都讲不清楚。原因当然是并未理解，连推演都没有很深刻。但 MVCC 经历了很久，1978年便被提出，现在主流的DB也都有它的实现，还有很多篇论文在创新、总结它。它毫无疑问变得复杂了，区别于基本算法书中的数据。
+
+找不到现成书籍来提供精简的讲解，读论文和源码都很容易陷入细节。所以，我的想法是，从上层逻辑来理解MVCC要做到的事情，其实也就是算法+数据结构的抽象。比如，MVCC是解决并发，那并发读和写两条路，每条路分几步，某一步要做什么。为了这个算法，我们需要什么样的数据结构，可以只当个黑盒。具体到每个步骤的细节，和它们的优化，数据结构落实到代码上、内存上，这些都先不讨论。毕竟，开源DB那么多，需要抠出某个地方的细节，必然要花相当的时间去调研、对比。
+
+最经典的论文是 An Empirical Evaluation of In-Memory Multi-Version Concurrency Control(VLDB17')。如果想快速获得一些关键点，可以看翻译，https://blog.mrcroxx.com/posts/paper-reading/wu-vldb2017/。
+
+首先，MVCC是Concurreny Control，那肯定有多个角色要同时对一个东西操作。所以，我们在这里确定一下场景，场景就是有一行，有多人对其进行并发读写，那么，最简单的例子就是one row/tuple, readers, writers。先忘掉什么范围读写，跨行读写。
+
+第一个点，MVCC 写数据怎么写，多版本当然是写的时候出现多版本，读生成多版本也是挺离谱的想法。那么，写会怎么写，分create/insert和update两种情况。
+
+接下来的事情我们默认是commit过了的，而不是txn的中途的一些change。
+
+先看insert新的，insert当然要带上writer自身的txid，才能知道哪些tx早于此tx，不可以看到这一条新insert的数据。可以在postgre里实验，select current txid和新insert行的xmin，current txid为i，xmin就是i+1，意味着比我更大的tx才可以读到这一条数据。我txid i怎么看到这一条数据，不用特别管，无论是缓存或是逻辑上就考虑到xmin-1这个id都可以，不要陷入细节。附带地，我们可以考虑下delete这一条数据，根据逻辑，我txid j去delete它，比我小的tx都应该能读到它，只有>=j的才应该知道它被删除了。所以tmax就会因为delete而改为j。某个id来读数据时要查是否<=xmax。xmax也能在postgres上select出来。
+
+但其实我们到这里都没看到多版本，MVCC都说了多版本了，怎么可能没有呢？
+![](https://pic4.zhimg.com/v2-8f5bf09171b0a06d79903d3d5173e6b7_b.jpg)
+
+### 教材
+
+https://youtu.be/1Od_SuOQshM?si=hQpSPPLj3bdgMn_i
+
+我以CMU的这个视频为教材，它额外定义了不止两列，当然其实postgres里除了xmin和xmax，也还有其他列，为了更简化，我不做说明。这里不要关注于ts这个说法，全文都可以把ts看作txn id。
+
+简单来讲，可以理解为：仅仅只有xmin和xmax（或记为begin-ts和end-ts）是不足够的。还需要考虑更多的事情，不仅仅是一个version的生命周期。
+
+#### MVTO
+
+考虑这样一种情况：如果Ti读过了Object，假设读了version j，此时有个早于Ti的txn Tk来update Object，它就不应该成功。如果它成功了，新建一个version h，Ti的读就会像幻读一样，大于Tk的txn除了Ti都不会读到version j，而是读version h。
+
+这也引出了第一种算法，MVTO，timestamp ordering。PPT上的例子，你需要提前知道：
+
+read-ts是拿来看last read txn此列的ts，新txn读过此数据的话也会更新它。begin-ts和end-ts也就是xmin和xmax的意义。txn-id是一个标记，表示是否有txn正在修改这个数据，0表示无任何txn在修改。（只是需要一个类锁的机制，不是必须要这样，其他实现方式也可以。）
+
+全流程为：
+
+Tid=10的read A（A目前就一个版本），它看txn-id=0，发现没有任何writer在写它，就可以认为它能读到正确的数据，再看当前Tid是否在begin-ts和end-ts之间，begin-ts是1，end-ts是无穷，自然可以读，并且**将read-ts更新为10**。
+
+接着Tid=10去write B，它发现txn-id是0，没有人锁住B，而Tid也大于read-ts，所以Tid=10可以修改B。先“锁”，然后将txn-id改为10（注意是B1的值，还未新建version），create a new version，记为B2，复制B1，这样txn id是10，begin-ts是1，当然不应该，所以begin-ts要是10，而B1的生命周期也就到此为止了，所以修改B1的end-ts为10。成功后就把txn-id改为0，释放“锁”了。
+
+注意以下几点：
+- 能不能改B要看read-ts，如果有Tid=50的txn在10之前读了B，那Tid=10就不能改B了。不然就导致Tid=50读到的B反而是早的，B更新完成，假设又来一个Tid=30来读，30会读到新B，反观50读到旧B，这就不对了。这也正是保证了ordering，也就是MVTO的名字意义。
+- 这里B1和B2都加“锁”了，因为你create a new version，其实也要改变B1的已存在的version的内容，end-ts会因为create new version而被改。
+- 我将txn-id称为“锁”，CMU PPT中也说的是用lock。但大部份资料都是说它完全不用锁。可能是在说txn-id这个值可以通过cas（lock free）保证并发安全，所以说“无锁”？可能是在说read时不用加锁？可能是说事务级别的加锁（区别于2PL之类，事务访问前要互斥锁、共享锁）？
+
+MVTO这个算法，可以看到它比较简单，其实没多优秀。它虽然保证了ordering，但为了这个ordering，感觉很多情况都得abort掉（txn中称为rollback）。那也就是说，这个算法建立在觉得冲突不会太多的情况。它是“乐观的”，因为它不保护不阻止，出现冲突就abort。
+
+缺点可以再搜搜，我目前只同意以下几个：
+- 
+
+Thomas write rule
+
+https://dbgroup.cs.tsinghua.edu.cn/ligl/courses/slides08.pdf
+
+#### MV2PL
+
+考虑这样一种情况：
+
+第二个例子是MV2PL，它不使用read-ts，而是使用read-cnt，read-cnt可以拿来做成shared lock，txn-id和read-cnt一起可以组成exclusive lock。举例说明，txn-id=0，read-cnt+1就代表我这个txn share了这一行，我正在读。而当我想写，我得看txn-id要为0，read-cnt也要为0，证明无人读写此行，我才可以操作。写步骤类似，先B1上txn-id和read-cnt改为10和1，再复制出B2，B2 begin-ts应为10，read-cnt为0，注意这里B2可以不上锁，它可以被别人读。但B1得上，它还没改end-ts等flag，B1改完解锁。
+
+MVOCC它没例子，只在提到前面列举TO，OCC，2PL三协议时提到。也对应论文An Empirical Evaluation of In-Memory Multi-Version Concurrency Control。MVOCC好像是HEKATON MVCC提到的，翻一下PPT。
+
+MySQL使用MV2PL保证并发操作，PGSQL使用MVTO保证并发操作？
+![alt text](image.png)

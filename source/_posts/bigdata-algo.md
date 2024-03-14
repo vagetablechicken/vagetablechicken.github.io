@@ -259,32 +259,50 @@ TODO 为啥有个印象，有消息队列做分布式锁？
 
 [这篇文章介绍的redis做分布式锁](https://mp.weixin.qq.com/s/RViDM1WHE61SDLNKzUmTAg)，也有redlock和zk的一些理解，还提到大佬对redlock的讨论，读一读
 
-## MVCC
+## MVCC TODO merge draft
 
 MVCC 是经典题目了，把它当八股文来记，感觉非常悬浮。我曾经说出过，每行多增加两列，但两列怎么运作的，都讲不清楚。原因当然是并未理解，连推演都没有很深刻。但 MVCC 经历了很久，1978年便被提出，现在主流的DB也都有它的实现，还有很多篇论文在创新、总结它。它毫无疑问变得复杂了，区别于基本算法书中的数据。
 
 找不到现成书籍来提供精简的讲解，读论文和源码都很容易陷入细节。所以，我的想法是，从上层逻辑来理解MVCC要做到的事情，其实也就是算法+数据结构的抽象。比如，MVCC是解决并发，那并发读和写两条路，每条路分几步，某一步要做什么。为了这个算法，我们需要什么样的数据结构，可以只当个黑盒。具体到每个步骤的细节，和它们的优化，数据结构落实到代码上、内存上，这些都先不讨论。毕竟，开源DB那么多，需要抠出某个地方的细节，必然要花相当的时间去调研、对比。
 
-最经典的论文是 An Empirical Evaluation of In-Memory Multi-Version Concurrency Control(VLDB17')。如果想快速获得一些关键点，可以看翻译，https://blog.mrcroxx.com/posts/paper-reading/wu-vldb2017/。
+最经典的论文是 An Empirical Evaluation of In-Memory Multi-Version Concurrency Control(VLDB17')。如果想快速获得一些关键点，可以看翻译，https://blog.mrcroxx.com/posts/paper-reading/wu-vldb2017/。本篇熟悉后再进一步，还是要看论文。
 
-首先，MVCC是Concurreny Control，那肯定有多个角色要同时对一个东西操作。所以，我们在这里确定一下场景，场景就是有一行，有多人对其进行并发读写，那么，最简单的例子就是one row/tuple, readers, writers。先忘掉什么范围读写，跨行读写。
+首先，MVCC是Concurreny Control，那肯定有多个角色要同时对一个东西操作。所以，我们在这里确定一下场景，场景就是有一行，有多人对其进行并发读写，那么，最简单的例子就是one row/tuple, readers, writers。先忘掉什么范围读写、跨行读写。
 
-第一个点，MVCC 写数据怎么写，多版本当然是写的时候出现多版本，读生成多版本也是挺离谱的想法。那么，写会怎么写，分create/insert和update两种情况。
+**第一个点，MVCC 写数据怎么写，多版本当然是写的时候出现多版本，读生成多版本也是挺离谱的想法。那么，写会怎么写，分create/insert和update两种情况。
 
 接下来的事情我们默认是commit过了的，而不是txn的中途的一些change。
 
-先看insert新的，insert当然要带上writer自身的txid，才能知道哪些tx早于此tx，不可以看到这一条新insert的数据。可以在postgre里实验，select current txid和新insert行的xmin，current txid为i，xmin就是i+1，意味着比我更大的tx才可以读到这一条数据。我txid i怎么看到这一条数据，不用特别管，无论是缓存或是逻辑上就考虑到xmin-1这个id都可以，不要陷入细节。附带地，我们可以考虑下delete这一条数据，根据逻辑，我txid j去delete它，比我小的tx都应该能读到它，只有>=j的才应该知道它被删除了。所以tmax就会因为delete而改为j。某个id来读数据时要查是否<=xmax。xmax也能在postgres上select出来。
+先看insert新的，insert当然要带上writer自身的txid，才能知道哪些tx早于此tx，不可以看到这一条新insert的数据。可以在postgre里实验，select current txid和新insert行的xmin，current txid为i，xmin就是i+1，意味着比我更大的tx才可以读到这一条数据。我txid i怎么看到这一条数据，不用特别管，无论是缓存或是逻辑上就考虑到xmin-1这个id都可以，不要陷入细节。附带地，我们可以考虑下delete这一条数据，根据逻辑，我txid j去delete它，比我小的tx都应该能读到它，只有>=j的才应该知道它被删除了。所以tmax就会因为delete而改为j。某个id来读数据时要查是否<=xmax。xmax也能在postgres上select出来。**
 
-但其实我们到这里都没看到多版本，MVCC都说了多版本了，怎么可能没有呢？
-![](https://pic4.zhimg.com/v2-8f5bf09171b0a06d79903d3d5173e6b7_b.jpg)
+提到MVCC必然提到具体三种实现，它们实际是随着时间发展出来的。
+![timeline](https://pic4.zhimg.com/v2-8f5bf09171b0a06d79903d3d5173e6b7_b.jpg)
+
+4个隔离等级，3种错误的读（脏读、不可重复读、幻读），MVCC等各种各样的并发控制算法就是来避免错误读，所以各个算法也应该用它们来评价。
+
+并发的错乱都是写在影响读，读会出各种离谱错误，双写导致更新丢失，三种错误读。
+
+错乱需要被治理，但是错乱可能是摆不平的。所以，就有了两种态度：
+- 悲观，事前控制，直接不让冲突发生（自然的，正在运行的事务会加各种保护数据，避免别人干扰自己）
+  - 2PL
+  - 图
+- 乐观，事后控制，冲突发生了再说，基本是abort掉（只在最后检查冲突，那途中就应该会很少保护数据）
+  - TO
+  - OCC
+
+然后，这几种基础算法都可以配置多版本，多版本给它们带来了更多的空间，给读更多的路线，提高读并发。
 
 ### 教材
 
 https://youtu.be/1Od_SuOQshM?si=hQpSPPLj3bdgMn_i
 
-我以CMU的这个视频为教材，它额外定义了不止两列，当然其实postgres里除了xmin和xmax，也还有其他列，为了更简化，我不做说明。这里不要关注于ts这个说法，全文都可以把ts看作txn id。
+我以CMU的这个视频为教材，它额外定义了不止两列。其实postgres里除了xmin和xmax，也还有其他列，但综述性文章基本都只讲这两列。为了更简化，我也不做额外说明，不要把下面讲到的东西当作工程化实现来看，它们都只是理论上说得通的程度。另外，不要关注于ts这个说法，全文都可以把ts看作txn id。
 
-简单来讲，可以理解为：仅仅只有xmin和xmax（或记为begin-ts和end-ts）是不足够的。还需要考虑更多的事情，不仅仅是一个version的生命周期。
+简单来讲，可以理解为：仅仅只有xmin和xmax（或记为begin-ts和end-ts）是不足够的。还需要考虑更多的事情，不仅仅是一个version的生命周期。因此，发展出三种主流方法。
+
+![](.bigdata-alog/syllabus.png)
+
+每个MVxx算法，其实都是有一个基础算法，然后扩展到多版本。
 
 #### MVTO
 
@@ -303,7 +321,7 @@ Tid=10的read A（A目前就一个版本），它看txn-id=0，发现没有任�
 注意以下几点：
 - 能不能改B要看read-ts，如果有Tid=50的txn在10之前读了B，那Tid=10就不能改B了。不然就导致Tid=50读到的B反而是早的，B更新完成，假设又来一个Tid=30来读，30会读到新B，反观50读到旧B，这就不对了。这也正是保证了ordering，也就是MVTO的名字意义。
 - 这里B1和B2都加“锁”了，因为你create a new version，其实也要改变B1的已存在的version的内容，end-ts会因为create new version而被改。
-- 我将txn-id称为“锁”，CMU PPT中也说的是用lock。但大部份资料都是说它完全不用锁。可能是在说txn-id这个值可以通过cas（lock free）保证并发安全，所以说“无锁”？可能是在说read时不用加锁？可能是说事务级别的加锁（区别于2PL之类，事务访问前要互斥锁、共享锁）？http://nitttrc.edu.in/nptel/courses/video/106104135/lec40.pdf 估计是区别于2PL
+- 我将txn-id称为“锁”，CMU PPT中也说的是用lock。但大部份资料都是说它完全不用锁。可能是在说txn-id这个值可以通过cas（lock free）保证并发安全，所以说“无锁”？可能是在说read时不用加锁？可能是说事务级别的加锁（区别于2PL之类，事务访问前要互斥锁、共享锁）？http://nitttrc.edu.in/nptel/courses/video/106104135/lec40.pdf 估计是区别于2PL。
 
 MVTO这个算法，可以看到它比较简单，其实没多优秀。它虽然保证了ordering，但为了这个ordering，感觉很多情况都得abort掉（txn中称为rollback）。那也就是说，这个算法建立在觉得冲突不会太多的情况。它是“乐观的”，因为它不保护不阻止，出现冲突就abort。
 
@@ -321,6 +339,49 @@ https://dbgroup.cs.tsinghua.edu.cn/ligl/courses/slides08.pdf
 第二个例子是MV2PL，它不使用read-ts，而是使用read-cnt，read-cnt可以拿来做成shared lock，txn-id和read-cnt一起可以组成exclusive lock。举例说明，txn-id=0，read-cnt+1就代表我这个txn share了这一行，我正在读。而当我想写，我得看txn-id要为0，read-cnt也要为0，证明无人读写此行，我才可以操作。写步骤类似，先B1上txn-id和read-cnt改为10和1，再复制出B2，B2 begin-ts应为10，read-cnt为0，注意这里B2可以不上锁，它可以被别人读。但B1得上，它还没改end-ts等flag，B1改完解锁。
 
 MVOCC它没例子，只在提到前面列举TO，OCC，2PL三协议时提到。也对应论文An Empirical Evaluation of In-Memory Multi-Version Concurrency Control。MVOCC好像是HEKATON MVCC提到的，翻一下PPT。
+
+先把锁讲清楚，再说2PL，最后聊清MV2PL。
+
+首先，读写对一Object上锁，就可以直接跳过纯用互斥锁了，肯定是读写锁效率更高。注意，简单的读写锁是指在需要操作Object时加锁，完了立即释放。这样的读写锁简单，但缺点茫茫多。用前面说到的指标来评价它，它是既会丢失更新，也会出现脏读、不可重复读、幻读。所以，它不是一个好的并发控制算法。
+
+一般相关文章都是讲X和S，互斥锁和共享锁，不是R和W读写锁，注意名词。
+
+四指标：
+
+T1先更，T2又更，T1再读就会发现T1自己的更新没了。脏读，则是T1更，T2读，T1回滚，T2就是读到脏数据了。不可重复读，T1读，T2更，T1再读，T1读到了T2的更新，它只是重复读，就崩了。幻读，T1 count(*)，T2插入，T1再count(*)，T1在范围级别读到了变动。
+
+那就更别提可串行化调度了，并发事务的最后结果全凭缘分。
+
+于是提出了2PL，2PL就可以做到serializable，能做到serializable的隔离等级？应该是conflict serializability吧。
+
+因为它是拿锁从而阻止冲突，所以2PL是悲观的。
+
+稍后再说，它可串行化，但能不能可恢复。
+
+2P是指growing phase和shrinking phase。前面简单的锁之所以不好使，就是因为拿到锁改完就释放了，别的事务就可以改动它，我们就被别的事务干扰了。那么我们就阻止别的来干扰我们，方法就是先不放锁。所以growing phase只加锁，不放锁。到了shrinking phase再全部放了。
+
+https://en.wikipedia.org/wiki/Two-phase_locking#
+
+照wiki的意思，2PL基础版是非常松的，不只是shrinking phase在commit之前，shrinking phase也是事务中途逐步获得锁。那么，这种程度只能保证解决了冲突，把可能出现的冲突通过锁来编排出顺序，conflict-serializability。但其他的啥也没解决，甚至可以死锁，毕竟拿锁是逐步的，经典死锁例子就是T1拿A，T2拿B，T1想拿B，T2想拿A。
+
+进阶的C2PL，保守在于先全部获得锁，再进行事务，不会死锁，但shrinking phase没做优化，还是在commit之前。
+相比于前面的2PL，就解决了死锁问题。
+
+再看释放锁阶段，释放锁不是一瞬间的事情，是逐步地，而且是提交前，各个事务之间的时间差可能导致很多问题。（为什么要“释放早于commit”的版本？我很费解，可能觉得速度快吧。）这里又需要一个概念，可恢复调度recoverable schedule。
+
+目前的2PL和C2PL因为释放早于commit，导致这样的现象：T1还没提交但已经改了A并释放A锁，T2可以拿到A锁并读A。这是在读未提交的A了，脏读。
+
+比如，T1拿了两个锁，它先释放了A，此时T2就可以拿到A了，T2就可以改动A了，而如果此时T1却做了abort，我不玩了。那么，理论上T2接下里对A的读写都是不可以的，因为此时A已经是脏数据了。T1 abort要rollback，T2理论上也得跟着abort并rollback。T2有可能带着别的事务也得abort加rollback，产生级联回滚cascading aborts。abort和rollback似乎总是混起来。
+
+所以，进一步优化释放阶段，就得让事务不要提前释放X锁。但可以提前释放S锁，毕竟你不修改它，可以先放。这个程度的就是S2PL（strict 2PL）。区别于前面的神奇版本，它做的就是调整了时间，事务要commit后再释放锁，别的事务就无法钻空子了。要是没有级联问题，S2PL还能恢复（recoverable）。
+
+更进一步，还可以SS2PL（strong strict 2PL），所有锁都在commit后提交。对比S2PL，S锁也要先占着，
+
+https://15445.courses.cs.cmu.edu/fall2020/notes/17-twophaselocking.pdf 并不纠结2PL和C2PL，直接就是混在一起，反正都挺基础的。重点强调不strict的2PL，是susceptible to cascading aborts。这里是说必须做到级联回滚，但级联回滚是很浪费的，所以应该是避免，而不是去做更好的回滚。
+
+不仅是可能级联，因为是用锁来规避，其实是一刀切的，拒绝了一些没有问题的的并发。（但如果想尽量并发起来，肯定是不容易的。锁就是简单但效率低。）
+
+- [ ] 但它对S2PL和SS2PL的定义很迷。感觉得换资料。
 
 MySQL使用MV2PL保证并发操作，PGSQL使用MVTO保证并发操作？
 ![alt text](image.png)

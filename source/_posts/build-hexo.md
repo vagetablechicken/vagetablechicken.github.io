@@ -29,6 +29,7 @@ chrome的`开发者工具-setting`中`Network-Disable cache(while DevTools is op
 ## Hexo cmds
 
 ```
+apt install -y npm # if error, check below. ubuntu20.04 npm is too old, need to upgrade.
 npm install -g hexo-cli
 cd <blog-source>
 npm install
@@ -79,6 +80,8 @@ marked:
 
 ## NPM install
 
+### npm install error
+
 如果`apt install npm`遇到gcc update-alternatives slave问题，就先把update-alternatives清理了，再添加也方便，[清除参考写法](https://gist.github.com/ArseniyShestakov/a458b96a354014f80ab8d95676100c03)。
 
 ```
@@ -99,7 +102,9 @@ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 80 --slave /usr/bi
 ```
 slave有个好处是不怕个别版本被修改，还是建议维持这个样子。
 
-但ubuntu版本早的话，node.js版本可能太低了，hexo没法用，报错：
+### npm version
+
+ubuntu版本早的话，node.js版本可能太低了，hexo没法用，报错：
 ```
 TypeError: line.matchAll is not a function
        at res.value.res.value.split.map.line (/root/vagetablechicken.github.io/node_modules/hexo-util/lib/highlight.js:121:26
@@ -108,22 +113,19 @@ TypeError: line.matchAll is not a function
 升级：
 ```
 sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates
-curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - # 其他版本 https://github.com/nodesource/distributions#debian-and-ubuntu-based-distributions
 sudo apt -y install nodejs
 ```
 
-`hexo version`可以查到相关version。
+`hexo version`可以查到相关依赖的version。
 
 然后又可能遇到`npm rebuild node-sass`很慢的问题，卡在github上下载node-sass了。可以换下源试试，`npm i node-sass --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/`。socks5代理会hang up，不知道是不是暂时的不稳定。
 
-node版本再升高，https://github.com/nodesource/distributions#debian-and-ubuntu-based-distributions 。
-
-hexo-renderer-sass有点旧，node版本高了不行，升高sass版本就没有问题了。
+hexo-renderer-sass有点旧，node版本高了就不兼容了，升高sass版本就没有问题了。
 
 我想要个block admonition，但没有插件能做到解析'```{note}```'这种。只能改用现有语法，缺陷是vscode没法preview，只能deploy/server后看效果。最终还是决定使用hexo next主题自带的。preview的问题不大，用的频率不会太多。
 切换sphinx有点麻烦，hexo配reStructuredText插件，例如hexo-renderer-pandoc，没成功，据说这个插件也比较大，deploy会慢。
 
-## Next Dark
+## Next Dark主题
 
 @media (prefers-color-scheme: dark) {}删了，只保留内层。否则，会考察OS或浏览器的主题，可能不能dark，强制弄黑，保护眼睛。
-

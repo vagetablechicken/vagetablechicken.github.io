@@ -7,7 +7,7 @@ categories: Algo
 
 推荐站点：
 
-https://qoogle.top/xiaoxu-explaination-leetcode/
+http://xiaoxumeng.com/category/leetcode/
 
 https://codetop.cc/ 
 

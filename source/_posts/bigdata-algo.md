@@ -303,7 +303,7 @@ Tid=10的read A（A目前就一个版本），它看txn-id=0，发现没有任�
 注意以下几点：
 - 能不能改B要看read-ts，如果有Tid=50的txn在10之前读了B，那Tid=10就不能改B了。不然就导致Tid=50读到的B反而是早的，B更新完成，假设又来一个Tid=30来读，30会读到新B，反观50读到旧B，这就不对了。这也正是保证了ordering，也就是MVTO的名字意义。
 - 这里B1和B2都加“锁”了，因为你create a new version，其实也要改变B1的已存在的version的内容，end-ts会因为create new version而被改。
-- 我将txn-id称为“锁”，CMU PPT中也说的是用lock。但大部份资料都是说它完全不用锁。可能是在说txn-id这个值可以通过cas（lock free）保证并发安全，所以说“无锁”？可能是在说read时不用加锁？可能是说事务级别的加锁（区别于2PL之类，事务访问前要互斥锁、共享锁）？
+- 我将txn-id称为“锁”，CMU PPT中也说的是用lock。但大部份资料都是说它完全不用锁。可能是在说txn-id这个值可以通过cas（lock free）保证并发安全，所以说“无锁”？可能是在说read时不用加锁？可能是说事务级别的加锁（区别于2PL之类，事务访问前要互斥锁、共享锁）？http://nitttrc.edu.in/nptel/courses/video/106104135/lec40.pdf 估计是区别于2PL
 
 MVTO这个算法，可以看到它比较简单，其实没多优秀。它虽然保证了ordering，但为了这个ordering，感觉很多情况都得abort掉（txn中称为rollback）。那也就是说，这个算法建立在觉得冲突不会太多的情况。它是“乐观的”，因为它不保护不阻止，出现冲突就abort。
 

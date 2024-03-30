@@ -326,6 +326,7 @@ Tid=10的read A（A目前就一个版本），它看txn-id=0，发现没有任�
 MVTO这个算法，可以看到它比较简单，其实没多优秀。它虽然保证了ordering，但为了这个ordering，感觉很多情况都得abort掉（txn中称为rollback）。那也就是说，这个算法建立在觉得冲突不会太多的情况。它是“乐观的”，因为它不保护不阻止，出现冲突就abort。
 
 缺点可以再搜搜，我目前只同意以下几个：
+
 - 
 
 Thomas write rule
@@ -334,11 +335,19 @@ https://dbgroup.cs.tsinghua.edu.cn/ligl/courses/slides08.pdf
 
 #### MV2PL
 
-考虑这样一种情况：
+第二个例子是MV2PL，它不使用read-ts，而是使用read-cnt，read-cnt可以拿来做成shared lock，txn-id和read-cnt一起可以组成exclusive lock。ppt举例说明，txn-id=0，read-cnt + 1就代表我这个txn share了这一行，我正在读。而当我想写，我得看txn-id要为0，read-cnt也要为0，证明无人读写此行，我才可以操作。写步骤类似，先B1上txn-id和read-cnt改为10和1，再复制出B2，B2 begin-ts应为10，read-cnt为0，注意这里B2可以不上锁，它可以被别人读。但B1得上，它还没改end-ts等flag，B1改完解锁。
 
-第二个例子是MV2PL，它不使用read-ts，而是使用read-cnt，read-cnt可以拿来做成shared lock，txn-id和read-cnt一起可以组成exclusive lock。举例说明，txn-id=0，read-cnt+1就代表我这个txn share了这一行，我正在读。而当我想写，我得看txn-id要为0，read-cnt也要为0，证明无人读写此行，我才可以操作。写步骤类似，先B1上txn-id和read-cnt改为10和1，再复制出B2，B2 begin-ts应为10，read-cnt为0，注意这里B2可以不上锁，它可以被别人读。但B1得上，它还没改end-ts等flag，B1改完解锁。
+B2被人读也不对吧，B2没commit的话，不就是脏数据？必须当前版本B1无人读写才能写B2，也不对，这不就是读阻止了写？
+B1加上锁，只允许单个事务占有它是合理的，毕竟“增加版本只能允许一个事务操作”是合理的。但要等到读都为0才锁住B1是奇怪的。
 
-MVOCC它没例子，只在提到前面列举TO，OCC，2PL三协议时提到。也对应论文An Empirical Evaluation of In-Memory Multi-Version Concurrency Control。MVOCC好像是HEKATON MVCC提到的，翻一下PPT。
+回想2PL，MV2PL增加了多版本，但2PL这个基础流程是没变的。所以，是当我想写时，我应该lock住，不准别人修改，直到commit前或者当时才会unlock。而我想读，就会给读的版本加上read-cnt，也就是共享锁，阻止别人来修改它。那么，当我正在读B1，此时别的事务想要加一个B2，它应该怎么做？
+假设条件很放松，它可以不管B1是否被读，就可以加B2并修改B1的end-ts，那么B1的end-ts就不知何时被加上，这个时候正在读的事务就很可能读到变化，多个事务看到的可能不一样，正在读B1的事务的多次读都是有危险的，可能第一次读ok，第二次读的时候end-ts已经变了，如果end-ts小于当前事务版本，实际已经不应该读它了。
+
+总之，读锁本身也是在限制他人修改，只是允许其他人也来读，所以，这个tuple上有读锁，就不该被改。多版本不是让“写过程”期间可以读写同时进行，而是让可以去读版本的事务去读版本，不可以读老版本的，该abort就abort，单版本是做不到分流的。
+
+一般，需要获得写锁时有别人read这个当前最近版本，会abort掉，同样，当我可读的版本是别人正在write的，也是abort。
+
+> MVOCC它没例子，只在提到前面列举TO，OCC，2PL三协议时提到。也对应论文An Empirical Evaluation of In-Memory Multi-Version Concurrency Control。MVOCC好像是HEKATON MVCC提到的，翻一下PPT。
 
 先把锁讲清楚，再说2PL，最后聊清MV2PL。
 
@@ -375,13 +384,42 @@ https://en.wikipedia.org/wiki/Two-phase_locking#
 
 所以，进一步优化释放阶段，就得让事务不要提前释放X锁。但可以提前释放S锁，毕竟你不修改它，可以先放。这个程度的就是S2PL（strict 2PL）。区别于前面的神奇版本，它做的就是调整了时间，事务要commit后再释放锁，别的事务就无法钻空子了。要是没有级联问题，S2PL还能恢复（recoverable）。
 
-更进一步，还可以SS2PL（strong strict 2PL），所有锁都在commit后提交。对比S2PL，S锁也要先占着，
+更进一步，还可以SS2PL（strong strict 2PL），所有锁都在commit后提交。对比S2PL，S锁也要先占着，其实基本等于没有第二阶段，只是通常会让SS2PL作为2PL的一个派生类，所以总是说它仍然有2个阶段。
 
 https://15445.courses.cs.cmu.edu/fall2020/notes/17-twophaselocking.pdf 并不纠结2PL和C2PL，直接就是混在一起，反正都挺基础的。重点强调不strict的2PL，是susceptible to cascading aborts。这里是说必须做到级联回滚，但级联回滚是很浪费的，所以应该是避免，而不是去做更好的回滚。
 
 不仅是可能级联，因为是用锁来规避，其实是一刀切的，拒绝了一些没有问题的的并发。（但如果想尽量并发起来，肯定是不容易的。锁就是简单但效率低。）
 
-- [ ] 但它对S2PL和SS2PL的定义很迷。感觉得换资料。
+cmu pdf只额外介绍了SS2PL，定义和前面的理解一样，就是commit时才放所有的锁。它跳过了S2PL。无所谓，反正大致是这么几种就行。注意是SS别名Rigorous，不是S2PL。
+
+对比SS2PL和S2PL，S2PL要更早释放共享锁，那么可能出现“我还没commit，我读过的数据就被别人改了”。但这个好像并不影响什么，这种情况并不属于幻读，更不可能算脏读了。wiki的列表也可以看出SS2PL的各项指标跟S2PL没啥区别。那为啥要有SS2PL？
+可能是因为SS2PL其实更简单，因为既然我不用更早释放共享锁，我就不用去判断何时释放某个共享锁，代码上会轻很多。SS还有一个额外属性，CO(commitment ordering)。因为SS在释放锁前不允许别的事务读写，所以它的commit顺序就是事务的顺序。这个属性在某些场景下是很有用的，分布式里要全局串行化，就可能需要这样的顺序。这个其实就是我前面提到的“我还没commit，我读过的数据就被别人改了”，T1先执行，读了A然后在第二阶段释放了，由于此时没有别的机制阻碍了，T2可以立马改了A，然后比T2还先commit（这个你也无法阻止，它是可能的），那么T1就没有读到先于它提交的T2的数据。T2先提交，但T1没反应，就是一种错乱，SS2PL就能保证有序。具体可以看下http://heavensheep.xyz/?p=174。
+
+![Alt text](image-1.png)
+
+虽然SS2PL更简单，但工程还是S2PL多，主要是为了效率。
+
+2PL聊完了，就要介绍MV2PL了。（内容在前面，有空整理下）
 
 MySQL使用MV2PL保证并发操作，PGSQL使用MVTO保证并发操作？
 ![alt text](image.png)
+
+
+如果事务冲突较少、执行时间较短，可采用乐观并发控制（OCC）。
+
+![Alt text](image-2.png)
+
+OCC是三阶段，和2PL比，场景不同，各有优点，也就是乐观和悲观的区别。
+
+读取阶段：所有读取的数据会拷贝到本地空间，所有写也只记录到本地空间
+验证阶段：事务执行commit的时候，DBMS会先检查该事务是否和其他事务有冲突，验证阶段需要对事务修改的数据进行加锁
+写阶段：把本地空间的修改apply到DBMS，让其他事务可见，最后释放验证阶段加的锁
+
+可以看到，OCC会先做着自己的事，做完了，等到要交稿了（commit），再去看看有没有冲突。
+
+https://marsishandsome.github.io/2019/06/Multi_Version_Concurrency_Control 推荐这篇文章
+
+MVCC具体实现，基本都是看mysql的，版本链那一套？https://oceanbase.github.io/miniob/design/miniob-transaction.html
+这个文章提到了很多参考资料，值得学习。
+
+源码 https://github.com/erikgrinaker/toydb/blob/master/docs/architecture.md#mvcc-transactions 也可看看是否容易阅读。

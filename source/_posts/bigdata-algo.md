@@ -404,6 +404,7 @@ cmu pdf只额外介绍了SS2PL，定义和前面的理解一样，就是commit�
 MySQL使用MV2PL保证并发操作，PGSQL使用MVTO保证并发操作？
 ![alt text](image.png)
 
+#### MVOCC
 
 如果事务冲突较少、执行时间较短，可采用乐观并发控制（OCC）。
 
@@ -417,9 +418,28 @@ OCC是三阶段，和2PL比，场景不同，各有优点，也就是乐观和�
 
 可以看到，OCC会先做着自己的事，做完了，等到要交稿了（commit），再去看看有没有冲突。
 
+MVOCC应该也就是在OCC的基础上加了多版本，这样就可以在读取阶段时，不用拷贝数据，而是直接读取版本，写阶段也就是apply阶段，是新增副本，而不是原地替换。
+
 https://marsishandsome.github.io/2019/06/Multi_Version_Concurrency_Control 推荐这篇文章
+
+### 实现
+理论一大堆了，实际还是需要看至少一种实现。
 
 MVCC具体实现，基本都是看mysql的，版本链那一套？https://oceanbase.github.io/miniob/design/miniob-transaction.html
 这个文章提到了很多参考资料，值得学习。
+
+无论哪种方案，只要带MV，就是指在修改数据时（insert/update/delete）都是增加记录，新旧记录当然逻辑上得在一块地方，方便找版本。通常来讲，新旧记录是用链表串起来的，也就是所谓的“版本链”。但用脚想也知道，链表做想要的版本搜索是低效率的，估计也是用别的数据结构来加速。但本质还是版本链，主要是强调一种递增，版本是一个一个追加到尾部的。
+
+按照miniob文档，https://oceanbase.github.io/miniob/dev-env/how_to_dev_miniob_by_vscode.html，看源码。
+
+```bash
+bash build.sh init # if no libevent and others, notice that all 3rd libs will be installed in /usr/local
+bash build.sh -DCONCURRENCY=ON
+./build/bin/observer -f etc/observer.ini -s miniob.sock -t mvcc &
+./build/bin/obclient -s miniob.sock # client connect to observer
+```
+obclient可以跑`begin/commit/rollback`，miniob没有db，直接建表使用。操作在observer的日志中都会有记录，可以靠日志分析代码。
+
+不过，应该先扫描一下代码，有个整体概念。对于细节的理解，再结合日志分析。
 
 源码 https://github.com/erikgrinaker/toydb/blob/master/docs/architecture.md#mvcc-transactions 也可看看是否容易阅读。

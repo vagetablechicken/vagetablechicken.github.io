@@ -265,7 +265,7 @@ MVCC 是经典题目了，把它当八股文来记，感觉非常悬浮。我曾
 
 找不到现成书籍来提供精简的讲解，读论文和源码都很容易陷入细节。所以，我的想法是，从上层逻辑来理解MVCC要做到的事情，其实也就是算法+数据结构的抽象。比如，MVCC是解决并发，那并发读和写两条路，每条路分几步，某一步要做什么。为了这个算法，我们需要什么样的数据结构，可以只当个黑盒。具体到每个步骤的细节，和它们的优化，数据结构落实到代码上、内存上，这些都先不讨论。毕竟，开源DB那么多，需要抠出某个地方的细节，必然要花相当的时间去调研、对比。
 
-最经典的论文是 An Empirical Evaluation of In-Memory Multi-Version Concurrency Control(VLDB17')。如果想快速获得一些关键点，可以看翻译，https://blog.mrcroxx.com/posts/paper-reading/wu-vldb2017/。本篇熟悉后再进一步，还是要看论文。
+最经典的论文是 An Empirical Evaluation of In-Memory Multi-Version Concurrency Control(VLDB17')。如果想快速获得一些关键点，可以看翻译，https://blog.mrcroxx.com/posts/paper-reading/wu-vldb2017/ 。本篇熟悉后再进一步，还是要看论文。
 
 首先，MVCC是Concurreny Control，那肯定有多个角色要同时对一个东西操作。所以，我们在这里确定一下场景，场景就是有一行，有多人对其进行并发读写，那么，最简单的例子就是one row/tuple, readers, writers。先忘掉什么范围读写、跨行读写。
 
@@ -423,6 +423,7 @@ MVOCC应该也就是在OCC的基础上加了多版本，这样就可以在读取
 https://marsishandsome.github.io/2019/06/Multi_Version_Concurrency_Control 推荐这篇文章
 
 ### 实现
+
 理论一大堆了，实际还是需要看至少一种实现。
 
 MVCC具体实现，基本都是看mysql的，版本链那一套？https://oceanbase.github.io/miniob/design/miniob-transaction.html
@@ -441,5 +442,25 @@ bash build.sh -DCONCURRENCY=ON
 obclient可以跑`begin/commit/rollback`，miniob没有db，直接建表使用。操作在observer的日志中都会有记录，可以靠日志分析代码。
 
 不过，应该先扫描一下代码，有个整体概念。对于细节的理解，再结合日志分析。
+
+重点关注Trx，管理它的类就是TrxKit，用于创建/删除事务，管理事务状态。TrxKit的实现在src/observer/storage里。VacuousTrxKit就是啥都没有，空架子，代码实现就是全部返回空或正确。但再怎么说也是Trx，create_trx也是要返回一个可以用的Trx的，所以还是要实现VacuousTrx。但它确实是什么也不用管，那就不用存Trx，去管理状态了。
+
+Trx类则是包装了整个事务的操作，自然包括begin/commit/rollback，读写也是要被Trx管理的，所以要通过Trx来读写，一般是insert/delete/visit。
+
+VacuousTrx有了，自然也有MvccTrx，也得有MvccTrxKit，能不能commit等事情还要看别的事务的脸色，所以MvccTrxKit也要管理MvccTrx的状态，比如commit时要检查是否有冲突。
+
+MvccTrxKit大致要做几件事？create trx自然得管理生产trx id，所以它得有，这里只考虑并发，原子变量足够。然后要把所有进行时的MvccTrx存起来，这里简单处理就没有做太多效率优化，直接用vector存。
+
+MvccTrx，当然要来管trx和record的begin-end之间的事情，但存record的不是这里，我们抽象为Table。MvccTrx为了能rollback，所有insert/delete的记录都要存起来，所以它还要有个容器来存这些记录。这个部分就是operations，而operations会宕机丢失，所以还配了clog来记录这些操作。做的事情先记log，再记operations。recover自然有相应的 redo操作。visit是没有必要记的。log用log manager管理，也是用trx id来区分。
+
+先忘记redo，只看MvccTrx正常运行时该做什么。最顶层来看，Trx start、commit和rollback，三个事务本身的操作，https://oceanbase.github.io/miniob/design/miniob-transaction.html#%E4%BA%8B%E5%8A%A1%E6%8E%A5%E5%8F%A3。
+中途进行的任意insert/delete/visit，都是行数据操作。
+
+先看事务的生命周期，start好说，commit何时成功何时失败？根据之前的学习，它主要看选择什么策略，是乐观还是悲观，有多乐观，有多悲观。看`MvccTrx::commit_with_trx_id`实现，它是在commit时把insert和delete operation都落实到相应table中，失败了就commit失败。也就是说它是乐观策略，不过也不是前面的三种之一，而是更简单的。operation如果失败了，接下来的op还会执行，ops遍历完才结束，return值还有点离谱，一个op报了错误，还可能被下一个op重置为success？这个地方很诡异。
+
+还有一个特点是，一个写事务，通常会有两个版本号，在启动时，会生成一个版本号，用来在运行时做数据的可见性判断。在提交时，会再生成一个版本号，这个版本号是最终设置在记录上的。分成两个号，这个我在别的系统上也见过，倒没有思考过为什么。commit时使用最新的id，也就是落到表里的修改用的是new id，也就是insert时new version是从new id begin的。那么，commit时刻之前的trx因其id小于new id，所以它们的读写都是合理的。如果用的是start id，它可能很小，那么commit又可能遇到冲突，就算你commit成功了，中途一些id都读过数据，你commit了一个新版本却小于它们。
+
+有一点需要确认下，是id1 commit前后，别的事务重复读它写的行，会不会有问题（不可重复读）？
+无论可不可重复读吧，用new id会极大概率降低commit时的写冲突，也让其他事务读上一个版本显得很合理，反正你commit与否，其他事务都应该读上一个版本，而不是你new commit的版本。比较符合时间顺序。
 
 源码 https://github.com/erikgrinaker/toydb/blob/master/docs/architecture.md#mvcc-transactions 也可看看是否容易阅读。

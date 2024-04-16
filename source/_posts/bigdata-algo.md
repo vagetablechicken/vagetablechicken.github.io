@@ -378,17 +378,17 @@ https://en.wikipedia.org/wiki/Two-phase_locking#
 
 再看释放锁阶段，释放锁不是一瞬间的事情，是逐步地，而且是提交前，各个事务之间的时间差可能导致很多问题。（为什么要“释放早于commit”的版本？我很费解，可能觉得速度快吧。）这里又需要一个概念，可恢复调度recoverable schedule。
 
-目前的2PL和C2PL因为释放早于commit，导致这样的现象：T1还没提交但已经改了A并释放A锁，T2可以拿到A锁并读A。这是在读未提交的A了，脏读。
+目前的2PL和C2PL因为释放早于commit，导致这样的现象：T1还没提交但已经改了A并释放A锁，T2可以拿到A锁并读A。这是在读未提交的A了，脏读。（这里是单纯说2PL，是在原地改A，没说到MV或是Txn自己写自己的local等情况）
 
 比如，T1拿了两个锁，它先释放了A，此时T2就可以拿到A了，T2就可以改动A了，而如果此时T1却做了abort，我不玩了。那么，理论上T2接下里对A的读写都是不可以的，因为此时A已经是脏数据了。T1 abort要rollback，T2理论上也得跟着abort并rollback。T2有可能带着别的事务也得abort加rollback，产生级联回滚cascading aborts。abort和rollback似乎总是混起来。
 
-所以，进一步优化释放阶段，就得让事务不要提前释放X锁。但可以提前释放S锁，毕竟你不修改它，可以先放。这个程度的就是S2PL（strict 2PL）。区别于前面的神奇版本，它做的就是调整了时间，事务要commit后再释放锁，别的事务就无法钻空子了。要是没有级联问题，S2PL还能恢复（recoverable）。
+所以，进一步优化释放阶段，就得让事务不要提前释放X锁。但**可以提前释放S锁**，毕竟你不修改它，可以先放。这个程度的就是S2PL（strict 2PL）。区别于前面的神奇版本，它做的就是调整了时间，事务要commit后再释放锁，别的事务就无法钻空子了。要是没有级联问题，S2PL还能恢复（recoverable）。
 
 更进一步，还可以SS2PL（strong strict 2PL），所有锁都在commit后提交。对比S2PL，S锁也要先占着，其实基本等于没有第二阶段，只是通常会让SS2PL作为2PL的一个派生类，所以总是说它仍然有2个阶段。
 
 https://15445.courses.cs.cmu.edu/fall2020/notes/17-twophaselocking.pdf 并不纠结2PL和C2PL，直接就是混在一起，反正都挺基础的。重点强调不strict的2PL，是susceptible to cascading aborts。这里是说必须做到级联回滚，但级联回滚是很浪费的，所以应该是避免，而不是去做更好的回滚。
 
-不仅是可能级联，因为是用锁来规避，其实是一刀切的，拒绝了一些没有问题的的并发。（但如果想尽量并发起来，肯定是不容易的。锁就是简单但效率低。）
+规避了级联是好事，但其实是一刀切的，同时也拒绝了一些没有问题的的并发。（如果想尽量并发起来，肯定是不容易的。锁就是简单但效率低。）
 
 cmu pdf只额外介绍了SS2PL，定义和前面的理解一样，就是commit时才放所有的锁。它跳过了S2PL。无所谓，反正大致是这么几种就行。注意是SS别名Rigorous，不是S2PL。
 
@@ -456,7 +456,7 @@ MvccTrx，当然要来管trx和record的begin-end之间的事情，但存record�
 先忘记redo，只看MvccTrx正常运行时该做什么。最顶层来看，Trx start、commit和rollback，三个事务本身的操作，https://oceanbase.github.io/miniob/design/miniob-transaction.html#%E4%BA%8B%E5%8A%A1%E6%8E%A5%E5%8F%A3。
 中途进行的任意insert/delete/visit，都是行数据操作。
 
-先看事务的生命周期，start好说，commit何时成功何时失败？根据之前的学习，它主要看选择什么策略，是乐观还是悲观，有多乐观，有多悲观。看`MvccTrx::commit_with_trx_id`实现，它是在commit时把insert和delete operation都落实到相应table中，失败了就commit失败。也就是说它是乐观策略，不过也不是前面的三种之一，而是更简单的。operation如果失败了，接下来的op还会执行，ops遍历完才结束，return值还有点离谱，一个op报了错误，还可能被下一个op重置为success？这个地方很诡异。
+先看事务的生命周期，start好说，commit何时成功何时失败？根据之前的学习，它主要看选择什么策略，是乐观还是悲观，有多乐观，有多悲观。看`MvccTrx::commit_with_trx_id`实现，它是在commit时把insert和delete operation都落实到相应table中，失败了就commit失败。也就是说它是乐观策略，是OCC。operation如果失败了，接下来的op还会执行，ops遍历完才结束，return值还有点离谱，一个op报了错误，还可能被下一个op重置为success？这个地方很诡异。
 
 还有一个特点是，一个写事务，通常会有两个版本号，在启动时，会生成一个版本号，用来在运行时做数据的可见性判断。在提交时，会再生成一个版本号，这个版本号是最终设置在记录上的。分成两个号，这个我在别的系统上也见过，倒没有思考过为什么。commit时使用最新的id，也就是落到表里的修改用的是new id，也就是insert时new version是从new id begin的。那么，commit时刻之前的trx因其id小于new id，所以它们的读写都是合理的。如果用的是start id，它可能很小，那么commit又可能遇到冲突，就算你commit成功了，中途一些id都读过数据，你commit了一个新版本却小于它们。
 

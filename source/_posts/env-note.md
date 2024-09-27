@@ -10,31 +10,14 @@ date: 2022-05-07 00:23:43
 
 ## About OS
 
-### macOS
+### win
 
-#### homebrew
+windows python通过pip install是要现编译的，VS的编译输出是中文，termianl下就显示乱码。需要win11打开”区域“，管理-更改系统区域设置，打开utf-8支持，就不会乱码了。但这么做，别的地方可能乱码。不是永久方案，需要用时打开一下。可以看下VS能不能改语言，别用中文。
 
-默认源太卡，容易install失败。换tuna的源，设置方法见
+windows装dlib用pip一般会报编译错误。
+`conda install -c conda-forge dlib`下载的依赖比较多，能安装成功。
 
-[homebrew](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/)，[homebrew-bottles](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew-bottles/)。（注意，这两个都要配置）
-
-#### gdb/lldb
-
-mac中使用lldb，不需要指定bin。`lldb -c /cores/xxx`即可。
-
-### linux
-
-### debian源
-
-[debian | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/debian/)
-
-apt update
-
-apt install maven
-
-### Windows
-
-Windows下的终端Terminal，如何加入snippet，参考https://github.com/microsoft/terminal/issues/6412#issuecomment-964343941。我个人常为OpenMLDB加的snippet：
+Windows下的终端Terminal加入snippet，参考https://github.com/microsoft/terminal/issues/6412#issuecomment-964343941。我个人常为OpenMLDB加的snippet：
 ```json
         {
             "command": {
@@ -67,6 +50,40 @@ Windows下的终端Terminal，如何加入snippet，参考https://github.com/mic
 ```
 不需要快捷键，`Ctrl+Shift+P`可以根据name快速选择，快捷键还懒得记。
 
+遇到`git clone error: invalid path`，用wsl git，然后再mv过去，windows git有点坑。
+
+#### wsl2+docker
+
+注意windows的docker不用wsl2就跑不起来，先装wsl2，要不要长期使用另说。
+
+```
+wsl --install -d Ubuntu-22.04
+```
+
+网速正常的话，一般就安装好了。有时候会卡在诡异的地方，wsl命令分几个版本，默认版本用起来很不顺手，但一般懒得重新下。通常是ubuntu镜像下了，wsl内核没下，多跑几下install命令，可能就好了。
+
+wsl涉及到使用ip就很麻烦，把这部分配置好，方便使用，见[gist](https://gist.github.com/vagetablechicken/1f30f57c178536aa6135ea06b33d66ec)。
+
+wsl2默认只有1个T，模型存的多就用完了，expand一下，不会重置环境，需要shutdown一下，见[官方文档](https://learn.microsoft.com/en-us/windows/wsl/disk-space#how-to-expand-the-size-of-your-wsl-2-virtual-hard-disk)。
+
+wsl2无论什么端口，从win都能用localhost地址访问到，这不代表ip就通了。localhost和127都可能无法等同，估计是wsl2只加工了localhost。
+
+### linux
+
+用户直接用root也行，但一般还是新建用户，免密的正确配置法：`sudo vim /etc/sudoers.d/ark`，添加`ark ALL=(ALL:ALL) NOPASSWD:ALL`。
+
+不要在`/etc/sudoers`里加，那里不起作用。
+
+### macOS
+
+#### homebrew
+
+默认源太卡，容易install失败。换tuna的源，设置方法见[homebrew](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/)，[homebrew-bottles](https://mirrors.tuna.tsinghua.edu.cn/help/homebrew-bottles/)。（注意，这两个都要配置）。
+
+#### gdb/lldb
+
+mac中使用lldb，不需要指定bin。`lldb -c /cores/xxx`即可。
+
 ## vim
 
 vim时用鼠标选择一段文本，可能进入VISUAL模式。VISUAL模式下的复制/粘贴/剪切得用`y`,`p`,`d`。注意，VISUAL模式下复制的文本，不会记录在剪贴板，只能在vim中使用，拷贝不出去。
@@ -75,22 +92,22 @@ vim时用鼠标选择一段文本，可能进入VISUAL模式。VISUAL模式下�
 
 ## python
 
-python源也可以用tuna的，可以直接
+python源可以用tuna的，有些网络华为源更快。
 
 ```
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple <pkg>
-```
-
-全局配置方法
-
-```
-python -m pip install --upgrade pip
+# 全局配置方法
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-详情见[pypi | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/pypi/)。
+python numpy大升级出现很多不兼容，一个通常适用的老版本：
+```
+pip install numpy==1.26.4  
+pip install scipy==1.12.0  
+pip install scikit-learn==1.2.2
+```
 
-## sh
+## bash
 
 ### git
 
@@ -131,6 +148,13 @@ while true; do sleep 10 && date && top -b -p 25440 -n1 | tail -1 ; done >> proce
 如果目的是pnpm，不用单独下载npm，直接下载pnpm就行。 https://pnpm.io/zh/installation
 
 如果是npm，下载nvm更合适管理node版本。
+```bash
+# windows https://github.com/coreybutler/nvm-windows?tab=readme-ov-file
+# ubuntu https://github.com/nvm-sh/nvm.git/
+nvm install lts
+nvm on
+npm i -g yarn
+```
 
 ## keyboard
 
@@ -140,21 +164,31 @@ rk61键盘配合mac使用，支持很差，还是需要改键。使用karabiner-
 
 windows下改键，使用PowerToys的键盘管理器。
 
-## docker源
+## docker
 
-就是`registry-mirrors`这个配置项。linux直接在 `/etc/docker/daemon.json`里改，mac可以在docker desktop设置里找到配置文件，也是一样的修改。
+### 导入导出
+
+**千万不要用docker export/import**，大的image导入导出都慢的可怕。用save/load。
+
+### 换源
+
+配置换源是个非常重的操作，要重启docker。不是必须这么做，一般先考虑给pull的地址加镜像前缀，比如daocloud的，具体去搜。
+
+#### 配置换源
+
+就是`registry-mirrors`这个配置项。linux直接在 `/etc/docker/daemon.json`里改，mac/win可以在docker desktop设置里找到配置文件，也是一样的修改。
 
 ```
 {
     "registry-mirrors": [
-        "http://hub-mirror.c.163.com",
-        "https://docker.mirrors.ustc.edu.cn",
-        "https://registry.docker-cn.com"
+        "..."
     ]
 }
 ```
 
 重启后`docker info`可以查看。
+
+源的地址很容易失效，github有些项目会帮忙检查，即时去查一下，这里不提供了，以免失效。
 
 ## tmux
 
@@ -192,3 +226,26 @@ bindkey '\e[5~' insert-last-word
 
 怀疑进程被oom kill了，需要查日志，dmesg -T没有权限要求，但它的时间[不准确](https://zhuanlan.zhihu.com/p/619173424?utm_id=0)，甚至可能是未来时间。最好查/var/log/messages，但它可能需要root权限。
 Docker内的进程也是被物理机管理的，如果占满内存，也是会被kill，而且在物理机上会有日志。
+
+## GO
+
+gvm来管理，但gvm要先下一个早期版本，才能去下一些高版本，依赖关系比较诡异，照着下面安装就行。
+```bash
+# -B 直接下binary，gcc编1.4可能有一堆c++ warning，编译通不过
+gvm install go1.4 -B
+# Set $GOROOT_BOOTSTRAP to a working Go tree >= Go 1.17.13.
+gvm use go1.4 --default
+# 装比1.17还高的时候有需要1.17作为基础，1.4直接装不了1.21。。。有毒
+gvm install go1.17.13
+gvm use go1.17 --default # 可以就用17这个版本当默认版
+gvm install go1.21
+```
+
+## Regex
+
+虽然真的很难懂，但是确实用处很多，逃不开它的魔爪。测试工具推荐https://regex101.com/，有解释regex的意思，容易debug。
+
+让AI先写，再自己用测试工具验证，是个比较高效的方法。
+
+hive的regexp_replace好像不是遵守java的regex规则，比如dash '-'不需要转义，但是java里需要转义？
+'\\\-\'\"'这样的写法，hive里还会报错，得把\-换回原始-，才能正常运行？

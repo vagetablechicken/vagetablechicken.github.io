@@ -18,3 +18,5 @@ usage:
 source /etc/profile.d/rvm.sh # add to zshrc
 jekyll serve
 ```
+
+jekyll admonition 写法 https://github.com/Helveg/jekyll-gfm-admonitions

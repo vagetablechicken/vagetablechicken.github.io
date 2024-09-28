@@ -1,7 +1,7 @@
 ---
 title: BigData Algo
 date: 2023-09-02 16:40:22
-tags: Algo
+tag: Algo
 categories: BigData
 ---
 
@@ -13,13 +13,13 @@ categories: BigData
 
 然后哪个服务器负责处理哪些哈希片，是靠映射。具体方法没有规定，比如，可以用服务器ip来hash，还是2^32取模，得到的数字，它就处理哈希环上对应的片。数据来了先hash取模，得到的值然后顺时针找可以服务的服务器，就发给它。
 
-![chash](./bigdata-algo/consistent-hashing.jpg)
+![chash](/assets/bigdata-algo/consistent-hashing.jpg)
 
 如果中间某个服务器down了，反正算法是往后找到第一个服务器，它还是会被处理。当然这个就要求“数据可以被任何server处理”，不能是特别的。比如，相关数据只在某个节点，其他节点获取不到，处理条件都不满足。当然这是理想条件，现实很多也不满足，但它们涉及到的数据也可以是多节点都存有备份，但又不至于所有节点都需要。这个也等于缩容，受影响的数据是“会落到这一下线节点的数据”，我们称为nodeB，将前一个节点nodeA的末尾片记为end1，当前节点末尾片为end2，也就是`(end1, end2]`区间的数据原本应该找这个节点B，但它下线了，就会变成去找下一个节点nodeC。其他片上的数据不会受到影响。虚拟哈希环不会改变大小，永远的2^32片。如下图左边所示。
 
 而扩容就在hash环上加一个node，原本`[start, end]`会找nodeD，你在nodeD前面塞了个nodeE，那么`[start, nodeE_end]`这部分数据就是受影响的数据，原来要找nodeD，现在变成nodeE。如下图右边所示。
 
-![scale](./bigdata-algo/upscale-downscale.jpg)
+![scale](/assets/bigdata-algo/upscale-downscale.jpg)
 
 优点不难猜测，节点上下线只会影响局部数据，这已经是很大的优点了。不能傻到还在N个节点，就hash(req)%N吧，增加节点你还需要把N改成N+1。而且它会改变很多请求的路由，缓存都不无法利用。（当然，要是系统就是这样的简单，啥也不要求，那也不用考虑改变了，简单就是最好的。）
 
@@ -59,9 +59,9 @@ req_key = hash(req)
 node = get_node(req_key)
 node.handle(req)
 ```
-{% note %}
-如果存在一群相同元素，那么 lower_bound 和 upper_bound 就可以找到这群元素的上下界限，前者指向下界限，用 lower 表示，后者指向上界限的后一个位置，用 upper 来表示。也就是说，lb是大于等于key的第一个元素，ub是大于key的第一个元素。
-{% endnote %}
+
+> [!NOTE]
+> 如果存在一群相同元素，那么 lower_bound 和 upper_bound 就可以找到这群元素的上下界限，前者指向下界限，用 lower 表示，后者指向上界限的后一个位置，用 upper 来表示。也就是说，lb是大于等于key的第一个元素，ub是大于key的第一个元素。
 
 ### 开源实现
 
@@ -84,7 +84,7 @@ ch(k,2)，就是分一半流量给新增的bucket1。进一步的，ch(k, n+1)�
 
 这样，就可以用ch(k,n)来描述ch(k,n+1)了。也就是说，ch(k,n+1)计算时，都是先用ch(k,n)计算出来，但有一部分key应该考虑分给新bucketn。从一个key的角度来看，它就是在不断jump，它在ch(k,1)时，就是0，然后在ch(k,2)时，就是0或1，满足条件，它就应该到1那儿去，然后在ch(k,3)时，它又该考虑是留在bucket1还是跳到bucket2，以此类推。还真是名副其实的jump。
 
-![jump](./bigdata-algo/jump-chash.jpg)
+![jump](/assets/bigdata-algo/jump-chash.jpg)
 
 图中，从左下框架上来看，只有?函数安排合理，就能得到一个非常简单的一致性哈希算法实现。那么，关键又变成了什么样的函数才能做到。假设k2是输入key，返回值是恒定的0.1，那么2个桶，它就会被判定去桶1，3个桶就去桶2。但这么就搞得只有小key才会挪动，不够随机。所以这里的函数一般是随机函数，但由于我们必须保证原则“bucket数量不变时，k应该对应唯一一个bucket index”，所以这个随机不是真的随机。所以实现上，会拿key本身作为seed，它对应不变的一组数字序列，是可预期的。所以对一个key来说，在bucket总数不变时，结果是一样的。
 
@@ -115,7 +115,7 @@ redis的client jedis倒是用了一致性哈希，client/proxy端做请求分流
 
 而Dynamo不一样，它硬是一条路走到底了。原文 https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf 。解读可以看 https://medium.com/@adityashete009/consistent-hashing-amazon-dynamodb-part-1-f5719aff7681 的系列文章，Vector Clocks，Sloppy Quorum等很多细节还没看。
 
-![dynamo](./bigdata-algo/dynamo-replica.png)
+![dynamo](/assets/bigdata-algo/dynamo-replica.png)
 
 可以看到，它真的贯彻了一致性哈希的思想，为了能在B节点挂了的时候，能继续服务，让B之后的数个节点都放数据备份。或者看下面这张更细致的图：
 
@@ -300,7 +300,7 @@ https://youtu.be/1Od_SuOQshM?si=hQpSPPLj3bdgMn_i
 
 简单来讲，可以理解为：仅仅只有xmin和xmax（或记为begin-ts和end-ts）是不足够的。还需要考虑更多的事情，不仅仅是一个version的生命周期。因此，发展出三种主流方法。
 
-![](.bigdata-alog/syllabus.png)
+![](/assets/bigdata-algo/syllabus.png)
 
 每个MVxx算法，其实都是有一个基础算法，然后扩展到多版本。
 

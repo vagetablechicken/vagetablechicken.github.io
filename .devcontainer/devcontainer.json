@@ -1,0 +1,13 @@
+{
+  "name": "Jekyll",
+  "image": "mcr.microsoft.com/vscode/devcontainers/ruby:3",
+  "postCreateCommand": "bundle install",
+  "forwardPorts": [4000],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ginfuru.vscode-jekyll-syntax"
+      ]
+    }
+  }
+}

@@ -1,6 +1,9 @@
 ---
 title: 工具与软件配置
-categories: tools
+date: 2022-05-07 10:00:00 +0800
+tags: [tools, config]
+categories: [Env, Tools, Cookbook]
+pin: true
 ---
 
 ## ShareX

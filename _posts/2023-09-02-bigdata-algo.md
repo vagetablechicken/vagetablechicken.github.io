@@ -395,20 +395,20 @@ cmu pdf只额外介绍了SS2PL，定义和前面的理解一样，就是commit�
 对比SS2PL和S2PL，S2PL要更早释放共享锁，那么可能出现“我还没commit，我读过的数据就被别人改了”。但这个好像并不影响什么，这种情况并不属于幻读，更不可能算脏读了。wiki的列表也可以看出SS2PL的各项指标跟S2PL没啥区别。那为啥要有SS2PL？
 可能是因为SS2PL其实更简单，因为既然我不用更早释放共享锁，我就不用去判断何时释放某个共享锁，代码上会轻很多。SS还有一个额外属性，CO(commitment ordering)。因为SS在释放锁前不允许别的事务读写，所以它的commit顺序就是事务的顺序。这个属性在某些场景下是很有用的，分布式里要全局串行化，就可能需要这样的顺序。这个其实就是我前面提到的“我还没commit，我读过的数据就被别人改了”，T1先执行，读了A然后在第二阶段释放了，由于此时没有别的机制阻碍了，T2可以立马改了A，然后比T2还先commit（这个你也无法阻止，它是可能的），那么T1就没有读到先于它提交的T2的数据。T2先提交，但T1没反应，就是一种错乱，SS2PL就能保证有序。具体可以看下http://heavensheep.xyz/?p=174。
 
-![Alt text](bigdata-algo/image-1.png)
+![Alt text](/assets/img/bigdata-algo/image-1.png)
 
 虽然SS2PL更简单，但工程还是S2PL多，主要是为了效率。
 
 2PL聊完了，就要介绍MV2PL了。（内容在前面，有空整理下）
 
 MySQL使用MV2PL保证并发操作，PGSQL使用MVTO保证并发操作？
-![alt text](bigdata-algo/image.png)
+![alt text](/assets/img/bigdata-algo/image.png)
 
 #### MVOCC
 
 如果事务冲突较少、执行时间较短，可采用乐观并发控制（OCC）。
 
-![Alt text](bigdata-algo/image-2.png)
+![Alt text](/assets/img/bigdata-algo/image-2.png)
 
 OCC是三阶段，和2PL比，场景不同，各有优点，也就是乐观和悲观的区别。
 

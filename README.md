@@ -1,43 +1,51 @@
-# Chirpy Starter
+# My Blog
 
-[![Gem Version](https://img.shields.io/gem/v/jekyll-theme-chirpy)][gem]&nbsp;
-[![GitHub license](https://img.shields.io/github/license/cotes2020/chirpy-starter.svg?color=blue)][mit]
+本仓库为个人博客源码，基于 [Jekyll](https://jekyllrb.com/) + [Chirpy 主题](https://github.com/cotes2020/jekyll-theme-chirpy)。
 
-When installing the [**Chirpy**][chirpy] theme through [RubyGems.org][gem], Jekyll can only read files in the folders
-`_data`, `_layouts`, `_includes`, `_sass` and `assets`, as well as a small part of options of the `_config.yml` file
-from the theme's gem. If you have ever installed this theme gem, you can use the command
-`bundle info --path jekyll-theme-chirpy` to locate these files.
+---
 
-The Jekyll team claims that this is to leave the ball in the user’s court, but this also results in users not being
-able to enjoy the out-of-the-box experience when using feature-rich themes.
+## 快速开始
 
-To fully use all the features of **Chirpy**, you need to copy the other critical files from the theme's gem to your
-Jekyll site. The following is a list of targets:
+1. 安装 Ruby 环境（推荐用 Homebrew 或 rvm）：
+	```bash
+	# rvm install 3.0.0
+	# rvm use 3.0.0
+	# 或 macOS:
+	brew install ruby@3.2
+	echo 'export PATH="/opt/homebrew/opt/ruby@3.2/bin:$PATH"' >> ~/.zshrc
+	source ~/.zshrc
+	ruby -v
+	```
+2. 安装依赖：
+	```bash
+	gem install bundler
+	bundle install
+	```
+3. 启动开发服务器：
+	```bash
+	bundle exec jekyll serve
+	```
 
-```shell
-.
-├── _config.yml
-├── _plugins
-├── _tabs
-└── index.html
-```
+---
 
-To save you time, and also in case you lose some files while copying, we extract those files/configurations of the
-latest version of the **Chirpy** theme and the [CD][CD] workflow to here, so that you can start writing in minutes.
+## 文章与写作
 
-## Usage
+- 文件命名格式：`YEAR-MONTH-DAY-title.MARKUP`
+- 文章资源建议放在 `/assets/` 或同名文件夹下
+- Admonition 语法见：[jekyll-gfm-admonitions](https://github.com/Helveg/jekyll-gfm-admonitions)
+- 更多写作规范见 [Jekyll 官方文档](https://jekyllrb.com/docs/posts/#creating-posts)
 
-Check out the [theme's docs](https://github.com/cotes2020/jekyll-theme-chirpy/wiki).
+---
 
-## Contributing
+## 主题与功能
 
-This repository is automatically updated with new releases from the theme repository. If you encounter any issues or want to contribute to its improvement, please visit the [theme repository][chirpy] to provide feedback.
+- 本站采用 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 主题，支持目录、PWA、评论、SEO 等功能
+- 主题官方文档详见 [Chirpy Wiki](https://github.com/cotes2020/jekyll-theme-chirpy/wiki)
+- 如需了解主题原版说明，见 [README_theme.md](README_theme.md)
 
-## License
+---
 
-This work is published under [MIT][mit] License.
+## 其它
 
-[gem]: https://rubygems.org/gems/jekyll-theme-chirpy
-[chirpy]: https://github.com/cotes2020/jekyll-theme-chirpy/
-[CD]: https://en.wikipedia.org/wiki/Continuous_deployment
-[mit]: https://github.com/cotes2020/chirpy-starter/blob/master/LICENSE
+- ToC 目录在页面较窄时会显示在顶部，宽屏时显示在右侧
+- 有问题欢迎 issue 或 PR

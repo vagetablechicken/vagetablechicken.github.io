@@ -1,15 +1,21 @@
 ---
-title: leetcode-roadmap
+title: LeetCode 整理题库
 date: 2021-03-22 20:15:54
 tags: [algo, leetcode]
 categories: [Algo]
 ---
 
+Leetcode题量很大，大部分重复度很高，听说过一些人在拼刷几千题，HR甚至把这个方式推荐给我，让我觉得匪夷所思。
+
+我觉得没什么意义。刷题的意义在于学习和掌握算法思想，而不是单纯的刷题数量。刷几千题的时间不如做点开源贡献，一样可以展示自己的能力，还能对社会有点帮助。要是刷个几千题，给后来人出个题库总结，也算是贡献。
+
 推荐站点：
 
-http://xiaoxumeng.com/category/leetcode/
+http://xiaoxumeng.com/category/leetcode/ (2026年确认已失效)
 
-https://codetop.cc/ 
+https://codetop.cc/ （2026年确认还在活跃）
+
+此文我会挑些我感兴趣的，或者我被面试/当面试官时遇到过的题目，做一些题解。不太会成系统，全面系统的还是推荐Grokking。
 
 # https://codetop.cc/ 微软
 
@@ -83,8 +89,6 @@ Parser/Interpreter实现这几条规则就可以了。
 如果dp公式有dp[i-2]，不要慌，dp[1]特殊处理后，dp[2]开始又可以通用处理了。
 
 ## [124. 二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/) 2021/03/26
-
-
 
 - [ ] wait zx
 

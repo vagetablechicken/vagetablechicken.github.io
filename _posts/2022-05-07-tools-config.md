@@ -18,7 +18,7 @@ pin: true
 
 VPN一般v2ray系列最好用。
 
-github repo clone走ssh通道，有时候走不通，具体错误比如，连不上github 22等。vpn默认只会代理http/https流量，ssh要单独配置ssh代理。有时候http也可能有问题，不过git config set http.proxy或https.proxy比较方便。
+github repo clone走ssh通道，有时候走不通，具体错误比如，连不上github 22等。vpn默认只会代理http/https流量，ssh要单独配置ssh代理。有时候http也可能需要明确set，git config set http.proxy或https.proxy比较方便，例子在下面。
 
 ```
 ssh: connect to host github.com port 22: Connection timed out
@@ -43,6 +43,14 @@ Host github.com
 
 10808是v2rayN的socks port，开v2rayN就会开启的，其他VPN看具体配置。Clash Verge端口默认是7897，混合端口。
 
+```bash
+# 如果没在git项目中，必须--global
+git config --global http.proxy 'http://127.0.0.1:10809'
+git config --global https.proxy 'http://127.0.0.1:10809'
+# 取消代理
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
 ## vim
 
 vim时用鼠标选择一段文本，可能进入VISUAL模式。VISUAL模式下的复制/粘贴/剪切得用`y`,`p`,`d`。注意，VISUAL模式下复制的文本，不会记录在剪贴板，只能在vim中使用，拷贝不出去。

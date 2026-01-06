@@ -3,7 +3,6 @@ title: 工具与软件配置
 date: 2022-05-07 10:00:00 +0800
 tags: [tools, config]
 categories: [Env, Tools, Cookbook]
-pin: true
 ---
 
 ## ShareX
@@ -96,62 +95,6 @@ nvm on
 npm i -g yarn
 ```
 
-## docker
-
-### 导入导出
-
-**千万不要用docker export/import**，大的image导入导出都慢的可怕。用save/load。
-
-### 换源
-
-配置换源是个非常重的操作，要重启docker。不是必须这么做，一般先考虑给pull的地址加镜像前缀，比如daocloud的，具体去搜。
-
-#### 配置换源
-
-就是`registry-mirrors`这个配置项。linux直接在 `/etc/docker/daemon.json`里改，mac/win可以在docker desktop设置里找到配置文件，也是一样的修改。
-
-```
-{
-    "registry-mirrors": [
-        "..."
-    ]
-}
-```
-
-重启后`docker info`可以查看。
-
-源的地址很容易失效，github有些项目会帮忙检查，即时去查一下，这里不提供了，以免失效。
-
-## tmux
-
-tmux如果另一个没退，就又attach，可能分辨率会用另一个的，就会右边下边出现很多点点。tmux命令`choose-client`，选择分辨率，选小的就能撑满屏幕。
-
-默认`choose-client`是shift-b，但我改了tmux的prefix，所以是ctrl-a，再shift-d。自己查自己tmux的keys，用`choose-client` bind的key。
-
-https://unix.stackexchange.com/a/174454 window name highlight
-
-tmux里zsh无法用home end键：zshrc更改配置可以绑键
-```
-#Rebind HOME and END to do the decent thing:
-bindkey '\e[1~' beginning-of-line
-bindkey '\e[4~' end-of-line
-case $TERM in (xterm*)
-bindkey '\eOH' beginning-of-line
-bindkey '\eOF' end-of-line
-esac
-
-#To discover what keycode is being sent, hit ^v
-#and then the key you want to test.
-
-#And DEL too, as well as PGDN and insert:
-bindkey '\e[3~' delete-char
-bindkey '\e[6~' end-of-history
-bindkey '\e[2~' redisplay
-
-#Now bind pgup to paste the last word of the last command,
-bindkey '\e[5~' insert-last-word
-```
-
 ## GO
 
 gvm来管理，但gvm要先下一个早期版本，才能去下一些高版本，依赖关系比较诡异，照着下面安装就行。
@@ -165,3 +108,11 @@ gvm install go1.17.13
 gvm use go1.17 --default # 可以就用17这个版本当默认版
 gvm install go1.21
 ```
+
+## 键盘改键
+
+rk61键盘配合mac使用，支持很差，还是需要改键。使用karabiner-element做改键。
+
+可以直接修改`~/.config/karabiner/karabiner.json`，注意里面的device是有vendor id和product id的，得填对，可以用karabiner直接查到。
+
+windows下改键，使用PowerToys的键盘管理器。

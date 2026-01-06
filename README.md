@@ -32,7 +32,7 @@
 
 - 文件命名格式：`YEAR-MONTH-DAY-title.MARKUP`
 - 文章资源建议放在 `/assets/` 或同名文件夹下
-- Admonition 语法见：[jekyll-gfm-admonitions](https://github.com/Helveg/jekyll-gfm-admonitions)
+- Admonition 语法见：[jekyll-gfm-admonitions](https://github.com/Helveg/jekyll-gfm-admonitions)——暂时没用
 - 更多写作规范见 [Jekyll 官方文档](https://jekyllrb.com/docs/posts/#creating-posts)
 
 ---
@@ -40,7 +40,8 @@
 ## 主题与功能
 
 - 本站采用 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 主题，支持目录、PWA、评论、SEO 等功能
-- 主题官方文档详见 [Chirpy Wiki](https://github.com/cotes2020/jekyll-theme-chirpy/wiki)
+	- 主题官方文档详见 [Chirpy Wiki](https://github.com/cotes2020/jekyll-theme-chirpy/wiki)
+	- 主题支持的语法见 [Chirpy 语法支持](https://github.com/cotes2020/jekyll-theme-chirpy/blob/master/_posts/2019-08-08-text-and-typography.md)，渲染效果见[Chirpy 演示](https://chirpy.cotes.page/posts/text-and-typography/)
 - 如需了解主题原版说明，见 [README_theme.md](README_theme.md)
 
 ---

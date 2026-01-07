@@ -50,7 +50,8 @@ git config --global https.proxy 'http://127.0.0.1:10809'
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
-## vim
+
+## Vim
 
 vim时用鼠标选择一段文本，可能进入VISUAL模式。VISUAL模式下的复制/粘贴/剪切得用`y`,`p`,`d`。注意，VISUAL模式下复制的文本，不会记录在剪贴板，只能在vim中使用，拷贝不出去。
 
@@ -84,7 +85,7 @@ vscode可能会自动带一些缓存，导致切换python路径总是失败，�
 
 ## npm
 
-如果目的是pnpm，不用单独下载npm，直接下载pnpm就行。 https://pnpm.io/zh/installation
+如果目的是pnpm，不用单独下载npm，直接下载[pnpm](https://pnpm.io/zh/installation)。
 
 如果是npm，下载nvm更合适管理node版本。
 ```bash
@@ -95,7 +96,7 @@ nvm on
 npm i -g yarn
 ```
 
-## GO
+## Go
 
 gvm来管理，但gvm要先下一个早期版本，才能去下一些高版本，依赖关系比较诡异，照着下面安装就行。
 ```bash

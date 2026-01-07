@@ -11,6 +11,8 @@ tags: [windows, wsl2, powershell, terminal]
 
 服务器主机安装时最好把BIOS的AC Recovery打开，防止系统崩溃后无法启动。
 
+EasyU PE环境，用WinNTSetup安装系统，GPT分区格式就要用UEFI装，具体来讲，引导驱动器选安装盘一个框里的esp分区（小的），efi part的那个灯要绿，黄的没必要装，引导不了，安装驱动器选要当系统盘的分区。
+
 ## Python
 
 windows python通过pip install是要现编译的，VS的编译输出是中文，terminal就显示乱码。需要win11打开”区域“，管理-更改系统区域设置，打开utf-8支持，就不会乱码了。但这么做，别的地方可能乱码，不是永久方案，需要用时打开一下。可以看下VS能不能改语言，不确定能不能解决。

@@ -83,6 +83,23 @@ uv推荐不要pip，而是直接安装在本地，即standalone模式，见[官�
 vscode可能会自动带一些缓存，导致切换python路径总是失败，具体可能：
 - uv python pin了不起作用，可能是vscode内存了`$env:UV_PYTHON`，一般先在普通shell里测试，避免vscode帮倒忙。
 
+#### 换源
+临时：
+```
+$env:UV_INDEX_URL = "https://pypi.tuna.tsinghua.edu.cn/simple"
+$env:UV_PYTHON_INSTALL_MIRROR = "https://python-standalone.org/mirror/astral-sh/python-build-standalone"
+
+export UV_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
+export UV_PYTHON_INSTALL_MIRROR="https://python-standalone.org/mirror/astral-sh/python-build-standalone"
+```
+
+个人PC等长期用的，写在uv.toml，windows路径`$env:APPDATA\uv\uv.toml`，linux路径`~/.config/uv/uv.toml`:
+```
+[[index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+```
+
 ## npm
 
 如果目的是pnpm，不用单独下载npm，直接下载[pnpm](https://pnpm.io/zh/installation)。

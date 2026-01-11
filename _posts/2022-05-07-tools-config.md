@@ -100,6 +100,14 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
 ```
 
+项目里pyproject.toml也能填，但不建议开源项目加，地域限制:
+```
+[[tool.uv.index]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+```
+
 ## npm
 
 如果目的是pnpm，不用单独下载npm，直接下载[pnpm](https://pnpm.io/zh/installation)。

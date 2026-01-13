@@ -142,3 +142,9 @@ rk61键盘配合mac使用，支持很差，还是需要改键。使用karabiner-
 可以直接修改`~/.config/karabiner/karabiner.json`，注意里面的device是有vendor id和product id的，得填对，可以用karabiner直接查到。
 
 windows下改键，使用PowerToys的键盘管理器。
+
+## Google账号
+
+Google账号注册多个时，可以通过手机验证跳过手机号绑定，但实际它还是建立了关联，只是没有把手机号显示在账号信息里。所以，注册账号超过一定数量后，Google会阻止手机设备继续辅助验证。
+
+Google新注册账号，网页上注册需要手机主动发验证码，+86一般发不了，安卓设备上用Google Play商店注册，手机上不需要发验证码，它可以自动从设备信息里获取验证。

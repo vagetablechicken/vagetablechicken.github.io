@@ -13,6 +13,10 @@ categories: [DevOps]
 
 Docker网络问题是最多的，本质上等于将调试时间从调试程序本身，转移到了调试网络配置上。
 
+### Docker pull
+
+无论是docker pull还是compose pull，都有可能vpn开了也不行。目前可行的方式是，vpn开TUN+全局代理，不用给docker加proxy重启。
+
 ### Docker compose 
 
 > docker compose 和 run 不一样！

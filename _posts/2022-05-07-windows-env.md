@@ -346,3 +346,5 @@ if __name__ == '__main__':
 ```
 
 Antigravity启动时确实会扫一遍所有terminal，包括powershell、cmd、wsl、git bash等，查版本之类的。确实比较大的可能是wsl的问题，wsl安装本来就是一堆bug，报`已退出进程，代码为1`的可能性也比较大。
+
+Google账号地区问题，看 https://policies.google.com/country-association-form ，填写表格申请更改账号国家地区。还是出现过美区账号也无法使用的情况，换个账号试就可以，全被锁概率上比较小，最好还是有个备用账号。

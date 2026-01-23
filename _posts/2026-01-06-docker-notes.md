@@ -15,7 +15,7 @@ Docker网络问题是最多的，本质上等于将调试时间从调试程序�
 
 ### Docker pull
 
-无论是docker pull还是compose pull，都有可能vpn开了也不行。目前可行的方式是，vpn开TUN+全局代理，不用给docker加proxy重启。
+无论是docker pull还是compose pull，都有可能vpn开了也不行。目前可行的方式是，不用给docker加proxy重启，vpn开TUN保证所有流量走代理，whitelist也跑通过，全局代理应该没啥影响，但如果非全局挂了，可以切全局试试。只动vpn的配置，不动docker的配置，避免vpn不稳定的时候又把docker卡住，导致每次要重启dockerd。
 
 ### Docker compose 
 

@@ -56,54 +56,70 @@ autosync脚本内容：
 #!/bin/bash
 
 # ==================== 配置项 ====================
-# 你的 Logseq 仓库在手机上的路径
 REPO_PATH="$HOME/storage/shared/Documents/logseq_storage"
-
-# 你的远程分支名称
 BRANCH_NAME="main"
 # ================================================
 
-# 1. 检查本地仓库路径是否存在
+# 1. 检查路径
 if [ ! -d "$REPO_PATH" ]; then
     echo "错误：找不到指定的仓库路径 -> $REPO_PATH"
-    echo "请检查："
-    echo "1. 路径拼写是否正确（Linux 对大小写敏感，请确认是 documents 还是 Documents）"
-    echo "2. 是否已在 Termux 中执行过 termux-setup-storage"
     exit 1
 fi
 
-# 进入仓库目录
 cd "$REPO_PATH" || exit 1
-
 echo "=== 开始 Android Termux 同步 Logseq: $(date +'%Y-%m-%d %H:%M:%S') ==="
 
-# 2. 拉取远程最新代码
+# 2. 检查本地是否有修改，有的话暂存 (Stash)
+HAS_LOCAL_CHANGES=false
+if [[ -n $(git status --porcelain) ]]; then
+    echo "检测到本地修改，正在执行暂存 (git stash)..."
+    # 必须加 -u 参数，否则 Logseq 新建的页面（未跟踪文件）不会被收录进去
+    git stash -u
+    HAS_LOCAL_CHANGES=true
+fi
+
+# 3. 拉取远程最新代码
 echo "正在拉取远端更新 (pull)..."
 if ! git pull --rebase origin "$BRANCH_NAME"; then
-    echo "警告：拉取失败，可能存在代码冲突或网络问题，请手动处理。"
+    echo "❌ 错误：拉取失败 (远端历史不兼容或网络问题)。"
+    # 如果 pull 失败了，尽量把刚才藏起来的代码还给你
+    if [ "$HAS_LOCAL_CHANGES" = true ]; then
+        echo "尝试恢复本地修改..."
+        git stash pop
+    fi
     exit 1
 fi
 
-# 3. 检查是否有未提交的本地修改
+# 4. 恢复本地修改 (如果之前有暂存)
+if [ "$HAS_LOCAL_CHANGES" = true ]; then
+    echo "正在恢复本地修改 (git stash pop)..."
+    if ! git stash pop; then
+        echo "========================================================"
+        echo "🚨 警告：恢复修改时发生冲突 (Merge Conflict)！"
+        echo "这说明你在手机和电脑上修改了同一个页面的同一行。"
+        echo "Git 已将冲突标记 (<<<<<<<) 写入笔记文件中。"
+        echo "👉 解决方法：直接打开 Logseq，找到那条笔记，手动删掉不需要的文本和乱码符号。"
+        echo "清理完毕后，再次运行本脚本即可完成推送。"
+        echo "========================================================"
+        exit 1
+    fi
+fi
+
+# 5. 提交并推送
 if [[ -n $(git status --porcelain) ]]; then
-    echo "检测到本地有修改，正在打包提交..."
-    
-    # 添加所有变动
+    echo "准备提交已合并的修改..."
     git add .
+    git commit -m "Android Termux sync: $(date +'%Y-%m-%d %H:%M:%S')"
     
-    # 提交改动，明确标注是 Android Termux 同步
-    git commit -m "Android Termux sync Logseq: $(date +'%Y-%m-%d %H:%M:%S')"
-    
-    # 推送到远程仓库
     echo "正在推送至远程仓库 (push)..."
     if git push origin "$BRANCH_NAME"; then
-        echo "=== 同步成功推送到远端 ==="
+        echo "=== 🎉 同步成功推送到远端 ==="
     else
-        echo "错误：推送失败，请检查网络或 Git 凭据是否有效。"
+        echo "❌ 错误：推送失败，请检查网络。"
         exit 1
     fi
 else
     echo "本地暂无需要提交的新修改。"
-    echo "=== 同步流程结束 ==="
+    echo "=== ✅ 同步流程结束 ==="
 fi
 ```

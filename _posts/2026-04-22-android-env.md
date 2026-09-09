@@ -34,6 +34,7 @@ source ~/.bashrc
 ```
 
 ```bash
+git config --global core.quotepath false # 文件使用中文名可以，但特殊符号最好不要用，不同平台支持不一样，可能会一个平台能拉一个平台拉不下来
 git config --global credential.helper store
 # 如果用错了，用git credential-cache exit忘记
 # pull等方式提醒输入用户名密码，我用gitlab，可以token配置，注意要带上code download权限

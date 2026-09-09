@@ -13,19 +13,34 @@ tags: [windows, wsl2, powershell, terminal]
 
 EasyU PE环境，用WinNTSetup安装系统，GPT分区格式就要用UEFI装，具体来讲，引导驱动器选安装盘一个框里的esp分区（小的），efi part的那个灯要绿，黄的没必要装，引导不了，安装驱动器选要当系统盘的分区。
 
+## Windows Server OS WLAN安装
+
+主板驱动下载后安装可能失败，“段落无效”。把WLAN Config功能打开，然后启动这个服务，最后安装WLAN驱动。
+
+```powershell
+dism /online /enable-feature /featurename:WirelessNetworking
+```
+
 ## Python
 
-windows python通过pip install是要现编译的，VS的编译输出是中文，terminal就显示乱码。需要win11打开”区域“，管理-更改系统区域设置，打开utf-8支持，就不会乱码了。但这么做，别的地方可能乱码，不是永久方案，需要用时打开一下。可以看下VS能不能改语言，不确定能不能解决。
+windows python通过pip install是要现编译的，VS的编译输出是中文，terminal就显示乱码。需要win11打开”区域“，管理-更改系统区域设置，打开utf-8支持，就不会乱码了。
+但这么做，别的地方可能乱码，不是永久方案，需要用时打开一下。
+
+可以看下VS能不能改语言，不确定能不能解决。
 
 windows装dlib用pip一般会报编译错误。`conda install -c conda-forge dlib`下载的依赖比较多，能安装成功。
 
-windows conda最麻烦的是scripts相关的，conda init得到的环境下conda命令实际是脚本，很多命令都没有。
+windows conda最麻烦的是scripts相关的，conda init得到的环境下conda命令实际是脚本，很多命令都没有。推荐用uv。
 
 ## WSL2+Docker
 
-注意windows的Docker Desktop不用wsl2就能跑，docker desktop自带一个轻量级linux内核，但如果有比较复杂的需求，还是建议直接上wsl2，比如：
+windows server先`wsl --install`后重启，再继续装ubuntu镜像。docker desktop engine可能起不来，可能是先装的docker，要先wsl再docker的顺序来。
 
-- gitlab image等对windows文件系统支持差，但如果用wsl2的ext4文件系统就没问题，也就是必须volume bind到wsl2的文件系统。
+注意windows的Docker Desktop不用wsl2就能跑，docker desktop自带一个轻量级linux内核， mount volume如果有chown和chmod问题，通过启动一个alpine来改一般能行。
+
+但有些更复杂的情况，还是建议直接上wsl2，比如：
+
+- gitlab image 等对 windows 文件系统支持差，用 wsl2 的 ext4 文件系统就没问题，也就是必须 mount volume 到wsl2的文件系统。
 
 简而言之，先装wsl2，要不要长期使用另说。
 
@@ -35,7 +50,10 @@ wsl --install -d Ubuntu
 
 网速正常的话，一般就安装好了。但有时候会卡在诡异的地方，wsl命令分几个版本，默认版本用起来很不顺手，但一般懒得重新下。通常是ubuntu镜像下了，wsl内核没下，多跑几下install命令，可能就好了。
 
-wsl涉及到使用ip就很麻烦，把这部分配置好，方便使用，见[gist](https://gist.github.com/vagetablechicken/1f30f57c178536aa6135ea06b33d66ec)。这部分配置只在2024年12月前测试过，后续windows更新可能会失效。
+wsl涉及到使用ip就很麻烦，把这部分配置好，方便使用，见[gist](https://gist.github.com/vagetablechicken/1f30f57c178536aa6135ea06b33d66ec)。
+这部分配置只在2024年12月前测试过，后续windows更新可能会失效。
+
+现在有WSL Settings可视化界面来配置，应该不需要wslconfig手写文件了。
 
 wsl2默认只有1个T，模型存的多就用完了，expand一下，不会重置环境，只需要shutdown一下，见[官方文档](https://learn.microsoft.com/en-us/windows/wsl/disk-space#how-to-expand-the-size-of-your-wsl-2-virtual-hard-disk)。
 
